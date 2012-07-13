@@ -1,0 +1,45 @@
+<?php
+module_load_include('inc', 'mt_exam','db_schema/db_schema_mcq_question_sheet');
+module_load_include('inc', 'mt_exam','db_schema/db_schema_mcq_answer_sheet');
+module_load_include('inc', 'mt_exam','db_schema/db_schema_mcq_validation_sheet');
+module_load_include('inc', 'mt_exam','db_schema/db_schema_mcq_test_profiles');
+/*
+ * implements hook_enable
+ */
+function mt_exam_enable(){
+    db_upload_from_csv('mt_exam', 'mt_codelist', 'mt_codelist', array('code_id','code'));
+}
+
+/*
+ * implements hook_enable
+ */
+function mt_exam_disable(){
+    db_delete_from_csv('mt_exam', 'mt_codelist', 'mt_codelist', array('sub_cat','code','name'));
+}
+
+
+/*
+ * implements hook_install
+ */
+function mt_exam_install(){
+    
+}
+
+/*
+ * implements hook_uninstall
+ */
+function mt_exam_uninstall(){
+    
+}
+
+/*
+ * implements hook_schema
+ */
+function mt_exam_schema(){
+    $schema=array();
+    get_schema_mcq_question_sheet($schema);
+    get_schema_mcq_answer_sheet($schema);
+    get_schema_mcq_validation_sheet($schema);
+    get_schema_mcq_test_profiles($schema);
+    return $schema;
+}

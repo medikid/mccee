@@ -1,0 +1,306 @@
+<?php
+define('MEMBER_REGISTRATION_LAST_STEP', 2);
+
+module_load_include('inc','mt_members','class_member');
+
+module_load_include('inc','mt_members','step1_create_account');
+module_load_include('inc','mt_members','step2_select_membership');
+module_load_include('inc','mt_members','next_step_button');
+module_load_include('inc','mt_members','prev_step_button');
+module_load_include('inc','mt_members','submit_button');
+
+//$_SESSION['member_registration']['current_step'] = 1;
+/**
+ * Implements hook_form_alter().
+ */
+function mt_members_form_alter(&$form, &$form_state, &$form_id) {
+	if($form_id=='user_register_form'){
+			
+		//initiate process from fist step
+		$current_step = empty($_SESSION['member_registration']['current_step']) ? 1 : $_SESSION['member_registration']['current_step'];
+        	$_SESSION['member_registration']['current_step'] = $current_step;
+
+                //if ajax is activated for buttons
+        	//if(isset($_REQUEST['_triggering_element_value'])){
+        	//	button_click_handler($form, $form_state);
+        	//}
+		
+		// Provide a wrapper around the entire form, since we'll replace the whole
+		// thing with each submit.
+		$form['#prefix'] = '<div id="user_register_form_wrapper">';
+		$form['#suffix'] = '</div>';
+		//$form['#tree'] = TRUE; // We want to deal with hierarchical form values.
+		
+		
+		mt_members_setup_forms($form, $form_state, $current_step);
+		mt_members_setup_buttons($form, $form_state, $current_step);
+		
+		unset($form['actions']['submit']);
+		unset($form['#submit']);
+		$form['#submit'][] = '_eventhandler_proceed_to_checkout';
+			
+
+		//echo "<pre>", print_r($_SESSION) , "</pre>";
+		return $form;
+	}
+
+	//dsm($form['storage']);
+	//return $form;
+  }
+  
+ //implements hook_simpletest
+ function mt_members_simpletest(){
+ 		$dir = drupal_get_path('module', 'mt_members') .'/tests';
+ 		$tests = file_scan_directory($dir, '\.test$');
+ 		return array_keys($tests); 	
+ }
+  
+  function mt_members_setup_forms(&$form, &$form_state, $current_step){
+  	switch($current_step){
+  		case 1:
+  			//module_load_include('inc','mt_members','step1_create_account');
+  			setup_create_account_form($form, $form_state);
+  			break;
+  		case 2:  			
+  			//module_load_include('inc','mt_members','step2_select_membership');
+  			setup_select_membership_form($form, $form_state);
+  			break;
+  	}
+  }
+  
+  function mt_members_setup_buttons(&$form, &$form_state, $current_step){
+  	 
+  	if ($current_step < MEMBER_REGISTRATION_LAST_STEP){
+  		//module_load_include('inc','mt_members','next_step_button');
+  	 	setup_nextstep_button($form, $form_state);
+  	 	unset($form['actions']['submit']);
+  	 }
+  	 
+  	 if($current_step > 1){
+  	 	//module_load_include('inc','mt_members','prev_step_button');
+  	 	setup_prevstep_button($form, $form_state);
+  	 }
+  	 
+  	 if ($current_step == MEMBER_REGISTRATION_LAST_STEP){
+  	 	//module_load_include('inc','mt_members','submit_button');
+                //module_load_include('inc','mt_members','prev_step_button');
+  	 	setup_submit_button($form, $form_state);
+  	 	if (isset($form['#submit'])) { array_unshift($form['#submit'], '_eventhandler_proceed_to_checkout'); }
+  	 }
+  }
+  
+  function button_click_handler(&$form, &$form_state){
+      if (isset($form_state['input']['op'])){
+         switch($form_state['input']['op']){
+            case 'Create User Account':
+                _eventhandler_create_user_account($form, $form_state);
+                break;
+            case 'Proceed To Payment':
+                _eventhandler_proceed_to_checkout($form, $form_state);
+                break;
+         }
+          
+      } elseif (isset($form_state['triggering_element']['#value'])){
+          
+        switch($form_state['triggering_element']['#value']){
+            case 'Next Step':
+                    _eventhandler_next_button($form, $form_state);
+                    break;
+            case 'Previous Step':
+                    _eventhandler_prev_button($form, $form_state);
+                    break;
+            }
+  	
+     }
+  
+  }
+  
+  function ajax_form_navigation_callback(&$form, &$form_state){
+      button_click_handler($form, $form_state);
+      mt_members_form_alter($form, $form_state, $form_id);
+      return $form;
+  }
+  
+  function _eventhandler_proceed_to_checkout($form, &$form_state){
+   
+  	$membership_id = (int)$form_state['input']['membership_type'];
+        $new_member = new member();
+  	$new_member->load_new_member_from_session();
+  	
+  	$new_user = create_new_user($form, $form_state);
+  	
+  	if($new_user){
+  	
+  	
+  	//$package_id = $new_member->mem_type;
+  	//$package = eiab_packages($package_id);
+  
+  	// Run it now so we can get the roles.
+  	//autoassignrole_user('insert', $form_state['values'], $user, NULL);
+  
+  	// Store submitted form information.
+  
+  	//uc_cart_remove_item($package_id);
+     
+        $membership_nid = get_nid_by_membership_type($membership_id);
+  	uc_cart_add_item($membership_nid,1,NULL,NULL,FALSE);
+  
+  	drupal_goto('cart/');
+  	} else dsm('sorry, user not created');
+  
+  }
+
+  //implements hook_order
+  function multiform_form_user_register_order($op, &$order, $arg = NULL) {
+  	if ($op == 'update') {
+  		// Retrieve submitted user form.
+  		$user_info = $_SESSION['membership_registration']['new_member'];
+  
+  		if ($user_info && $order->order_status == 'in_checkout') {
+  			$user_values = $user_info['values'];
+  			$user_values['checkout_pending'] = TRUE;
+  			$user = user_save(NULL, $user_values);
+  
+  			db_query("UPDATE {uc_orders} SET primary_email = '%s', uid = %d WHERE order_id = %d", $user->mail, $user->uid, $order->order_id);
+  			unset($_SESSION['user_info']);
+  
+  			// Update order object.
+  			$order->uid = $user->uid;
+  
+  			watchdog('user', 'New user created: @user', array('@user' => $user->name), WATCHDOG_INFO);
+  		}
+  
+  		if ($arg == 'completed') {
+  			$user = user_load($order->uid);
+  
+  			if ($user && $company_user->status == 0 && $user->checkout_pending) {
+  				$pass = user_password();
+  				user_save($user, array('status' => 1, 'checkout_pending' => NULL, 'pass' => $pass));
+  				$user->password = $pass; // Mail token.
+  
+  				_user_mail_notify('register_no_approval_required', $user);
+  			}
+  		}
+  	}
+  }
+  
+  function disable_validation(&$form, &$form_state)
+  {
+  	unset($form['#validate']);
+  }
+  
+  function disable_original_submit_button(&$form, &$form_state, $new_submit_handler)
+  {
+  	unset($form['#submit']);
+  	$form['#submit'][] = $new_submit_handler;
+  }
+  
+  function _eventhandler_create_user_account(&$form, &$form_state){
+      save_step2_form_to_session($form, $form_state);
+      
+      $newest_member= create_new_user($form, $form_state);
+      if ($newest_member){         
+      $message = 'New user account has been created and an email sent to '.
+                $newest_member->mail
+                .'. Please follow the link provided on the email to approve the account and set password.';
+       
+      unset($_SESSION['member_registration']);
+      } else $message = 'Sorry, unable to create the user account. Plese contact Site Administration through Contact Us form';
+  
+      drupal_set_message($message, 'status');
+  }
+  
+  function create_new_user(&$form, &$form_state){
+    	$new_user_info = get_user_creation_args($form, $form_state);
+  	$is_created_user = user_save(NULL, $new_user_info);
+        
+        $new_member_info = get_member_creation_args($form, $form_state);
+        $new_member_info['uid']= (int)$is_created_user->uid;
+        create_new_member($new_member_info);
+  	return $is_created_user;
+  }
+  
+  function get_user_creation_args(&$form, &$form_state){
+  	$new_member = new member();
+  	$new_member->load_new_member_from_session();
+  	$user_creation_args = array(
+  	'is_new' => TRUE,
+  	'status' => TRUE,
+  	'name' => $new_member->name,
+  	'pass' => (empty($new_member->pass) || !isset($new_member->pass)) ? user_password() : $new_member->pass,
+  	'mail' => $new_member->mail,
+  	'init' => $new_member->mail,
+  	'roles' => array(2=>'authenticated user')
+  	);
+  	
+  	return $user_creation_args;  
+  }
+  
+  function get_member_creation_args(&$form, &$form_state){
+      $new_member = new member();
+  	$new_member->load_new_member_from_session();
+        
+       $member_creation_args = array(
+                      'first_name' => $new_member->first_name,
+                      'last_name'=> $new_member->last_name,
+                      'membership_type'=>(int)$new_member->membership_type,
+                   //    'parked_user_reason'=>0,
+                      'aspiring_exam_can'=>(int)$new_member->aspiring_exam_can,
+                   //    'aspiring_exam_us'=> 0,
+                   //    'aspiring_exam_uk'=> 0,
+                   //    'aspiring_exam_au'=> 0,
+                      'reg_date'=> REQUEST_TIME,
+                      'reg_expiry'=>set_membership_duration((int)$new_member->membership_type),
+                      'opt_newsletter'=>(int)$new_member->opt_newsletter,
+                   //    'account_status'=>1,
+                    //   'account_susp'=>0,
+                    //   'payment_status'=>0,
+                    //   'payment_id'=>0                      
+                  );
+       
+       return $member_creation_args;      
+  }
+  
+  function create_new_member($member_creation_args){
+    try {
+      $insert_member = db_insert('mt_members')
+        ->fields($member_creation_args)
+              ->execute();
+       }
+    catch (Exception $e) {
+        echo 'Caught exception: ',  $e->getMessage(), "\n";
+       }
+  }
+  
+  function set_membership_duration($membership_type){
+      
+      $expiry_date = REQUEST_TIME;
+      
+      switch($membership_type){
+          case 0:
+             $expiry_date = mktime(date('H'), date('i'), date('s'), date('m'), date('d')+1, date('Y'));
+              break;
+          case 1 || 2:
+              $expiry_date = mktime(date('H'), date('i'), date('s'), date('m'), date('d')+15, date('Y'));
+              break;
+          case 3 || 4:
+              $expiry_date = mktime(date('H'), date('i'), date('s'), date('m')+1, date('d'), date('Y'));
+              break;
+          case 5 || 6:
+              $expiry_date = mktime(date('H'), date('i'), date('s'), date('m')+2, date('d'), date('Y'));
+              break;
+          case 7 || 8:
+              $expiry_date = mktime(date('H'), date('i'), date('s'), date('m')+3, date('d'), date('Y'));
+              break;
+          case 9:
+              $expiry_date = mktime(date('H'), date('i'), date('s'), date('m')+6, date('d'), date('Y'));
+              break;
+          case 10:
+              $expiry_date = mktime(date('H'), date('i'), date('s'), date('m'), date('d'), date('Y')+1);
+              break;
+          default :
+              $expiry_date = mktime(date('H'), date('i'), date('s'), date('m'), date('d')+1, date('Y'));
+              break;          
+      }
+      return $expiry_date;
+  }

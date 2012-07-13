@@ -1,0 +1,4 @@
+code_id,cat,sub_cat,name,sub_name,code,sub_code,code_dependency,sub_code_dependency,disabled,date_disabled
+NULL,mt_members,aspiring_exam_can,MCCEE (Canada Step 1),default,1,1,NULL,NULL,NULL,NULL
+NULL,mt_members,aspiring_exam_can,MCCQE1 (Canada Step 2),,2,,NULL,NULL,NULL,NULL
+NULL,mt_members,aspiring_exam_can,MCCQE2 (Canada Step 3),,3,,NULL,NULL,NULL,NULL

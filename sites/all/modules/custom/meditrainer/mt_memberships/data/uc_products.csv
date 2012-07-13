@@ -1,0 +1,13 @@
+vid,nid,model,list_price,cost,sell_price,weight,weight_units,length,width,height,length_units,pkg_qty,default_qty,unique_hash,ordering,shippable
+NULL,1,0,0,0,0,0,lb,0,0,0,in,1,1,7d01fd7a57296b0edebfd87527052448,0,0
+NULL,2,1,0,0,10,0,lb,0,0,0,in,1,1,802f9f8ab2d099779c681510d2259356,0,0
+NULL,3,2,0,0,15,0,lb,0,0,0,in,1,1,795d74b0e58edc2e814bacb9c4c861c0,0,0
+NULL,4,3,0,0,15,0,lb,0,0,0,in,1,1,2a418711f6fd87021b25a865179465a5,0,0
+NULL,5,4,0,0,22.5,0,lb,0,0,0,in,1,1,d1687bc38406739d0f636b24e4707bb0,0,0
+NULL,6,4,0,0,22.5,0,lb,0,0,0,in,1,1,2dda367f8a36035eebbf6095cb9e3fc5,0,0
+NULL,7,5,0,0,25,0,lb,0,0,0,in,1,1,7a2a9a43ae84848ae6d3d546c062f5db,0,0
+NULL,8,6,0,0,37.5,0,lb,0,0,0,in,1,1,aaf4c37dff2ed978cd2bcdfb86207a5f,0,0
+NULL,9,7,0,0,40,0,lb,0,0,0,in,1,1,0b408349b4c214f2d596c210aff1d686,0,0
+NULL,10,8,0,0,60,0,lb,0,0,0,in,1,1,8e8aaa3013858c0519ca901028fa3b19,0,0
+NULL,11,9,0,0,100,0,lb,0,0,0,in,1,1,bba0822d2659ed62814ccfee00b3afa8,0,0
+NULL,12,10,0,0,150,0,lb,0,0,0,in,1,1,d82721a8f1f6a9f8900852720283d865,0,0

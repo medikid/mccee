@@ -1,0 +1,13 @@
+rpid,pfid,nid,model,rid,start_override,start_time,end_override,end_time,duration,granularity,shippable,by_quantity
+NULL,12,1,0,7,0,0,1,0,1,day,0,0
+NULL,11,2,1,5,0,0,1,0,15,day,0,0
+NULL,10,3,2,6,0,0,1,0,15,day,0,0
+NULL,9,4,3,5,0,0,1,0,1,month,0,0
+NULL,8,5,4,6,0,0,1,0,1,month,0,0
+NULL,7,6,4,6,0,0,1,0,1,month,0,0
+NULL,6,7,5,5,0,0,1,0,2,month,0,0
+NULL,5,8,6,6,0,0,1,0,2,month,0,0
+NULL,4,9,7,5,0,0,1,0,3,month,0,0
+NULL,3,10,8,6,0,0,1,0,3,month,0,0
+NULL,2,11,9,6,0,0,1,0,6,month,0,0
+NULL,1,12,10,6,0,0,1,0,1,year,0,0

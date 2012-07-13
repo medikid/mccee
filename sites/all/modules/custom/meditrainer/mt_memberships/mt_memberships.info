@@ -1,0 +1,7 @@
+name = Memberships
+description = Meditrainer membership management module
+core = 7.x
+package = MediTrainer
+files[] = mt_memberships.module
+files[] = mt_memberships.install
+dependencies[] = mt_core

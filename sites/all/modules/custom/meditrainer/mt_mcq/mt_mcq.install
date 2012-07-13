@@ -1,0 +1,45 @@
+<?php
+module_load_include('inc', 'mt_mcq','db_schema/db_schema_mcq_question_bank');
+module_load_include('inc', 'mt_mcq','db_schema/db_schema_mcq_answer_bank');
+/*
+ * implements hook_enable
+ */
+function mt_mcq_enable(){
+    db_upload_from_csv('mt_mcq','node_type', 'node_type', array());
+    db_upload_from_csv('mt_mcq','mt_codelist', 'mt_codelist', array('code_id', 'code'));
+    
+    //hide autonode_title and autogenerate
+    variable_set('ant_mcq',1);
+}
+
+/*
+ * implements hook_disable
+ */
+function mt_mcq_disable(){
+    db_delete_from_csv('mt_mcq','node_type', 'node_type', array('name','base','module'));
+    db_delete_from_csv('mt_mcq','mt_codelist', 'mt_codelist', array('sub_cat', 'name', 'code'));
+}
+
+/*
+ * implements hook_install
+ */
+function mt_mcq_install(){
+    
+}
+
+/*
+ * implements hook_uninstall
+ */
+function mt_mcq_uninstall(){
+    
+}
+
+/*
+ * implements hook_schema
+ */
+function mt_mcq_schema(){
+    $schema=array();
+    get_schema_mcq_question_bank($schema);
+    get_schema_mcq_answer_bank($schema);
+    return $schema;
+}

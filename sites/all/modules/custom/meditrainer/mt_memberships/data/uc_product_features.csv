@@ -1,0 +1,13 @@
+pfid,nid,fid,description
+NULL,1,role,<strong>SKU:</strong> 0<br /><strong>Role:</strong> free trial user<br /><strong>Expiration:</strong> 1 day(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,2,role,<strong>SKU:</strong> 1<br /><strong>Role:</strong> regular user<br /><strong>Expiration:</strong> 15 day(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,3,role,<strong>SKU:</strong> 2<br /><strong>Role:</strong> premium user<br /><strong>Expiration:</strong> 15 day(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,4,role,<strong>SKU:</strong> 3<br /><strong>Role:</strong> regular user<br /><strong>Expiration:</strong> 1 month(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,5,role,<strong>SKU:</strong> 4<br /><strong>Role:</strong> premium user<br /><strong>Expiration:</strong> 1 month(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,6,role,<strong>SKU:</strong> 4<br /><strong>Role:</strong> premium user<br /><strong>Expiration:</strong> 1 month(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,7,role,<strong>SKU:</strong> 5<br /><strong>Role:</strong> regular user<br /><strong>Expiration:</strong> 2 month(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,8,role,<strong>SKU:</strong> 6<br /><strong>Role:</strong> premium user<br /><strong>Expiration:</strong> 2 month(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,9,role,<strong>SKU:</strong> 7<br /><strong>Role:</strong> regular user<br /><strong>Expiration:</strong> 3 month(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,10,role,<strong>SKU:</strong> 8<br /><strong>Role:</strong> premium user<br /><strong>Expiration:</strong> 3 month(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,11,role,<strong>SKU:</strong> 9<br /><strong>Role:</strong> premium user<br /><strong>Expiration:</strong> 6 month(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No
+NULL,12,role,<strong>SKU:</strong> 10<br /><strong>Role:</strong> premium user<br /><strong>Expiration:</strong> 1 year(s)<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No

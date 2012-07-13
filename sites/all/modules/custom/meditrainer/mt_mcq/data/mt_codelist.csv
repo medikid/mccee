@@ -1,0 +1,51 @@
+code_id,cat,sub_cat,name,sub_name,code,sub_code,code_dependency,sub_code_dependency,disabled,date_disabled
+NULL,MCQ,speciality,None,,0,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,General Medicine,,1,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,General Surgery,,2,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,Obstetrics and Gynaecology,,3,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,Orthopedics,,4,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,Pedatrics,,5,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,Psychiatry,,6,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,ENT,,7,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,Opthalmology,,8,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,Dermatology,,9,,NULL,NULL,NULL,NULL
+NULL,MCQ,speciality,Community Medicine,,10,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,None,,0,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Anesthesia and Perioperative Medicine,,1,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Cardiology and Cardiovascular Surgery,,2,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Clinical Pharmacology,,3,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Dermatology,,4,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Diagnostic Medical Imaging,,5,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Emergency Medicine,,6,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Endocrinology,,7,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,"Ethical, Legal and Organizational Aspects of Medicine",,8,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Gastroenterology,,9,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,General Surgery,,10,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Geriatric Medicine,,11,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Gynecology,,12,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Hematology,,13,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Infectious Diseases,,14,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Nephrology,,15,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Neurosurgery,,16,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Obstetrics,,17,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Ophthalmology,,18,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Orthopaedics,,19,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Otolaryngology - Head and Neck Surgery,,20,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Pediatrics,,21,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Plastic Surgery,,22,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Population and Community Health,,23,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Psychiatry,,24,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Respirology,,25,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Rheumatology,,26,,NULL,NULL,NULL,NULL
+NULL,MCQ,sub_speciality,Urology,,27,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,0,,0,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,1,,1,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,2,,2,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,3,,3,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,4,,4,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,5,,5,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,6,,6,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,7,,7,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,8,,8,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,9,,9,,NULL,NULL,NULL,NULL
+NULL,MCQ,rating,10,,10,,NULL,NULL,NULL,NULL

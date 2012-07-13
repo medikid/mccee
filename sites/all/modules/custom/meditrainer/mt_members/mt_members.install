@@ -1,0 +1,17 @@
+<?php
+
+/*
+ * implements hook_enable
+ */
+function mt_members_enable(){
+    
+    db_upload_from_csv('mt_members','mt_codelist', 'mt_codelist', array());
+    
+}
+
+/*
+ * implements hook_disable
+ */
+function mt_members_disable(){
+    db_delete_from_csv('mt_members','mt_codelist', 'mt_codelist', array('sub_cat','name','code'));
+}

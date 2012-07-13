@@ -1,0 +1,51 @@
+<?php
+
+module_load_include('inc', 'mt_core','db_schema/db_schema_mt_codelist');
+module_load_include('inc', 'mt_core','db_schema/db_schema_mt_members');
+
+/*
+ * implements hook_enable
+ */
+function mt_core_enable(){
+     db_upload_from_csv('mt_core','field_group', 'field_group', array('data'));
+    db_upload_from_csv('mt_core','mt_codelist', 'mt_codelist', array());
+}
+
+/*
+ * implements hook_disable
+ */
+function mt_core_disable(){
+    db_delete_from_csv('mt_core', 'field_group', 'field_group', array('identifier','group_name'));
+}
+
+
+
+/**
+ * Implements hook_install().
+ */
+function mt_core_install() {
+  
+    //drupal_install_schema('mt_core');  
+   
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function mt_core_uninstall() {
+    //drupal_uninstall_schema('mt_core');
+    
+}
+
+
+/**
+ * Implements hook_schema().
+ */
+function mt_core_schema() {
+    
+    $schema=array();
+    get_schema_mt_codelist($schema);
+    get_schema_mt_members($schema);
+    return $schema;
+
+}

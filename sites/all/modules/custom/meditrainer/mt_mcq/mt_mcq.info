@@ -1,0 +1,9 @@
+name = MCQ
+description = MCQ module for creating MCQ Question Bank database
+package = MediTrainer
+core = 7.x
+files[] = mt_mcq.install
+files[] = mt_mcq.module
+
+dependencies[] = mt_memberships
+

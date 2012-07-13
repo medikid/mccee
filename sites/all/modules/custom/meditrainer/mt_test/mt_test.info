@@ -1,0 +1,6 @@
+name = Test
+description = MCQ Exam module for creating MCQ Test Paper
+package = MediTrainer
+core = 7.x
+files[] = mt_test.module
+

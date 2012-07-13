@@ -1,0 +1,172 @@
+<?php
+module_load_include('inc','mt_core','codelist');
+
+function get_csv_data_filepath($module_name, $table_name){
+        $file_path = drupal_get_path('module', $module_name) . "/data/" . $table_name . ".csv";
+        return $file_path;
+    }
+    
+ 
+function get_db_schema($table_name){
+        $table_schema=array();
+        
+        $schema_requested = drupal_get_schema($table_name);
+       if ($schema_requested != NULL)  {
+           $schema_fields = $schema_requested['fields'];
+           foreach($schema_fields as $key=>$value){
+               $table_schema[$table_name][$key] = $value['type'];
+           }
+       }   
+        return $table_schema;
+}
+
+ function match_header_with_db_fields($table_name, $headers){
+        $table_schema = get_db_schema($table_name);
+        $match = true;
+       
+        if(count($table_schema[$table_name])!= count($headers)){
+            $match = false;
+        }
+        
+        $column_index=0;
+        foreach($table_schema[$table_name] as $key=>$value){
+          if($key != trim($headers[$column_index])){
+            $match = false;
+          }
+          $column_index++;
+        }
+       return $match;
+    }
+    
+    function is_string_type($vartype){
+        $DB_STRING_TYPES = array('text','varchar','char','tinytext','mediumtext','longtext');
+        $is_string_type = in_array($vartype, $DB_STRING_TYPES);
+     return $is_string_type;
+    }
+    
+    /*
+     * next available index id for a table
+     */
+    function next_available_index($table_name, $primary_key){
+        $query = 'SELECT coalesce( max( `' . $primary_key . '` ) +1, 1 ) AS ID FROM `' . $table_name . '`';
+        $result = db_query($query);
+        
+        foreach ($result as $next_index) {
+            $next_id = $next_index->ID;
+            }
+        return $next_id;
+    }
+    
+    /*
+     * load and return data entries from the CSV file
+     */
+  function load_csv($table_name, $file_path){
+    $records = file($file_path);
+    $headers = explode(',', $records[0]);
+    $row_index = 0;
+    foreach ($records as $line) {
+        $data[$table_name][$row_index] = explode(',', $line);
+        $row_index++;
+    }
+
+    for ($row = 1; $row < count($data[$table_name]); $row++) {
+      $row_data = $data[$table_name][$row];
+        for ($column = 0; $column < count($row_data); $column++) {
+            //replace string null to NULL value
+            $table_data[$table_name][$row][trim($headers[$column])] = trim($row_data[$column])=="NULL" ? NULL : $row_data[$column];
+        }
+    }    
+    return $table_data;        
+    }
+
+/*
+ * upload csv entries into db
+ */    
+function db_upload_from_csv($module_name, $table_name, $csv_file_name, $non_string_fields=array()){
+    $TABLE_NAME = $table_name;
+    $CSV_FILE_NAME = $csv_file_name;
+    $NON_STRING_FIELDS = $non_string_fields;
+    $FIELD_NAMES_ARRAY = array();
+    $FIELD_NAMES = "";
+    $VALUES = "";
+    $row = 0;
+
+    $records = file(drupal_get_path('module', $module_name) . "/data/" . $CSV_FILE_NAME . ".csv");
+    foreach ($records as $line) {
+        $record = csv_row_to_array($line);
+        if ($row == 0) {
+            foreach ($record as $i => $value) {
+                $FIELD_NAMES_ARRAY[$i] = trim($value);
+                $FIELD_NAMES .= $i == 0 ? "`" . trim($value) . "`" : ", `" . trim($value) . "`";
+            }
+        } else {
+
+            foreach ($record as $i => $val) {
+                if (in_array($FIELD_NAMES_ARRAY[$i], $NON_STRING_FIELDS)){
+                    $VALUES .= $i == 0 ? ' '.$val : ', '.$val;
+                   
+                } elseif (trim($val) == "NULL"){
+                    $VALUES .= $i == 0 ? ' NULL' : ', NULL';
+                }else {
+                    $VALUES .= $i == 0 ? "'$val'" : ", '$val'";
+                }
+            }
+
+            $sql = "INSERT INTO `" . $TABLE_NAME . "` (" . $FIELD_NAMES . ") VALUE (" . $VALUES . ") ";
+
+            db_query($sql);
+
+            //reset VALUES
+            $VALUES = "";
+        }
+        $row++;
+    }
+}
+
+
+/*
+ * deletes matching CSV entries from database
+ */
+function db_delete_from_csv($module_name, $table_name, $csv_file_name, $filter_by=array(), $use_db_query=TRUE){
+    $TABLE_NAME = $table_name;
+    $CSV_FILE_NAME = $csv_file_name;
+    $FILTER_BY = $filter_by;
+    $FIELD_NAMES_ARRAY = array();
+    $FIELD_NAMES = "";
+    $VALUES = "";
+    $row = 0;
+
+    $records = file(drupal_get_path('module', $module_name) . "/data/" . $CSV_FILE_NAME . ".csv");
+    foreach ($records as $line) {
+        $record = csv_row_to_array($line);
+        if ($row == 0) {
+            foreach ($record as $i => $value) {
+                $FIELD_NAMES_ARRAY[$i] = trim($value);
+                $FIELD_NAMES .= $i == 0 ? "`" . trim($value) . "`" : ", `" . trim($value) . "`";
+            }
+        } else {
+
+            $db_delete = db_delete($TABLE_NAME);
+            
+            foreach ($record as $column => $val) {
+                if (in_array($FIELD_NAMES_ARRAY[$column], $FILTER_BY)){
+                    $db_delete->condition($FIELD_NAMES_ARRAY[$column], $val);
+                } 
+            }
+
+               $db_delete->execute();
+
+        }
+        $row++;
+    }
+}
+
+/*
+ * this function escapse 'comma' when the CSV row is exploded by ,
+ * eg 'dataa , datab' is kept intact, is not split if cell has comma
+ */
+function csv_row_to_array($row_data) {
+    $expr = "/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/";
+    $results = preg_split($expr, trim($row_data));
+    return preg_replace("/^\"(.*)\"$/", "$1", $results);
+}

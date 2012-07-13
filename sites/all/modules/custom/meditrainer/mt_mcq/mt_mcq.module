@@ -1,0 +1,294 @@
+<?php
+module_load_include('inc', 'mt_mcq','mcq_node_setup');
+module_load_include('inc', 'mt_mcq','mcq_add_form');
+module_load_include('inc', 'mt_mcq','class_mcq');
+
+/*
+ * implments hook_menu
+ */
+function mt_mcq_menu(){
+    $items=array();
+    
+    $items['mcq/import'] = array(
+    'title' => 'Import Question Bank',
+    'description' => 'Import MQC Question Bank.',
+    'file'=>'mcq_import_form.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' =>array('mcq_import_form'),
+    'access arguments' => array(true),
+     //   'type' => MENU_CALLBACK,
+    );
+    
+    $items['mcq/manage'] = array(
+    'title' => 'Administer Question Bank',
+    'description' => 'Administer MQC Question Bank.',
+    'file'=>'mcq_manage_form.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' =>array('mcq_manage_form'),
+    'access arguments' => array(true),
+     //   'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+
+
+/*
+ * implements hook_form_alter
+ */
+function mt_mcq_form_alter(&$form, &$form_state, &$form_id){
+   //$form_node=$form['#node'];
+    if(!empty($form['#node_edit_form'])){ //&& $form_node->type=='mcq'){
+            
+        setup_mcq_add_form($form, $form_state);
+    }
+}
+
+
+
+/*
+ * implements hook_node_insert()
+ * function gets called at the time of node insert into the db
+ * all mcq fields are added to the node object, hence into the db
+ */
+function mt_mcq_node_insert($node){
+    if($node->type == 'mcq' && isset($node->question_text)){
+        $qid =db_insert('mcq_question_bank')
+            ->fields(array(
+            'qid'=>NULL,
+            'nid'=>$node->nid,
+            'vid'=>$node->vid,
+            'question_text'=>$node->question_text,
+            'choice_a'=>$node->choice_a,
+            'choice_b'=>$node->choice_b,
+            'choice_c'=>$node->choice_c,
+            'choice_d'=>$node->choice_d,
+            'choice_e'=>$node->choice_e,
+            'speciality'=>$node->speciality,
+            'sub_speciality'=>$node->sub_speciality
+                ))
+          ->execute();
+        
+        db_insert('mcq_answer_bank')
+        ->fields(array(
+            'qid'=>$qid,
+        //    'answer'=>get_answerbox_checked($node),
+            'rating'=>$node->rating,
+            'notes'=>$node->notes
+        ))
+        ->execute();
+           
+        dsm('A new question with qid of '.$qid.' and nid of '.$node->nid.'has been added');
+    }
+}
+
+/*
+ * implements hook_node_update
+ * same as hook_node_insert, except that it checks if node entry alredy present
+ */
+function mt_mcq_node_update($node){
+    if(db_query('SELECT qid FROM {mcq_question_bank} WHERE nid=:nid', array(':nid'=>$node->nid))->fetchfield()){
+        db_update('mcq_question_bank')
+        ->fields(array(
+            'nid'=>$node->nid,
+            'vid'=>$node->vid,
+            'question_text'=>$node->question_text,
+            'choice_a'=>$node->choice_a,
+            'choice_b'=>$node->choice_b,
+            'choice_c'=>$node->choice_c,
+            'choice_d'=>$node->choice_d,
+            'choice_e'=>$node->choice_e,
+            'speciality'=>$node->speciality,
+            'sub_speciality'=>$node->sub_speciality
+            ))
+            ->condition('nid',$node->nid)
+            ->execute();
+        
+        db_update('mcq_answer_bank')
+        ->fields(array(
+         //   'answer'=>get_answerbox_checked($node),
+            'rating'=>$node->rating,
+            'notes'=>$node->notes
+             ))
+             ->condition('qid',get_qid_by_nid($node->nid))
+            ->execute();
+        
+        dsm('Updated existing question with qid of'.$node->qid.'and nid of'.$node->nid);
+    } else mt_mcq_node_insert($node);
+}
+
+/*
+ * implements hook_node_delete
+ * function is called at the time of node entry
+ */
+function mt_mcq_node_delete($node){
+    $qid=get_qid_by_nid($node->nid);
+    
+    db_delete('mcq_question_bank')
+    ->condition('qid', $qid)
+            ->execute();
+    
+    db_delete('mcq_answer_bank')
+    ->condition('qid', $qid)
+            ->execute();
+}
+
+/*
+ * implements hook_node_load
+ * gets called when the node is loaded into memory
+ * we are attaching all the mcq fields to the node object
+ */
+function mt_mcq_node_load($nodes, $types){
+    foreach($nodes as $node){
+        if($node->type=='mcq') {
+            $node = mcq_load_node_by_nid($node);
+        }
+           
+    }
+}
+
+function get_mcq_node_by_qid($qid){
+    $node = new stdClass();
+    $node->type = 'mcq';
+
+    node_object_prepare($node);
+    $node->nid = get_nid_by_qid($qid);
+
+    mcq_load_node_by_nid($node);
+
+    return $node;
+}
+
+
+/*
+ * implements hook_node_view
+ */
+function mt_mcq_node_view($node, $view_mode, $langcode){
+   
+  //  if($node->question_text !=''){
+   //  $node->content('mcq')=array(
+    //       '#question_text'=>$node->question_text,
+    //       '#choice_a'=>$node->choice_a,
+     //     '#choie_b'=>$node->choice_b
+      // );
+ //   }
+}
+
+function get_qid_by_nid($nid){
+    $qid=db_query('SELECT qid FROM {mcq_question_bank} WHERE nid IN(:nids)', array(':nids'=>$nid))->fetchField();
+
+    return $qid;
+}
+
+
+function get_nid_by_qid($qid){
+    $nid=db_query('SELECT nid FROM {mcq_question_bank} WHERE qid IN(:qids)', array(':qids'=>$qid))->fetchField();
+
+    return nid;
+}
+/*
+function set_node_answer(&$node, $answer){
+    switch($answer){
+        case 'a':
+            $node->answer_a = 1;
+            $node->answer_b = 0;
+            $node->answer_c = 0;
+            $node->answer_d = 0;
+            $node->answer_e = 0;
+            break;
+        case 'b':
+            $node->answer_a = 0;
+            $node->answer_b = 1;
+            $node->answer_c = 0;
+            $node->answer_d = 0;
+            $node->answer_e = 0;
+            break;
+        case 'c':
+           $node->answer_a = 0;
+            $node->answer_b = 0;
+            $node->answer_c = 1;
+            $node->answer_d = 0;
+            $node->answer_e = 0;
+            break;
+        case 'd':
+            $node->answer_a = 0;
+            $node->answer_b = 0;
+            $node->answer_c = 0;
+            $node->answer_d = 1;
+            $node->answer_e = 0;
+            break;
+        case 'e':
+            $node->answer_a = 0;
+            $node->answer_b = 0;
+            $node->answer_c = 0;
+            $node->answer_d = 0;
+            $node->answer_e = 1;
+            break;
+    }
+}
+*/
+/*
+ * checks answer box checked
+ */
+/*
+function get_answerbox_checked($node){
+ $answer_checked=NULL;
+ 
+ if($node->answer_a==1){
+     if ($answer_checked==NULL){
+         $answer_checked='a';
+     } else dsm('Multiple answers have been selected. Please check'); 
+ }
+ 
+ if($node->answer_b==1){
+     if ($answer_checked==NULL){
+         $answer_checked='b';
+     } else dsm('Multiple answers have been selected. Please check'); 
+ }
+ 
+if($node->answer_c==1){
+     if ($answer_checked==NULL){
+         $answer_checked='c';
+     } else dsm('Multiple answers have been selected. Please check'); 
+ }
+ 
+ if($node->answer_d==1){
+     if ($answer_checked==NULL){
+         $answer_checked='d';
+     } else dsm('Multiple answers have been selected. Please check'); 
+ }
+ 
+ if($node->answer_e==1){
+     if ($answer_checked==NULL){
+         $answer_checked='e';
+     } else dsm('Multiple answers have been selected. Please check'); 
+ }
+    
+    return $answer_checked;
+}
+*/
+function mcq_load_node_by_nid(&$node){
+    $query = db_select('mcq_question_bank','q');
+    $query->join('mcq_answer_bank','a', 'q.qid=a.qid');
+    $query->fields('q', array('qid','nid','vid','question_text','choice_a', 'choice_b', 'choice_c', 'choice_d', 'choice_e', 'speciality', 'sub_speciality'));
+    $query->fields('a', array('answer','notes','rating'));
+    $query->condition('q.nid',$node->nid);
+    $result = $query->execute();
+    foreach($result as $row){
+        
+        $node->qid = $row->qid;
+        $node->question_text = $row->question_text;
+        $node->choice_a = $row->choice_a;
+        $node->choice_b = $row->choice_b;
+        $node->choice_c = $row->choice_c;
+        $node->choice_d = $row->choice_d;
+        $node->choice_e = $row->choice_e;
+        $node->speciality = $row->speciality;
+        $node->sub_speciality = $row->sub_speciality;
+        $node->answer = $row->answer;
+        $node->notes = $row->notes;
+        $node->rating = $row->rating;
+    }
+    
+    return $node;
+}

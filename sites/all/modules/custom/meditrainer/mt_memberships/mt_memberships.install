@@ -1,0 +1,24 @@
+<?php
+module_load_include('inc', 'mt_memberships','setup_memberships');
+
+
+/*
+ * implements hook_enable
+ */
+function mt_memberships_enable(){
+    
+    setup_membership_class();
+    setup_roles();
+    setup_roles_and_memberships();
+    codelist_sync_membership_nid();
+    
+}
+
+/*
+ * implements hook_disable
+ */
+function mt_memberships_disable(){
+    delete_membership_class();
+    delete_roles();
+    delete_roles_and_memberships();
+}

@@ -1,0 +1,13 @@
+nid,vid,type,language,title,uid,status,created,changed,comment,promote,sticky,tnid,translate
+NULL,1,membership,und,Free Trial User - 1 Day,1,1,1328608968,1328608968,1,1,0,0,0
+NULL,2,membership,und,Regular User - 15 Days,1,1,1328609081,1328609081,1,1,0,0,0
+NULL,3,membership,und,Premium User - 15 Days,1,1,1328609140,1328609140,1,1,0,0,0
+NULL,4,membership,und,Regular User - 1 Month,1,1,1328609201,1328609201,1,1,0,0,0
+NULL,5,membership,und,Premium User - 1 Month,1,1,1328609231,1328609231,1,1,0,0,0
+NULL,6,membership,und,Premium User - 1 Month,1,1,1328609279,1328609279,1,1,0,0,0
+NULL,7,membership,und,Regular User - 2 Months,1,1,1328609312,1328609312,1,1,0,0,0
+NULL,8,membership,und,Premium User - 2 Months,1,1,1328609348,1328609348,1,1,0,0,0
+NULL,9,membership,und,Regular User - 3 Months,1,1,1328609410,1328609410,1,1,0,0,0
+NULL,10,membership,und,Premium User - 3 Months,1,1,1328609454,1328609454,1,1,0,0,0
+NULL,11,membership,und,Premium User - 6 Months,1,1,1328609491,1328609491,1,1,0,0,0
+NULL,12,membership,und,Premium User - 1 Year,1,1,1328609519,1328609519,1,1,0,0,0

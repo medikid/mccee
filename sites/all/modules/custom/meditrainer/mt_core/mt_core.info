@@ -1,0 +1,7 @@
+name = Core
+description = Core module for MediTrainer website
+package = MediTrainer
+core = 7.x
+files[] = mt_core.install
+files[] = mt_core.module
+

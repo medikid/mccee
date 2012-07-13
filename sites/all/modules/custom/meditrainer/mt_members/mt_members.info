@@ -1,0 +1,11 @@
+name = Members
+description = Customized Registration Form with Muti-Page feature.
+package = MediTrainer
+core = 7.x
+files[] = mt_members.module
+dependencies[] = mt_memberships
+dependencies[] = uc_cart
+dependencies[] = uc_order
+dependencies[] = uc_roles
+dependencies[] = field_group
+dependencies[] = ctools

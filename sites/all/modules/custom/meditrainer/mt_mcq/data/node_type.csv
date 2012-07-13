@@ -1,0 +1,2 @@
+type,name,base,module,description,help,has_title,title_label,custom,modified,locked,disabled,orig_type
+mcq,MCQ,node_content,node,MCQ node type - relates to MCQ Question type with deafault 5 answer choices,,1,AutoTitle,1,1,0,0,mcq

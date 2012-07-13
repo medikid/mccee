@@ -1,0 +1,2 @@
+type,name,base,module,description,help,has_title,title_label,custom,modified,locked,disabled,orig_type
+membership,Membership,uc_product,uc_product,Site Subscription Memberships,,1,Name,0,1,0,0,membership

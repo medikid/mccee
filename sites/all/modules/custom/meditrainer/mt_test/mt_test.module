@@ -1,0 +1,77 @@
+<?php
+
+function mt_test_menu(){
+    $items=array();
+    $items['ajax_example_form'] = array(
+    'title' => 'Ajax Example',
+    'description' => 'Ajax Example.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' =>array('ajax_example_form'),
+    'access arguments' => array(true),
+     //   'type' => MENU_CALLBACK,
+    );
+    
+    return $items;
+}
+
+function ajax_example_form($form, &$form_state) {
+
+ 
+$form['ask_first_name'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Ask me my first name'),
+    '#ajax' => array(
+      'callback' => 'ajax_example_autotextfields_callback',
+      'wrapper' => 'textfields',
+      'effect' => 'fade',
+    )
+  );
+  $form['ask_last_name'] = array(
+   '#type' => 'checkbox',
+   '#title' => t('Ask me my last name'),
+    '#ajax' => array(
+      'callback' => 'ajax_example_autotextfields_callback',
+      'wrapper' => 'textfields',
+      'effect' => 'fade',
+
+    ),
+  );
+
+ 
+$form['textfields'] = array(
+    '#title' => t("Generated text fields for first and last name"),
+    '#prefix' => '<div id="textfields">',
+    '#suffix' => '</div>',
+    '#type' => 'fieldset',
+    '#description' => t('This is where we put automatically generated textfields'),
+  );
+
+   if (!empty(
+$form_state['values']['ask_first_name']) && $form_state['values']['ask_first_name']) {
+    $form['textfields']['first_name'] = array(
+      '#type' => 'radios',
+      '#title' => t('First Names'),
+        '#options'=>array(1=>'one',2=>'two')
+    );
+  }
+  if (!empty($form_state['values']['ask_last_name']) && $form_state['values']['ask_last_name']) {
+    $form['textfields']['last_name'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Last Names'),
+        '#options'=>array(1=>'one',2=>'two')
+    );
+  }
+
+ 
+$form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Click Me'),
+  );
+
+  return $form;
+}
+
+
+function ajax_example_autotextfields_callback($form, $form_state) {
+  return $form['textfields'];
+}

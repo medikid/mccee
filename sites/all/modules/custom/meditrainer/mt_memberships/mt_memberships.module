@@ -1,0 +1,69 @@
+<?php
+
+
+function mt_memberships_form_alter(&$form, &$form_state, &$form_id) {
+	if ($form_id == 'uc_cart_checkout_form'){
+            //print_r($_SESSION);
+            $fn = $form['panes']['billing']['address']['#default_value'];
+            $form['panes']['customer']['primary_email']['#default_value']=$_SESSION['member_registration']['new_member']['mail'];
+            $fn->billing_first_name =$_SESSION['member_registration']['new_member']['first_name'];
+            $fn->billing_last_name=$_SESSION['member_registration']['new_member']['last_name'];
+            //$form['panes']['billing']['billing_first_name']='first name';
+            //echo '<pre>', print_r($form['panes']['customer']['primary_email']),'</    pre>';
+        }
+}
+/**
+     *  phpunit-skelgen --codelist
+     *  phpunit-skelgen --test
+     *  @assert (4) == 8
+     *  @assert (8)== 12
+     * @param type $membership_type
+     * @return type 
+     */
+    function get_nid_by_membership_type($membership_type){
+        $sub_cat_var = 'membership_type';
+        $sub_name_var = 'nid';
+        $code_var = $membership_type;        
+    
+       $query = db_select('mt_codelist', 'c')
+                ->fields('c', array('code_id', 'name', 'code', 'sub_name', 'sub_code'))
+                ->condition('sub_cat',$sub_cat_var)
+                ->condition('sub_name',$sub_name_var)
+                ->condition('code',$code_var)
+                ->execute();
+
+        foreach($query as $result){
+            $requested_nid=$result->sub_code;
+        } 
+     
+        return $requested_nid;
+    }
+    
+    
+    function codelist_sync_membership_nid(){
+        $query = db_select('node', 'n');
+        $query->join('mt_codelist', 'c', 'n.title = c.name');
+        $result = $query->fields('n', array('nid', 'title', 'type'))
+                ->fields('c', array('code_id', 'name', 'code', 'sub_name', 'sub_code'))
+                ->condition('n.type', 'membership', '=')
+                ->condition('c.sub_name', 'nid', '=')
+                ->execute();
+
+        $mismatches = array();
+        foreach ($result as $row) {
+
+            if ($row->nid != $row->sub_code) {
+                $mismatches[] = array('code_id' => $row->code_id, 'nid' => $row->nid, 'sub_code' => $row->sub_code);
+            }
+        }
+
+        foreach ($mismatches as $index => $mismatch) {
+            $fix_mismatch = db_update('mt_codelist')
+                    ->fields(array('sub_code' => $mismatch['nid']))
+                    ->condition('sub_code', $mismatch['sub_code'], '=')
+                    ->condition('code_id', $mismatch['code_id'], '=')
+                    ->execute();
+         }
+
+    }
+

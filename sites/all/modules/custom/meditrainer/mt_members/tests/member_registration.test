@@ -1,0 +1,40 @@
+<?php
+
+class member_registration_test extends DrupalWebTestCase {
+	
+	/**
+	 * Drupal SimpleTest method: return metadata about the test.
+	 */
+	function get_info() {
+		return array(
+				'name'  => t('Member Registration'),
+				'desc'  => t('Executes test suite for Member Registration module.'),
+				'group' => t('Member Registration module'),
+		);
+	}
+	
+	function setUp(){
+		parent::setUp('member_registration');
+	}
+	
+	
+	// enter some data on Step1(Create User Account form and click Next button to save data to sessino
+	function test_save_step1_reg_form_to_session(){
+		
+		
+		$edit = array();
+		$edit['first_name']= $this->randomName(8);
+		$edit['last_name']=$this->randomName(8);
+		$edit['opt_newsletter']=0;
+		$edit['name']= $this->randomName(8);
+		$edit['mail']= 'bhavana.kempanna@yahoo.com';
+
+		$this->drupalPost('user/register', $edit, 'Next Step');
+		$this->assertEqual($edit['name'], $_SESSION['member_registration']['new_member']['name']);
+		
+	}
+	
+	
+	
+	
+}
