@@ -1,0 +1,4 @@
+<?php
+module_load_include('inc','mt_notes','mt_notes_admin_menu');
+
+?>

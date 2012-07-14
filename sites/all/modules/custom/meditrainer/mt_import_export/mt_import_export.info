@@ -1,0 +1,7 @@
+name = Import/Export
+description = Module for importing and exporting Meditrainer data
+package = MediTrainer
+core = 7.x
+files[] = mt_import_export.install
+files[] = mt_import_export.module
+dependencies[] = mt_core

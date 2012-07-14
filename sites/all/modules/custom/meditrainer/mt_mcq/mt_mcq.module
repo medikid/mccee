@@ -2,34 +2,8 @@
 module_load_include('inc', 'mt_mcq','mcq_node_setup');
 module_load_include('inc', 'mt_mcq','mcq_add_form');
 module_load_include('inc', 'mt_mcq','class_mcq');
+module_load_include('inc', 'mt_mcq','mt_mcq_admin_menu');
 
-/*
- * implments hook_menu
- */
-function mt_mcq_menu(){
-    $items=array();
-    
-    $items['mcq/import'] = array(
-    'title' => 'Import Question Bank',
-    'description' => 'Import MQC Question Bank.',
-    'file'=>'mcq_import_form.inc',
-    'page callback' => 'drupal_get_form',
-    'page arguments' =>array('mcq_import_form'),
-    'access arguments' => array(true),
-     //   'type' => MENU_CALLBACK,
-    );
-    
-    $items['mcq/manage'] = array(
-    'title' => 'Administer Question Bank',
-    'description' => 'Administer MQC Question Bank.',
-    'file'=>'mcq_manage_form.inc',
-    'page callback' => 'drupal_get_form',
-    'page arguments' =>array('mcq_manage_form'),
-    'access arguments' => array(true),
-     //   'type' => MENU_CALLBACK,
-    );
-    return $items;
-}
 
 
 

@@ -7,7 +7,7 @@ module_load_include('inc', 'mt_core','db_schema/db_schema_mt_members');
  * implements hook_enable
  */
 function mt_core_enable(){
-     db_upload_from_csv('mt_core','field_group', 'field_group', array('data'));
+    db_upload_from_csv('mt_core','field_group', 'field_group', array('data'));
     db_upload_from_csv('mt_core','mt_codelist', 'mt_codelist', array());
 }
 

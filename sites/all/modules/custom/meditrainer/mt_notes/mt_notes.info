@@ -1,0 +1,7 @@
+name = Notes
+description = Meditrainer Notes using book module
+package = MediTrainer
+core = 7.x
+files[] = mt_notes.module
+files[] = mt_notes.install
+dependencies[] = book

@@ -1,0 +1,20 @@
+<?php
+module_load_include('inc', 'mt_notes','setup_notes');
+
+
+/*
+ * implements hook_enable
+ */
+function mt_notes_enable(){
+    
+   
+    
+}
+
+/*
+ * implements hook_disable
+ */
+function mt_notes_disable(){
+    
+    
+}

@@ -1,5 +1,6 @@
 <?php
 
+module_load_include('inc','mt_memberships','mt_memberships_admin_menu');
 
 function mt_memberships_form_alter(&$form, &$form_state, &$form_id) {
 	if ($form_id == 'uc_cart_checkout_form'){

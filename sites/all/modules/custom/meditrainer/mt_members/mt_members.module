@@ -8,6 +8,8 @@ module_load_include('inc','mt_members','step2_select_membership');
 module_load_include('inc','mt_members','next_step_button');
 module_load_include('inc','mt_members','prev_step_button');
 module_load_include('inc','mt_members','submit_button');
+module_load_include('inc','mt_members','mt_members_admin_menu');
+
 
 //$_SESSION['member_registration']['current_step'] = 1;
 /**

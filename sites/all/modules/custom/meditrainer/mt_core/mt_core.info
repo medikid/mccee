@@ -4,4 +4,5 @@ package = MediTrainer
 core = 7.x
 files[] = mt_core.install
 files[] = mt_core.module
+files[] = functions_menu.inc
 
