@@ -1,0 +1,99 @@
+name = Meditrainer
+description = Install standard Drupal Website with Meditrainer MCQ Test features.
+version = VERSION
+core = 7.x
+
+dependencies[] = block
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = color
+dependencies[] = options
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = comment
+dependencies[] = image
+dependencies[] = contextual
+dependencies[] = dashboard
+dependencies[] = dblog
+dependencies[] = user
+dependencies[] = text
+dependencies[] = system
+dependencies[] = taxonomy
+
+
+dependencies[] = list
+dependencies[] = number
+dependencies[] = field_ui
+    
+
+dependencies[] = help
+dependencies[] = overlay
+dependencies[] = path
+dependencies[] = rdf
+dependencies[] = search
+dependencies[] = shortcut
+dependencies[] = trigger
+dependencies[] = update
+    
+
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = admin_devel
+    
+
+dependencies[] = auto_nodetitle
+    
+
+dependencies[] = ctools
+
+
+dependencies[] = devel
+dependencies[] = devel_node_access
+    
+
+dependencies[] = entity
+dependencies[] = entity_token
+
+dependencies[] = field_group
+    
+
+dependencies[] = module_filter
+
+dependencies[] = rules
+dependencies[] = rules_scheduler
+
+dependencies[] = schema
+
+dependencies[] = uc_authorizenet
+dependencies[] = test_gateway
+dependencies[] = uc_credit
+dependencies[] = uc_payment
+dependencies[] = uc_payment_pack
+dependencies[] = uc_paypal
+dependencies[] = uc_attribute
+dependencies[] = uc_cart
+dependencies[] = uc_cart_links
+dependencies[] = uc_order
+dependencies[] = uc_product
+dependencies[] = uc_roles
+dependencies[] = uc_store
+    
+dependencies[] = views
+dependencies[] = views_ui
+dependencies[] = views_bulk_operations
+
+dependencies[] = mt_core
+dependencies[] = mt_memberships
+dependencies[] = mt_members
+//dependencies[] = mt_mcq
+//dependencies[] = mt_exam
+
+files[] = meditrainer.profile
+
+; Information added by drupal.org packaging script on 2012-02-01
+version = "7.12"
+project = "drupal"
+datestamp = "1328134560"
+
