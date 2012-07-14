@@ -139,6 +139,16 @@ function meditrainer_install() {
       'cache' => -1,
     ),
     array(
+      'module' => 'book',
+      'delta' => 'navigation',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'sidebar_first',
+      'pages' => '',
+      'cache' => -1,
+    ),  
+    array(
       'module' => 'search',
       'delta' => 'form',
       'theme' => $default_theme,

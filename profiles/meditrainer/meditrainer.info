@@ -4,6 +4,8 @@ version = VERSION
 core = 7.x
 
 dependencies[] = block
+dependencies[] = book
+dependencies[] = ckeditor
 dependencies[] = field
 dependencies[] = field_sql_storage
 dependencies[] = color
@@ -87,8 +89,10 @@ dependencies[] = views_bulk_operations
 dependencies[] = mt_core
 dependencies[] = mt_memberships
 dependencies[] = mt_members
-//dependencies[] = mt_mcq
-//dependencies[] = mt_exam
+dependencies[] = mt_mcq
+dependencies[] = mt_exam
+dependencies[] = mt_notes
+dependencies[] = mt_import_export
 
 files[] = meditrainer.profile
 

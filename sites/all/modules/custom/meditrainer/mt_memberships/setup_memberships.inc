@@ -194,4 +194,9 @@
         }
         
         return $csv_role_decode;        
-    }  
+    }
+    
+    function activate_payment_gateway($payment_gateway_name, $activate_yn){
+     $gateway_variable = 'uc_payment_method_'. $payment_gateway_name .'_checkout';
+        variable_set($gateway_variable, $activate_yn);
+    }
