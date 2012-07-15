@@ -6,23 +6,13 @@
  */
 
 function get_db_export_form(){
-    return drupal_get_form('export_form');
+    return drupal_get_form('db_export_form');
 }
 
  function db_export_form(){
-     $form['folder_name'] = array(
-         '#type'=>'textfield',
-         '#title' => 'Folder Name:'
-     );
-     
-     $form['file_name'] = array(
-         '#type'=>'textfield',
-         '#title' => 'File Name:'
-     );
-     
      $form['table_or_object'] = array(
             '#type' => 'radios',
-            '#title' => t('Table OR Object:'),
+            '#title' => t('Export:'),
             '#options' => array(
             1 => t('Table'),
             2 => t('Object'),
@@ -39,7 +29,11 @@ function get_db_export_form(){
                 1 => t('nodes'),
                 2 => t('mt_codelist'),
             ),
-            '#default_value' => $category['selected']
+         '#states' => array(
+      // Hide the settings when the cancel notify checkbox is disabled.
+      'invisible' => array(
+       ':input[name="table_or_object"]' => array('value' => 2)
+          ))
      );
      
      $form['object_name'] = array(
@@ -50,8 +44,25 @@ function get_db_export_form(){
                 1 => t('mcq'),
                 2 => t('book'),
             ),
-            '#default_value' => $category['selected']
+         '#states' => array(
+      // Hide the settings when the cancel notify checkbox is disabled.
+      'invisible' => array(
+       ':input[name="table_or_object"]' => array('value' => 1)
+          ))
      );
+     
+     $form['folder_name'] = array(
+         '#type'=>'textfield',
+         '#title' => 'Folder Name:'
+     );
+     
+     $form['file_name'] = array(
+         '#type'=>'textfield',
+         '#title' => 'File Name:',
+         '#default_value' => $form_state['values']['object_name']
+
+     );
+     
      
      $form['submit'] = array(
          '#type'=>'submit',
