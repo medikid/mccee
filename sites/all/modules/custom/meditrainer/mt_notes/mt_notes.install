@@ -7,7 +7,7 @@ module_load_include('inc', 'mt_notes','setup_notes');
  */
 function mt_notes_enable(){
     
-   
+    db_upload_from_csv('mt_notes', 'mt_codelist', 'mt_codelist', array('code_id','code'));
     
 }
 
@@ -16,5 +16,19 @@ function mt_notes_enable(){
  */
 function mt_notes_disable(){
     
+    db_delete_from_csv('mt_notes', 'mt_codelist', 'mt_codelist', array('sub_cat','code','name'));
+}
+
+/*
+ * implements hook_install
+ */
+function mt_notes_install(){
+    
+}
+
+/*
+ * implements hook_uninstall
+ */
+function mt_notes_uninstall(){
     
 }

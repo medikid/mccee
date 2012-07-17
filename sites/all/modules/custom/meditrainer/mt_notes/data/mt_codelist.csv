@@ -1,0 +1,31 @@
+code_id,cat,sub_cat,name,sub_name,code,sub_code,code_dependency,sub_code_dependency,disabled,date_disabled
+NULL,mt_notes,name_book,Meditrainer Notes,code_book,0,MTN,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,"Ethical, Legal and Organizational Aspects of medicine",code_chapter,1,ELOM,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Anesthesia and Perioperative Medicine,code_chapter,2,A,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Cardiology and Cardiovascular Surgery,code_chapter,3,C,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Clinical Pharmacology,code_chapter,4,CP,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Dermatology,code_chapter,5,D,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Diagnostic Medical Imaging,code_chapter,6,DM,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Emergency Medicine,code_chapter,7,ER,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Endocrinology,code_chapter,8,E,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Family Medicine,code_chapter,9,FM,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Gastroenterology,code_chapter,10,G,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,General Surgery,code_chapter,11,GS,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Geriatric Medicine,code_chapter,12,GM,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Gynecology,code_chapter,13,GY,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Hematology,code_chapter,14,H,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Infectious Diseases,code_chapter,15,ID,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Nephrology,code_chapter,16,NP,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Neurology,code_chapter,17,N,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Neurosurgery,code_chapter,18,NS,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Obstetrics,code_chapter,19,OB,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Ophthalmology,code_chapter,20,OP,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Orthopaedics,code_chapter,21,OR,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Otolaryngology - Head and Neck Surgery,code_chapter,22,OT,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Pediatrics,code_chapter,23,P,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Plastic Surgery,code_chapter,24,PL,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Population and Community Health,code_chapter,25,PH,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Psychiatry,code_chapter,26,PS,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Respirology,code_chapter,27,R,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Rheumatology,code_chapter,28,RH,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_chapter,Urology,code_chapter,29,U,NULL,NULL,NULL,NULL

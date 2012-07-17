@@ -53,12 +53,14 @@ function get_var_name( &$var, $scope=false, $prefix='UNIQUE', $suffix='VARIABLE'
 
     
     function decode($var_name, $code){
-        $query = 'SELECT * FROM `mt_code_list` WHERE `sub_cat` = '.$varname.' AND `code` = $code';
-        $result = db_query($query);
-        // Result is returned as a iterable object that returns a stdClass object on each iteration
-        foreach ($result as $record) {
-        $this->load($record);
-        }
+      $results = db_select('mt_codelist', 'cl')
+                ->fields('cl')
+                ->condition('sub_cat', $var_name)
+                ->condition('code', $code)
+                ->execute()
+                ->fetchAssoc();
+        
+        return $results;
     }
     
     function get_dropdown($varname){

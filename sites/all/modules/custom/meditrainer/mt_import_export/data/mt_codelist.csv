@@ -1,0 +1,12 @@
+code_id,cat,sub_cat,name,sub_name,code,sub_code,code_dependency,sub_code_dependency,disabled,date_disabled
+NULL,import_export,object_name,Select Object to export,,0,,NULL,NULL,NULL,NULL
+NULL,import_export,object_name,mcq,,1,,NULL,NULL,NULL,NULL
+NULL,import_export,object_name,book,,2,,NULL,NULL,NULL,NULL
+NULL,import_export,object_name,members,,3,,NULL,NULL,NULL,NULL
+NULL,import_export,db_table_name,Select Table to export,,0,,NULL,NULL,NULL,NULL
+NULL,import_export,db_table_name,mt_codelist,,1,,NULL,NULL,NULL,NULL
+NULL,import_export,db_table_name,mt_members,,2,,NULL,NULL,NULL,NULL
+NULL,import_export,db_table_name,mt_mcq_question_bank,,3,,NULL,NULL,NULL,NULL
+NULL,import_export,db_table_name,mt_mcq_answer_bank,,4,,NULL,NULL,NULL,NULL
+NULL,import_export,db_table_name,mt_mcq_question_sheet,,5,,NULL,NULL,NULL,NULL
+NULL,import_export,db_table_name,mt_mcq_answer_sheet,,6,,NULL,NULL,NULL,NULL

@@ -4,6 +4,7 @@
  * implements hook_enable
  */
 function mt_import_export_enable(){
+    db_upload_from_csv('mt_import_export', 'mt_codelist', 'mt_codelist', array('code_id','code'));
     
 }
 
@@ -11,7 +12,7 @@ function mt_import_export_enable(){
  * implements hook_disable
  */
 function mt_import_export_disable(){
-    
+     db_delete_from_csv('mt_import_export', 'mt_codelist', 'mt_codelist', array('sub_cat','code','name'));
 }
 
 /*

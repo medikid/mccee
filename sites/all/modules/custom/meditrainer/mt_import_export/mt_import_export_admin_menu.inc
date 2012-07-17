@@ -24,7 +24,7 @@ function mt_import_export_menu(){
         'title' => 'Export',
         'description' => 'description',
         'page callback' => 'drupal_get_form',
-        'page arguments' => array('get_db_export_form'),
+        'page arguments' => array('db_export_form'),
         'access arguments' => array('Export tables or objects'),
         );
         

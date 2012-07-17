@@ -27,7 +27,57 @@ fclose($fp);
 
  * 
  */
+function mt_import_export_file_download($uri){
+    //use build_url and get_download_url($uri) into 
+    $files = file_load_multiple(array(), array('uri' => $uri));
+  if (count($files)) {
+    foreach ($files as $item) {
+      // Since some database servers sometimes use a case-insensitive comparison
+      // by default, double check that the filename is an exact match.
+      if ($item->uri === $uri) {
+        $file = $item;
+        break;
+      }
+    }
+  }
+  if (!isset($file)) {
+    return;
+  }
 
+  // File was found, and access is granted, return the header
+  $headers = file_get_content_headers($file);
+  return $headers;
+}
+
+function get_date_slash_timestamp(){
+    return date('Ymd/Hi');
+}
+
+function get_import_export_folder_name($import_export_type){
+    switch($import_export_type){
+        case 'import':
+            $import_folder_name = 'import'.'/'.get_date_slash_timestamp().'/';
+            return $import_folder_name;
+            break;
+        case 'export':
+            $export_folder_name = 'export'.'/'.get_date_slash_timestamp().'/';
+            return $export_folder_name;
+            break;
+        case 'backup':
+            $backup_folder_name = 'backup'.'/'.get_date_slash_timestamp().'/';
+            return $backup_folder_name;
+            break;
+    }
+}
+
+
+
+function get_export_file_path($file_name, $export_folder_name){
+    $data_folder = get_data_folderpath('mt_import_export');
+    $complete_file_path = $data_folder."".$export_folder_name."".$file_name;
+    return $complete_file_path;
+}
+    
 function table_export($table_name, $fields_array = false, $condition_array = false) {
     $query = db_select($table_name, 'n');
     
@@ -86,7 +136,6 @@ function export_csv(&$handle, $fields = array(), $delimiter = ',', $enclosure = 
   }
 */
 
-
   function export_to_csv(&$handle, $fields = array(), $delimiter = ',', $enclosure = '"') {
     $str = '';
     $escape_char = '\\';
@@ -127,5 +176,13 @@ function export_csv(&$handle, $fields = array(), $delimiter = ',', $enclosure = 
   }
   
   
-  
+function table_export_to_csv($table_name, &$file_handle, $fields_array = false, $condition_array = false, $delimiter = ',', $enclosure = '"'){
+    
+    $data_array = table_export_to_csv($table_name, $fields_array, $condition_array);
+    
+    $csv = export_to_csv($file_handle, $data_array, $delimiter, $enclosure);
+    
+    return $csv;
+}
+ 
 ?>
