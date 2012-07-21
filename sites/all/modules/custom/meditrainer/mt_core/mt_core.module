@@ -12,13 +12,25 @@ function get_csv_data_filepath($module_name, $table_name){
 * returns sites/modules/sites/all/custom/module_name/data
 */
  function get_data_folderpath($module_name){
-        $data_folder_path = drupal_get_path('module', $module_name) . "/data/";
+     $module_path = get_relative_module_path($module_name);   
+     $data_folder_path = $module_path . "/data/";
         return $data_folder_path;
     }
  
+  function get_relative_module_path($module_name){
+      $module_path = drupal_get_path('module', $module_name);
+      return $module_path;
+  }
+  
+  function get_absolute_module_path($module_name){
+      $relative_module_path = get_relative_module_path($module_name);  
+      $absolute_module_path = get_absolute_path($relative_module_path);
+      return $absolute_module_path;
+  }
+    
  function create_folder($relative_folder_path){
      $created_folder = false;
-     $absolute_folder_path = get_absolute_folder_path($relative_folder_path);
+     $absolute_folder_path = get_absolute_path($relative_folder_path);
      if (is_folder_exist($relative_folder_path) == false){
          mkdir($absolute_folder_path, 0777, true);
          $created_folder = true;
@@ -27,7 +39,7 @@ function get_csv_data_filepath($module_name, $table_name){
  }
  
  function is_folder_exist($relative_folder_path){
-     $absolute_folder_path = get_absolute_folder_path($relative_folder_path);
+     $absolute_folder_path = get_absolute_path($relative_folder_path);
      $is_exist = false;
      if (is_dir($absolute_folder_path)){
          $is_exist = true;
@@ -35,17 +47,46 @@ function get_csv_data_filepath($module_name, $table_name){
      return $is_exist;
  }
  
- function get_absolute_folder_path($relative_folder_path){
+ function get_absolute_path($relative_path){
      $site_path = get_absolute_site_path();
-     $absolute_folder_path = $site_path ."".$relative_folder_path;
+     $absolute_folder_path = $site_path ."".$relative_path;
      return $absolute_folder_path;
  }
  
+ function get_relative_folder_path($module_name, $folder_name = NULL, $subfolder_name = NULL){
+    $path = get_relative_module_path($module_name);
+    if ($folder_name != NULL){
+        $path = $path ."/".$folder_name ;
+    }
+    
+    if ($subfolder_name != NULL){
+        $path = $path ."/". $subfolder_name;
+    }
+    return $path;
+}
+
+function get_absolute_folder_path($module_name, $folder_name = NULL, $subfolder_name = NULL){
+    $relative_path = get_relative_folder_path($module_name, $folder_name, $subfolder_name);
+    $absolute_path = get_absolute_path($relative_path);
+    return $absolute_path;
+}
+        
+
 /*
  * return site path absolute path to the server
  */
 function get_absolute_site_path(){
     return $full_folder_path = $_SERVER['DOCUMENT_ROOT'] . substr(base_path(), 1);
+}
+
+function get_url_path($relative_path){
+  $url_path =  file_create_url(file_build_uri($relative_path));
+  return $url_path;
+}
+
+function get_file_handle($absolute_file_path, $read_write){
+   $file_handle = fopen($absolute_file_path, $read_write);
+   return $file_handle;
 }
 
 function get_db_schema($table_name){

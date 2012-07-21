@@ -56,6 +56,12 @@ function get_schema_mcq_question_bank(&$schema){
       'length' => '999',
       'not null' => FALSE,
     ),
+    'question_media_yn' => array(
+      'description' => 'Media item present in question yes/no',
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => FALSE,
+    ),
     'speciality' => array(
       'description' => 'Main Speciality',
       'type' => 'int',

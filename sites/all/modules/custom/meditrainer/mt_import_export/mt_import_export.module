@@ -71,7 +71,6 @@ function get_import_export_folder_name($import_export_type){
 }
 
 
-
 function get_export_file_path($file_name, $export_folder_name){
     $data_folder = get_data_folderpath('mt_import_export');
     $complete_file_path = $data_folder."".$export_folder_name."".$file_name;
@@ -99,8 +98,21 @@ function table_export($table_name, $fields_array = false, $condition_array = fal
     return $data_array;
 }
 
+function process_data_array(&$data_array, $add_str_null = false, $str_to_int = false){
+   if ($add_str_null = true){
+       foreach($data_array as $row_index => $row_data){
+  
+         foreach ($row_data as $column_header => $value )
+         if ($value === NULL){
+          $data_array[$row_index][$column_header] = 'NULL';
+         }
+     }
+   }
+   return $data_array;
+}
+
 /* //original function
- * 
+ */
 function export_csv(&$handle, $fields = array(), $delimiter = ',', $enclosure = '"') {
     $str = '';
     $escape_char = '\\';
@@ -134,7 +146,7 @@ function export_csv(&$handle, $fields = array(), $delimiter = ',', $enclosure = 
     $str .= "\n";
     return fwrite($handle, $str);
   }
-*/
+
 
   function export_to_csv(&$handle, $fields = array(), $delimiter = ',', $enclosure = '"') {
     $str = '';
@@ -175,14 +187,54 @@ function export_csv(&$handle, $fields = array(), $delimiter = ',', $enclosure = 
     return fwrite($handle, $str);
   }
   
+  function standard_fputcsv_export($file_handle, $data_array, $delimiter = ',', $enclosure = '"'){
+    
+      
+    //add first row column header($key) array to the beginning of the data array
+      array_unshift($data_array, array_keys($data_array[0]));
+      
+      foreach ($data_array as $row){
+          fputcsv($file_handle, $row, $delimiter, $enclosure);
+      }
+      
+      fclose($file_handle);
+  }
   
-function table_export_to_csv($table_name, &$file_handle, $fields_array = false, $condition_array = false, $delimiter = ',', $enclosure = '"'){
-    
-    $data_array = table_export_to_csv($table_name, $fields_array, $condition_array);
-    
-    $csv = export_to_csv($file_handle, $data_array, $delimiter, $enclosure);
-    
-    return $csv;
+function table_export_to_csv($table_name, $file_handle = 'browser', $query_fields_array = false, $query_condition_array = false, $delimiter = ',', $enclosure = '"'){
+   $data = table_export($table_name, $query_fields_array, $query_condition_array);
+   $table_data = process_data_array($data);//replace NULL with string null
+   if($file_handle == 'browser'){
+       browser_based_table_export_to_export($table_name, $table_data, $delimiter = ',', $enclosure = '"');
+   } else standard_fputcsv_export($file_handle, $table_data, $delimiter, $enclosure );
 }
- 
+
+function process_query_result($query_result){
+    
+}
+
+function browser_based_table_export_to_export($table_name, $table_data, $delimiter = ',', $enclosure = '"'){
+     //add first row column header($key) array to the beginning of the data array
+      array_unshift($table_data, array_keys($table_data[0]));
+      
+      // output headers so that the file is downloaded rather than displayed
+        // header('Content-Type: text/csv; charset=utf-8');
+       //  header('Content-Disposition: attachment; filename='.$table_name.'.csv');
+        drupal_add_http_header('Content-type', 'application/csv; utf-8');
+        drupal_add_http_header('Content-Disposition', 'attachment; filename='.$table_name.'.csv');
+        
+
+      //  drupal_add_http_header("Pragma: no-cache");
+      //  drupal_add_http_header("Expires: 0");
+
+      // create a file pointer connected to the output stream
+        $output = fopen('php://output', 'w');
+      
+      foreach ($table_data as $row){
+          fputcsv($output, $row, $delimiter, $enclosure);
+      }
+      fclose($output);
+      
+    //close the connection before it puts html code of the current page
+      die();
+  }
 ?>

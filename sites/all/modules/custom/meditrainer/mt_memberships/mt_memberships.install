@@ -28,3 +28,18 @@ function mt_memberships_disable(){
     delete_roles();
     delete_roles_and_memberships();
 }
+
+
+/*
+ * implements hook_install
+ */
+function mt_memberships_install(){
+    
+}
+
+/*
+ * implements hook_uninstall
+ */
+function mt_memberships_uninstall(){
+    
+}

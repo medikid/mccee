@@ -4,10 +4,10 @@ function mt_mcq_menu(){
     $items=array();
     
     $items['admin/meditrainer/mcq'] = array(
-    'title' => 'Members',
+    'title' => 'MCQ',
     'description' => 'description',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('my_admin_function'),
+    'page arguments' => array('setup_mt_mcq_add_form'),
     'access arguments' => array('administer site configuration'),
     );
 
@@ -15,15 +15,15 @@ function mt_mcq_menu(){
     'title' => 'Add',
     'description' => 'Add Members',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('my_admin_function'),
-    'access arguments' => array('administer site configuration'),
+    'page arguments' => array('setup_mt_mcq_add_form'),
+    'access arguments' => array('Add MCQ to question bank'),
     );
      
     $items['admin/meditrainer/mcq/edit'] = array(
     'title' => 'Edit',
     'description' => 'Edit Members',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('my_admin_function'),
+    'page arguments' => array('setup_mt_mcq_add_form'),
     'access arguments' => array('administer site configuration'),
     );
     
@@ -31,7 +31,7 @@ function mt_mcq_menu(){
     'title' => 'Delete',
     'description' => 'Delete Members',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('my_admin_function'),
+    'page arguments' => array('setup_mt_mcq_add_form'),
     'access arguments' => array('administer site configuration'),
 );
      

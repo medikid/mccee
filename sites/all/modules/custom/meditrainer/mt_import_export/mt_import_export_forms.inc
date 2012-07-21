@@ -14,15 +14,25 @@
          '#collapsed' => FALSE,
      );
      
+     $form['export_settings']['export_method'] = array(
+            '#type' => 'radios',
+            '#title' => t('Export Method:'),
+            '#options' => array(
+            1 => t('File saved in folder'),
+            2 => t('Download from browser'),
+            ),
+            '#default_value' => 1,
+     );
      $form['export_settings']['table_or_object'] = array(
             '#type' => 'radios',
-            '#title' => t('Export:'),
+            '#title' => t('Export Item:'),
             '#options' => array(
             1 => t('Table'),
             2 => t('Object'),
             ),
             '#default_value' => 1,
             '#description' => t('Select the item you would like to export.'),
+           
      );
      
      $form['export_settings']['db_table_name'] = array(
@@ -39,7 +49,8 @@
                 'invisible' => array(
                 ':input[name="table_or_object"]' => array('value' => 2)
                     )
-                )
+                ),
+           
      );
      
      $form['export_settings']['object_name'] = array(
@@ -58,7 +69,8 @@
             'invisible' => array(
             ':input[name="table_or_object"]' => array('value' => 1)
                 )
-             )
+             ),
+           
      );
      
   $form['export_file_settings'] = array(
@@ -73,13 +85,15 @@
      $form['export_file_settings']['folder_name'] = array(
          '#type'=>'textfield',
          '#title' => 'Folder Name:',
-         '#value' => ''
+         '#value' => '',
+        
      );
      
      $form['export_file_settings']['file_name'] = array(
          '#type'=>'textfield',
          '#title' => 'File Name:',
-         '#value' => ''
+         '#value' => '',
+         
      );
      
      $form['submit'] = array(
@@ -120,7 +134,7 @@
      $form['export_file_settings']['#prefix'] = '<div id="export_file_settings_div">';
      $form['export_file_settings']['#suffix'] = '</div>';
    
-     $form['export_file_settings']['folder_name']['#value'] = get_export_foldername();
+    $form['export_file_settings']['folder_name']['#value'] = get_export_foldername(); 
      $form['export_file_settings']['file_name'] ['#value'] = (isset($form_state['input']['object_name']) || isset($form_state['input']['db_table_name']))
          ? get_export_filename($form_state['triggering_element']['#name'], $form_state['input'][$form_state['triggering_element']['#name']], '.csv')
          : '' ;
@@ -157,22 +171,47 @@
  function db_export_form_submit($form, &$form_state){
      $form_state['rebuild']= true;
      
-     $table_or_object = $form_state['input']['table_or_object'];
-     $db_table_name = $form_state['input']['db_table_name'];
-     $object_name = $form_state['input']['object_name'];
+     $export_method = $form_state['input']['export_method'];
+     $table_or_object = $form_state['input']['table_or_object'] == 1 ? 'table' : 'object';
+     
+     $codelist = new codelist();
+     
      $folder_name = $form_state['input']['folder_name'];
      $file_name = $form_state['input']['file_name'];
-     $export_file_path = get_export_file_path($file_name, $folder_name);
      
-     $array = array($table_or_object, $db_table_name, $object_name, $folder_name, $file_name, $export_file_path);
-   //  dsm('<pre>'.print_r($form_state['values']).'</pre>');
-    
-    $file_path = get_export_file_path($file_name, $folder_name);
-     $file_handle = fopen($file_path, 'w');
-     export_to_csv($file_handle, $array);
-     return dpm($file_path);
+     $relative_export_folder_path = get_relative_folder_path('mt_import_export', 'data', $folder_name);
+     $absolute_export_folder_path = get_absolute_path($relative_export_folder_path);
+     
+     switch($table_or_object){
+         case 'table':
+             $decoded = $codelist->decode('db_table_name', $form_state['input']['db_table_name']);
+             $db_table_name = $decoded['name'];
+             
+             if ($export_method == 1) {
+             $relative_folder_path = get_relative_folder_path('mt_import_export', 'data', $folder_name);
+             create_folder($relative_folder_path);
+             $absolute_folder_path = get_absolute_path($relative_folder_path);
+             $absolute_file_path = $absolute_folder_path.$file_name;
+             $file_handle = get_file_handle($absolute_file_path, 'w');
+             
+             table_export_to_csv($db_table_name, $file_handle);
+             
+             
+             } else table_export_to_csv($db_table_name);
+             break;
+         
+         case 'object':
+             $object_name = $codelist->decode('object_name', $form_state['input']['object_name']);
+             break;
+     }
+     
+     $download_link = l("here", $relative_folder_path.$file_name);
+    $msg= "The file has been saved. Click $download_link to download the file.";
+    drupal_set_message($msg);
+
  }
  
+ // not tested
  function data_exceldownload($query = '') {
         $filename = 'test.xls';
         drupal_add_http_header('Content-Type: application/octet-stream');

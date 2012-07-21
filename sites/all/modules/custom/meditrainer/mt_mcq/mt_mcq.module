@@ -1,22 +1,166 @@
 <?php
-module_load_include('inc', 'mt_mcq','mcq_node_setup');
-module_load_include('inc', 'mt_mcq','mcq_add_form');
+//module_load_include('inc', 'mt_mcq','mcq_node_setup');
+module_load_include('inc', 'mt_mcq','mt_mcq_add_form');
 module_load_include('inc', 'mt_mcq','class_mcq');
 module_load_include('inc', 'mt_mcq','mt_mcq_admin_menu');
-
+module_load_include('inc', 'mt_mcq','mt_mcq_manage_form');
+module_load_include('inc', 'mt_mcq','mt_mcq_import_form');
 
 
 
 /*
  * implements hook_form_alter
  */
-function mt_mcq_form_alter(&$form, &$form_state, &$form_id){
+function mt_mcq_form_alter(&$form, &$form_state, $form_id){
    //$form_node=$form['#node'];
-    if(!empty($form['#node_edit_form'])){ //&& $form_node->type=='mcq'){
+   // if(!empty($form['#node_edit_form'])){ //&& $form_node->type=='mcq'){
+         if( $form_id == 'mcq_node_form'  ){
             
-        setup_mcq_add_form($form, $form_state);
+        mt_mcq_node_form($form, $form_state);
+        
+        dsm($form);
     }
+    
 }
+
+function prepare_node_from_mcq_form($form_data_array){
+    $node_type =  'mcq';
+    $form_data = $form_data_array;
+    
+    //truncate question text to prepare title of the node
+    $mcq_title = substr($form_data['question_text'], 0, 50);
+    global $user;  
+    
+      $node = new stdClass();
+      $node->type = $node_type;
+
+      node_object_prepare($node); // This sets up all the default node fields so we don't accidentally leave something off.
+   
+        //struction of node;
+        $node->nid = NULL; //set it to null since we don't know yet
+        $node->type = $node_type;
+        $node->title = $mcq_title;
+        $node->uid = $user->uid;
+        $node->status = 1;
+        $node->comment = 1;
+        $node->promote = "";
+        $node->sticky = "";
+        $node->created = REQUEST_TIME;
+        $node->language = LANGUAGE_NONE;
+        
+        //add $form_data
+        $node->qid = NULL;
+        $node->question_text = $form_data['question_text'];
+        $node->choice_a = $form_data['choice_a'];
+        $node->choice_b = $form_data['choice_b'];
+        $node->choice_c = $form_data['choice_c'];
+        $node->choice_d = $form_data['choice_d'];
+        $node->choice_e = $form_data['choice_e'];
+        $node->question_media_yn = $form_data['question_media_yn'];
+        $node->speciality = $form_data['speciality'];
+        $node->sub_speciality = $form_data['sub_speciality'];
+        
+                if ($form_data['answer_a'] == 1){
+                    $answer = 'a'; 
+                } elseif ($form_data['answer_b'] == 1){
+                    $answer = 'b' ;
+                } elseif ($form_data['answer_c'] == 1){
+                    $answer = 'c' ;
+                } elseif ($form_data['answer_d'] == 1){
+                    $answer = 'd' ;
+                } elseif  ($form_data['answer_e'] == 1){
+                    $answer = 'e';
+                } else $answer = '';
+        $node->answer = $answer;
+        
+        $node->conf_rating = $form_data['conf_rating'];
+        $node->notes = $form_data['notes'];
+        $node->notes_a = $form_data['notes_a'];
+        $node->notes_b = $form_data['notes_b'];
+        $node->notes_c = $form_data['notes_c'];
+        $node->notes_d = $form_data['notes_d'];
+        $node->notes_e = $form_data['notes_e'];
+        $node->exam = $form_data['aspiring_exam'];
+        
+        switch($form_data['aspiring_exam']){
+            case 2:
+                $exam_level = $form_data['aspiring_exam_can'];
+                break;
+            case 3:
+                $exam_level = $form_data['aspiring_exam_us'];
+                break;
+            case 4:
+                $exam_level = $form_data['aspiring_exam_uk'];
+                break;
+            case 5:
+                $exam_level = $form_data['aspiring_exam_au'];
+                break;
+            default:
+                $exam_level = NULL;
+                break;
+            
+        }
+        $node->exam_level = $exam_level;
+        
+        $node->expert_level = $form_data['expert_level'];
+        $node->hints_yn = $form_data['hints_yn'];
+        $node->validity_yn = 0; //$form_data['validity_yn'];
+        $node->objection_yn = 0; //$form_data['objection_yn'];
+        $node->disc_board_yn = 0; //$form_data['disc_board_yn'];
+
+              
+        return $node;
+}
+
+
+/*
+ * prepare mcq node based on node add/edit form data
+ */
+function prepare_mcq_node(&$node){
+        $mcq_title = substr($node->question_text, 0, 50);
+        $node->title = $mcq_title;
+        
+        if ($node->answer_a == 1){
+                    $answer = 'a'; 
+                } elseif ($node->answer_b == 1){
+                    $answer = 'b' ;
+                } elseif ($node->answer_c == 1){
+                    $answer = 'c' ;
+                } elseif ($node->answer_d == 1){
+                    $answer = 'd' ;
+                } elseif  ($node->answer_e == 1){
+                    $answer = 'e';
+                } else $answer = '';
+        $node->answer = $answer;
+        
+       $node->exam = $node->aspiring_exam;
+        switch($node->aspiring_exam){
+            case 2:
+                $exam_level = $node->aspiring_exam_can;
+                break;
+            case 3:
+                $exam_level = $node->aspiring_exam_us;
+                break;
+            case 4:
+                $exam_level = $node->aspiring_exam_uk;
+                break;
+            case 5:
+                $exam_level = $node->aspiring_exam_au;
+                break;
+            default:
+                $exam_level = NULL;
+                break;
+            
+        }
+        $node->exam_level = $exam_level;
+        
+        //these are not needed at the moment on the add/edit form
+        $node->validity_yn = 0; //$form_data['validity_yn'];
+        $node->objection_yn = 0; //$form_data['objection_yn'];
+        $node->disc_board_yn = 0; //$form_data['disc_board_yn'];
+}
+
+
 
 
 
@@ -27,6 +171,12 @@ function mt_mcq_form_alter(&$form, &$form_state, &$form_id){
  */
 function mt_mcq_node_insert($node){
     if($node->type == 'mcq' && isset($node->question_text)){
+        
+    /*
+    * prepare mcq node based on node add/edit form data
+    */
+    prepare_mcq_node($node);
+                
         $qid =db_insert('mcq_question_bank')
             ->fields(array(
             'qid'=>NULL,
@@ -38,6 +188,7 @@ function mt_mcq_node_insert($node){
             'choice_c'=>$node->choice_c,
             'choice_d'=>$node->choice_d,
             'choice_e'=>$node->choice_e,
+            'question_media_yn'=>$node->question_media_yn,   
             'speciality'=>$node->speciality,
             'sub_speciality'=>$node->sub_speciality
                 ))
@@ -46,9 +197,22 @@ function mt_mcq_node_insert($node){
         db_insert('mcq_answer_bank')
         ->fields(array(
             'qid'=>$qid,
-        //    'answer'=>get_answerbox_checked($node),
-            'rating'=>$node->rating,
-            'notes'=>$node->notes
+            'answer'=>$node->answer,
+            'conf_rating'=>$node->conf_rating,
+            'notes'=>$node->notes,
+            'notes_a'=>$node->notes_a,
+            'notes_b'=>$node->notes_b,
+            'notes_c'=>$node->notes_c,
+            'notes_d'=>$node->notes_d,
+            'notes_e'=>$node->notes_e,
+            'exam'=>$node->exam,
+            'exam_level'=>$node->exam_level,
+            'expert_level'=>$node->expert_level,
+            'hints_yn'=>$node->hints_yn,
+            'validity_yn'=>$node->validity_yn,
+            'objection_yn'=>$node->objection_yn,
+            'disc_board_yn'=>$node->disc_board_yn,
+            
         ))
         ->execute();
            
@@ -62,6 +226,9 @@ function mt_mcq_node_insert($node){
  */
 function mt_mcq_node_update($node){
     if(db_query('SELECT qid FROM {mcq_question_bank} WHERE nid=:nid', array(':nid'=>$node->nid))->fetchfield()){
+        
+        prepare_mcq_node($node);
+        
         db_update('mcq_question_bank')
         ->fields(array(
             'nid'=>$node->nid,
@@ -72,6 +239,7 @@ function mt_mcq_node_update($node){
             'choice_c'=>$node->choice_c,
             'choice_d'=>$node->choice_d,
             'choice_e'=>$node->choice_e,
+            'question_media_yn'=>$node->question_media_yn,
             'speciality'=>$node->speciality,
             'sub_speciality'=>$node->sub_speciality
             ))
@@ -80,9 +248,21 @@ function mt_mcq_node_update($node){
         
         db_update('mcq_answer_bank')
         ->fields(array(
-         //   'answer'=>get_answerbox_checked($node),
-            'rating'=>$node->rating,
-            'notes'=>$node->notes
+            'answer'=>$node->answer,
+            'conf_rating'=>$node->conf_rating,
+            'notes'=>$node->notes,
+            'notes_a'=>$node->notes_a,
+            'notes_b'=>$node->notes_b,
+            'notes_c'=>$node->notes_c,
+            'notes_d'=>$node->notes_d,
+            'notes_e'=>$node->notes_e,
+            'exam'=>$node->exam,
+            'exam_level'=>$node->exam_level,
+            'expert_level'=>$node->expert_level,
+            'hints_yn'=>$node->hints_yn,
+            'validity_yn'=>$node->validity_yn,
+            'objection_yn'=>$node->objection_yn,
+            'disc_board_yn'=>$node->disc_board_yn
              ))
              ->condition('qid',get_qid_by_nid($node->nid))
             ->execute();
@@ -200,7 +380,7 @@ function set_node_answer(&$node, $answer){
             break;
     }
 }
-*/
+
 /*
  * checks answer box checked
  */
@@ -241,11 +421,15 @@ if($node->answer_c==1){
     return $answer_checked;
 }
 */
+/*
+ * @TODO add node load by mcq_node_load_mode value
+ * @TODO add load hints validity objection discboard values if yn=Yes
+ */
 function mcq_load_node_by_nid(&$node){
     $query = db_select('mcq_question_bank','q');
     $query->join('mcq_answer_bank','a', 'q.qid=a.qid');
-    $query->fields('q', array('qid','nid','vid','question_text','choice_a', 'choice_b', 'choice_c', 'choice_d', 'choice_e', 'speciality', 'sub_speciality'));
-    $query->fields('a', array('answer','notes','rating'));
+    $query->fields('q', array('qid','nid','vid','question_text','choice_a', 'choice_b', 'choice_c', 'choice_d', 'choice_e', 'question_media_yn', 'speciality', 'sub_speciality'));
+    $query->fields('a', array('answer', 'conf_rating',  'notes', 'notes_a', 'notes_b', 'notes_c', 'notes_d', 'notes_e', 'exam', 'exam_level', 'expert_level', 'hints_yn', 'validity_yn', 'objection_yn', 'disc_board_yn'));
     $query->condition('q.nid',$node->nid);
     $result = $query->execute();
     foreach($result as $row){
@@ -257,11 +441,24 @@ function mcq_load_node_by_nid(&$node){
         $node->choice_c = $row->choice_c;
         $node->choice_d = $row->choice_d;
         $node->choice_e = $row->choice_e;
+        $node->question_media_yn = $row->question_media_yn;
         $node->speciality = $row->speciality;
         $node->sub_speciality = $row->sub_speciality;
         $node->answer = $row->answer;
+        $node->conf_rating = $row->conf_rating;
         $node->notes = $row->notes;
-        $node->rating = $row->rating;
+        $node->notes_a = $row->notes_a;
+        $node->notes_b = $row->notes_b;
+        $node->notes_c = $row->notes_c;
+        $node->notes_d = $row->notes_d;
+        $node->notes_e = $row->notes_e;
+        $node->exam = $row->exam;
+        $node->exam_level = $row->exam_level;
+        $node->expert_level = $row->expert_level;
+        $node->hints_yn = $row->hints_yn;
+        $node->validity_yn = $row->validity_yn;
+        $node->objection_yn = $row->objection_yn;
+        $node->disc_board_yn = $row->disc_board_yn;
     }
     
     return $node;
