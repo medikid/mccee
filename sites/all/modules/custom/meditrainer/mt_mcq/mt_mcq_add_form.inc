@@ -5,16 +5,18 @@ function setup_mt_mcq_add_form($form, &$form_state){
             $node = new stdClass();
             $node->type = 'mcq';
             node_object_prepare($node); //prepare a generic node
+	    $node->nid=NULL;
             $form['#node'] = $node;
+	    $form_state['node'] = $node;
             
             mt_mcq_node_form($form, $form_state);
             
-            $form['action_mcq'] = array(
+            $form['submit'] = array(
                 '#type'=>'submit',
                 '#value'=>t('Save'),
                 '#submit'=>  array('setup_mt_mcq_add_form_submit')
             );
-
+	    
             return $form;
         
 }
@@ -263,7 +265,7 @@ drupal_add_js(drupal_get_path('module', 'mt_mcq') . '/js/mt_mcq_add_form.js');
                         '#title' => t('Any additional notes?:'),
                         '#type' => 'checkbox',
                         '#prefix'=>'<div class="container-inline">',
-                        '#default_value'=>(isset($node->additional_notes_yn)) ? 1 : 0,
+                        '#default_value'=>!empty($node->notes) ? 1 : 0,
         );
         
         $form['notes']['notes'] = array(
@@ -298,31 +300,20 @@ drupal_add_js(drupal_get_path('module', 'mt_mcq') . '/js/mt_mcq_add_form.js');
                                 )
                             ),
         );
-        
-        /* //no need to add submitt button or return form as this is called from hook_form_alter(node_add_form)
-         if (!isset($form['#node'])){
-            
-             $form['action_mcq'] = array(
-                '#type'=>'submit',
-                '#value'=>t('Save'),
-                '#submit'=>  array('setup_mt_mcq_add_form_submit')
-            );
-
-            return $form;
-          }
-         */
-        
+	
 }
 
-
 function setup_mt_mcq_add_form_submit($form, &$form_state){
-    //echo '<pre>'.print_r($form_state).'</pre>';
-    echo 'node';
-      $node =  prepare_node_from_mcq_form($form_state['values']);
-     if ($form_state['values']['action_mcq'] ==  'Save'){ 
-      //save node
-       node_save($node);
-    }
+    //create a node from submitted values
+  $node = $form_state['node'];
+  entity_form_submit_build_entity('node', $node, $form, $form_state);
+  
+  //prepare the node to be submitted, add in extra fields
+  node_submit($node);
+  
+  //now save intot the database
+  node_save($node);
+  
 }
 
 function dropdown_mcq_speciality(){

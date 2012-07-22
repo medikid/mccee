@@ -15,103 +15,10 @@ function mt_mcq_form_alter(&$form, &$form_state, $form_id){
    //$form_node=$form['#node'];
    // if(!empty($form['#node_edit_form'])){ //&& $form_node->type=='mcq'){
          if( $form_id == 'mcq_node_form'  ){
-            
         mt_mcq_node_form($form, $form_state);
-        
-        dsm($form);
     }
     
 }
-
-function prepare_node_from_mcq_form($form_data_array){
-    $node_type =  'mcq';
-    $form_data = $form_data_array;
-    
-    //truncate question text to prepare title of the node
-    $mcq_title = substr($form_data['question_text'], 0, 50);
-    global $user;  
-    
-      $node = new stdClass();
-      $node->type = $node_type;
-
-      node_object_prepare($node); // This sets up all the default node fields so we don't accidentally leave something off.
-   
-        //struction of node;
-        $node->nid = NULL; //set it to null since we don't know yet
-        $node->type = $node_type;
-        $node->title = $mcq_title;
-        $node->uid = $user->uid;
-        $node->status = 1;
-        $node->comment = 1;
-        $node->promote = "";
-        $node->sticky = "";
-        $node->created = REQUEST_TIME;
-        $node->language = LANGUAGE_NONE;
-        
-        //add $form_data
-        $node->qid = NULL;
-        $node->question_text = $form_data['question_text'];
-        $node->choice_a = $form_data['choice_a'];
-        $node->choice_b = $form_data['choice_b'];
-        $node->choice_c = $form_data['choice_c'];
-        $node->choice_d = $form_data['choice_d'];
-        $node->choice_e = $form_data['choice_e'];
-        $node->question_media_yn = $form_data['question_media_yn'];
-        $node->speciality = $form_data['speciality'];
-        $node->sub_speciality = $form_data['sub_speciality'];
-        
-                if ($form_data['answer_a'] == 1){
-                    $answer = 'a'; 
-                } elseif ($form_data['answer_b'] == 1){
-                    $answer = 'b' ;
-                } elseif ($form_data['answer_c'] == 1){
-                    $answer = 'c' ;
-                } elseif ($form_data['answer_d'] == 1){
-                    $answer = 'd' ;
-                } elseif  ($form_data['answer_e'] == 1){
-                    $answer = 'e';
-                } else $answer = '';
-        $node->answer = $answer;
-        
-        $node->conf_rating = $form_data['conf_rating'];
-        $node->notes = $form_data['notes'];
-        $node->notes_a = $form_data['notes_a'];
-        $node->notes_b = $form_data['notes_b'];
-        $node->notes_c = $form_data['notes_c'];
-        $node->notes_d = $form_data['notes_d'];
-        $node->notes_e = $form_data['notes_e'];
-        $node->exam = $form_data['aspiring_exam'];
-        
-        switch($form_data['aspiring_exam']){
-            case 2:
-                $exam_level = $form_data['aspiring_exam_can'];
-                break;
-            case 3:
-                $exam_level = $form_data['aspiring_exam_us'];
-                break;
-            case 4:
-                $exam_level = $form_data['aspiring_exam_uk'];
-                break;
-            case 5:
-                $exam_level = $form_data['aspiring_exam_au'];
-                break;
-            default:
-                $exam_level = NULL;
-                break;
-            
-        }
-        $node->exam_level = $exam_level;
-        
-        $node->expert_level = $form_data['expert_level'];
-        $node->hints_yn = $form_data['hints_yn'];
-        $node->validity_yn = 0; //$form_data['validity_yn'];
-        $node->objection_yn = 0; //$form_data['objection_yn'];
-        $node->disc_board_yn = 0; //$form_data['disc_board_yn'];
-
-              
-        return $node;
-}
-
 
 /*
  * prepare mcq node based on node add/edit form data
@@ -133,8 +40,8 @@ function prepare_mcq_node(&$node){
                 } else $answer = '';
         $node->answer = $answer;
         
-       $node->exam = $node->aspiring_exam;
-        switch($node->aspiring_exam){
+	$node->exam = $node->aspiring_exam;
+       switch($node->exam){
             case 2:
                 $exam_level = $node->aspiring_exam_can;
                 break;
@@ -159,10 +66,6 @@ function prepare_mcq_node(&$node){
         $node->objection_yn = 0; //$form_data['objection_yn'];
         $node->disc_board_yn = 0; //$form_data['disc_board_yn'];
 }
-
-
-
-
 
 /*
  * implements hook_node_insert()
@@ -216,7 +119,6 @@ function mt_mcq_node_insert($node){
         ))
         ->execute();
            
-        dsm('A new question with qid of '.$qid.' and nid of '.$node->nid.'has been added');
     }
 }
 
