@@ -1,0 +1,8 @@
+name = MT Services
+description = Meditrainer Services module to provide rest web service via drupal Services module
+package = MediTrainer
+core = 7.x
+files[] = mt_services.module
+files[] = mt_services.install
+dependencies[] = services
+dependencies[] = rest_server

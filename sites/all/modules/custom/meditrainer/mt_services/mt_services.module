@@ -1,0 +1,104 @@
+<?php
+
+module_load_include('inc', 'mt_services', 'mcq_resources');
+module_load_include('inc', 'mt_services', 'mt_services.services_default');
+
+    function mt_services_endpoints_import($services_endpoints){
+	if(is_array($services_endpoints)){
+	    foreach($services_endpoints as $endpoint){
+		   endpoints_import($endpoint);
+	    }
+	} elseif(is_object($services_endpoints)){
+	    endpoints_import($services_endpoints);
+	}
+    }
+    
+    function mt_services_endpoints_delete($services_endpoints){
+	if(is_array($services_endpoints)){
+	    foreach($services_endpoints as $endpoint){
+		   endpoints_delete($endpoint);
+	    }
+	} elseif(is_object($services_endpoints)){
+	    endpoints_delete($services_endpoints);
+	}
+   }
+
+    function endpoints_import($endpoint){
+	$epid = db_insert('services_endpoint')
+		    ->fields(array(
+			'eid'=>NULL,
+			'name'=>$endpoint->name,
+			'server'=>$endpoint->server,
+			'path'=>$endpoint->path,
+			'authentication'=>serialize($endpoint->authentication),
+			'server_settings'=>serialize($endpoint->server_settings),
+			'resources'=>serialize($endpoint->resources),
+			'debug'=>$endpoint->debug
+		    ))
+		    ->execute();
+	return $epid;
+	
+    }
+    
+    function endpoints_delete($endpoint){
+	db_delete('services_endpoint')
+		    ->condition('name', $endpoint->name)
+		    ->condition('server', $endpoint->server)
+		    ->condition('path', $endpoint->path)
+		    ->execute();
+    }
+
+/*
+ * implements hook_services_resources
+ */
+function mt_services_services_resources() {
+  return array(
+    'mcq' => array(
+      'retrieve' => array(
+        'help' => 'Retrieves mcq question from the question bank',
+        'file' => array('file' => 'inc', 'module' => 'mcq_resources'),
+        'callback' => '_mcq_resource_retrieve',
+        'access callback' => '_mcq_resource_access',
+        'access arguments' => array('view'),
+        'access arguments append' => TRUE,
+        'args' => array(
+          array(
+            'name' => 'qid',
+            'type' => 'int',
+            'description' => 'The qid of the question to pull from question bank',
+            'source' => array('path' => '0'),
+            'optional' => FALSE,
+          )
+        )
+      ),
+      'index' => array(
+        'help' => 'Retrieves a listing of MCQ Questions',
+        'file' => array('file' => 'inc', 'module' => 'mcq_resources'),
+        'callback' => '_mcq_resource_index',
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'access arguments append' => FALSE,
+        'args' => array(
+          array(
+            'name' => 'page',
+            'type' => 'int',
+            'description' => '',
+            'source' => array(
+              'param' => 'page',
+            ),
+            'optional' => TRUE,
+            'default value' => 0,
+          ),
+          array(
+           'name' => 'parameters',
+           'type' => 'array',
+           'description' => '',
+           'source' => 'param',
+           'optional' => TRUE,
+           'default value' => array(),
+          ),
+	 )
+      )
+    )
+  );
+}

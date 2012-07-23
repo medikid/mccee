@@ -23,6 +23,8 @@ dependencies[] = user
 dependencies[] = text
 dependencies[] = system
 dependencies[] = taxonomy
+dependencies[] = services
+dependencies[] = rest_server
 
 
 dependencies[] = list
@@ -93,6 +95,7 @@ dependencies[] = mt_mcq
 dependencies[] = mt_exam
 dependencies[] = mt_notes
 dependencies[] = mt_import_export
+dependencies[] = mt_services
 
 files[] = meditrainer.profile
 

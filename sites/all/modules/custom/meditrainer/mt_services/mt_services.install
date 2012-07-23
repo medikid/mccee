@@ -1,0 +1,35 @@
+<?php
+
+
+/*
+ * implements hook_enable
+ */
+function mt_services_enable(){
+    $endpoints = mt_services_default_services_endpoint();
+    mt_services_endpoints_import($endpoints);
+}
+
+/*
+ * implements hook_disable
+ */
+function mt_services_disable(){
+    $endpoints = mt_services_default_services_endpoint();
+    mt_services_endpoints_delete($endpoints);
+}
+
+/*
+ * implements hook_install
+ */
+function mt_services_install(){
+    
+}
+
+/*
+ * implements hook_uninstall
+ */
+function mt_services_uninstall(){
+    
+}
+
+
+?>
