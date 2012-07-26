@@ -201,7 +201,18 @@
              break;
          
          case 'object':
-             $object_name = $codelist->decode('object_name', $form_state['input']['object_name']);
+	     $object_name = $codelist->decode('object_name', $form_state['input']['object_name']);
+	     //check if the object book is selected
+	     if ($object_name['name'] == 'mcq'){
+		$mcqs = export_object_mcq();
+		create_folder($relative_folder_path);
+             $absolute_folder_path = get_absolute_path($relative_folder_path);
+             $absolute_file_path = $absolute_folder_path.$file_name;
+             $file_handle = get_file_handle($absolute_file_path, 'w');
+	     
+	     
+	     
+	     }
              break;
      }
      

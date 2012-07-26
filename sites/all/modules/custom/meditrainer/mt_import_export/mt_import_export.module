@@ -208,6 +208,19 @@ function table_export_to_csv($table_name, $file_handle = 'browser', $query_field
    } else standard_fputcsv_export($file_handle, $table_data, $delimiter, $enclosure );
 }
 
+function object_export_to_csv($object_name, $file_handle='browser', $query_fields_array = false, $query_condition_array = false, $delimiter = ',', $enclosure = '"'){
+    switch($object_name){
+	case 'mcq':
+	    $mcqs = export_object_mcq();
+	    $object_data = process_data_array($mcqs);
+	    if($file_handle == 'browser'){
+		browser_based_table_export_to_export($object_name, $object_data, $delimiter = ',', $enclosure = '"');
+	    } else standard_fputcsv_export($file_handle, $object_data, $delimiter, $enclosure );
+	    break;
+	    case 'book':
+		break;
+    }
+}
 function process_query_result($query_result){
     
 }
