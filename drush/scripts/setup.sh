@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-cd d://wamp/www/devel
+#cd d://wamp/www/devel
 
 #enable the meditrainer required modules
 drush --yes en block
@@ -76,3 +76,9 @@ drush --yes en mt_import_export
 drush --yes en mt_services
 
 #echo "Completed enabling required modules as per meditrainer profile"
+
+drush block configure --module=menu --delta=devel --region=sidebar_second --weight=-1 --theme=garland
+drush block configure --module=menu --delta=devel --region=sidebar_second --weight=-1 --theme=garland
+
+
+drush block-enable 

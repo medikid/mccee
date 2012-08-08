@@ -73,7 +73,10 @@ cd d://wamp/www/devel/
 drush si --db-url=mysql://root:@localhost/devel --account-name=admin 
 --account-pass=drupal123 --account-mail=example@domain.com
 
-#echo "Completed installing standard profile, no enable required modules as per meditrainer profile"
+#echo "Completed installing standard profile, now disable the default-enabled modules
+drush pm-disable `drush pm-list --type=module --status=enabled --pipe`
+
+#enable required modules as per meditrainer profile"
 drush --yes en block
 drush --yes en book
 drush --yes en ckeditor

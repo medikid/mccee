@@ -12,15 +12,15 @@
 
 URL_REQUESTED:  mcq-api/tp/2356.json where 2356 is the testpaper_id
  */
- $data_in = array(
+ $json_data = array(
     'uid'=>3,
-     'application'=>'test_panel',
+     'application'=>'test_panel/android_app',
      'tpid'=>2356,
      'cookie'=>'SES2458899664444745.25669874445555',
-     'current_qno'=>5,
+     'current_qno'=>5,//options var not set, null value, 0, 1, over 1
      'action_requests'=>array(
-	 'ans.submit'=>array(
-	     5=>true
+	 'ans_submit'=>array(
+	     5=>"a"
 	 ),
 	 'skip'=>array(
 	     5=>true
@@ -38,7 +38,7 @@ URL_REQUESTED:  mcq-api/tp/2356.json where 2356 is the testpaper_id
 		 ),
 		 'v'=>'choice_a' //this is the correct answer
 	 ),
-	 'retr.next'=>array(
+	 'retr_next'=>array(
 	     6=>array('q'=>array('question_text'=>'This is the question text',
 		 'choice_a'=>'answer text a',
 		 'choice_b'=>'answer text b',
@@ -52,14 +52,14 @@ URL_REQUESTED:  mcq-api/tp/2356.json where 2356 is the testpaper_id
 		)
 	    )
 	),
-	 'retr.prev'=>array(
+	 'retr_prev'=>array(
 		4=>array('q') 
 	  ),
 	 //retr.val, do we need???? same as notes?? to retrive feedback for the answer submtted, but is this
-	 'retr.val'=>array(
+	 'retr_val'=>array(
 	 ),
 	 //retr.notes to retrive notes for the answer submitted or to all the wrong answers
-	 'retr.note'=>array(
+	 'retr_note'=>array(
 	     'mode'=>'corr_ans'// or 'wrong_ans' if wrong ans or 'corr_or_wrong' both corr and wrong or 'all
 	 ),
 	 'retr.hint'=>array(
@@ -78,7 +78,7 @@ URL_REQUESTED:  mcq-api/tp/2356.json where 2356 is the testpaper_id
 	)
 );
 
-	 $data_out=array(
+	 $json_response=array(
 	     'uid'=>3,
 	'application'=>'test_panel',
 	'tpid'=>2356,
