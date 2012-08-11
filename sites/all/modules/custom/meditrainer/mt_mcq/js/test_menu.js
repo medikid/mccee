@@ -35,7 +35,6 @@ textarea_dummy_text.bind("mouseup", function(e){
 			textarea_dummy_json.append(append_mcq_json_opener());
 			
 			if (clickedMenuId =="answer"){ selectedText = jQuery(this).html().toLowerCase(); }//override answer
-			 
 			 textarea_dummy_json.append(append_mcq_json(clickedMenuId,selectedText));	      
 			} else textarea_dummy_json.append(append_mcq_json(clickedMenuId, selectedText));
 		    
@@ -64,13 +63,18 @@ function append_json_paste_trail(keyName){
 }
 
 function append_mcq_json_opener(){
-    return json_mcq = "{ ";
+    var json_mcq = "{ ";
+    jQuery('input[name="dummy_mcq_json_object"]').val(json_mcq);
+    return 
 }
 function append_mcq_json(keyName, valueName){
-    jsonText = " \" " + keyName + "\" : \"" + valueName +"\",";
+  var  jsonText = " \" " + keyName + "\" : \"" + valueName +"\",";
+    jQuery('input[name="dummy_mcq_json_object"]').val(jsonText);
     return jsonText;
 }
 
 function append_mcq_json_closer(){
-    return json_mcq = " }";
+    var json_mcq = " }";
+    jQuery('input[name="dummy_mcq_json_object"]').val(json_mcq);
+    return json_mcq;
 }

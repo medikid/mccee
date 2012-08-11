@@ -13,10 +13,13 @@ function mcq_extract_dummytext_form($form, $form_state){
                 '#value'=>t('Submit'),
                 '#submit'=>  array('mcq_extract_dummytext_form_submit'),
 		'#prefix'=> getJsonPasteTrail(),
-		'#suffix' => '<div class="dummy_mcq_json"></div>'
             );   
      
-    
+    $form['dummy_mcq_json_object'] = array(
+		'#type'=>'hidden',
+                '#default_value'=>'',	
+		'#suffix' => '<div class="dummy_mcq_json"></div>'
+    );
     $form['dummy_mcq_text'] = array(
 	'#title' => t('Paste Your Dummy MCQ Text here:'),
 	'#type' => 'textarea',
@@ -35,10 +38,7 @@ function mcq_extract_dummytext_form($form, $form_state){
 
 function mcq_extract_dummytext_form_submit($form, &$form_state){
     drupal_add_js( 'textarea_dummy_json.append(append_mcq_json_closer())', 'inline' );
-    $form['input']['dummy_json_view'];
-    $json_mcq = $form['input']['dummy_json_view'];
-   
-   echo "<script lanaguage='javascript'> alert(".$json_mcq."); </script>";
+   dsm($form);
 }
 
 
