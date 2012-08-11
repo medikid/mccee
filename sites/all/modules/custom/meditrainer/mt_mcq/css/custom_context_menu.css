@@ -1,0 +1,126 @@
+/* 
+    Document   : custom_menu
+    Created on : 9-Aug-2012, 7:05:32 PM
+    Author     : chinnu
+    Description:
+        Purpose of the stylesheet follows.
+*/
+.custom_context_menu {
+  z-index:1000; 
+    position: absolute;
+    background-color:#C0C0C0;
+    border: 1px solid black;
+    padding: 2px;
+    
+    font-size:1.2em;
+}
+/* We remove the margin, padding, and list style of UL and LI components */
+.custom_context_menu ul.menu, .custom_context_menu ul.menu li{
+    margin:0;
+    padding:0;        
+    list-style: none outside none;
+}
+
+/* We apply background color and border bottom white and width to 150px */
+.custom_context_menu ul li{
+    background-color:#7f95db;
+    border-bottom:solid 1px white;
+    width:150px;
+    cursor:pointer;
+}
+
+/* We apply the background hover color when user hover the mouse over of the li component */
+.custom_context_menu ul li:hover,
+.custom_context_menu ul li.iehover{
+    background-color:#6679e9;
+    position:relative;
+}
+
+/* We apply the link style */
+.custom_context_menu ul li a{
+    padding:5px 15px;
+    color:#ffffff;
+    display:inline-block;
+    text-decoration:none;
+}
+
+/**** SECOND LEVEL MENU ****/
+/* We make the position to absolute for flyout menu and hidden the ul until the user hover the parent li item */
+.custom_context_menu ul li ul{
+    position:absolute;
+    display:none;
+}
+
+/* When user has hovered the li item, we show the ul list by applying display:block, note: 150px is the individual menu width.  */
+
+.custom_context_menu ul li:hover ul,
+.custom_context_menu ul li:focus ul,
+.custom_context_menu ul li.iehover ul{
+    left:50px;
+    top:10px;
+    display:block;
+}
+
+/* we apply different background color to 2nd level menu items*/
+.custom_context_menu ul li ul li{
+    background-color:#cae25a;
+}
+
+/* We change the background color for the level 2 submenu when hovering the menu */
+
+.custom_context_menu ul li:hover ul li:hover,
+.custom_context_menu ul li.iehover ul li.iehover{
+    background-color:#b1b536;
+}
+
+/* We style the color of level 2 links */
+.custom_context_menu ul li ul li a{
+    color:#454444;
+    display:inline-block;
+    width:120px;
+}
+
+/**** THIRD LEVEL MENU ****/
+/* We need to hide the 3rd menu, when hovering the first level menu */
+
+.custom_context_menu ul li:hover ul li ul,
+.custom_context_menu ul li.iehover ul li ul{
+    position:absolute;
+    display:none;
+}
+
+/* We show the third level menu only when they hover the second level menu parent */
+
+.custom_context_menu ul li:hover ul li:hover ul,
+.custom_context_menu ul li.iehover ul li.iehover ul{
+    display:block;
+    left:150px;
+    top:0;
+}
+
+/* We change the background color for the level 3 submenu*/
+
+.custom_context_menu ul li:hover ul li:hover ul li,
+.custom_context_menu ul li.iehover ul li.iehover ul li{
+    background:#86d3fa;
+}
+
+/* We change the background color for the level 3 submenu when hovering the menu */
+
+.custom_context_menu ul li:hover ul li:hover ul li:hover,
+.custom_context_menu ul li.iehover ul li.iehover ul li.iehover{
+    background:#358ebc;
+}
+
+/* We change the level 3 link color */
+
+.custom_context_menu ul li:hover ul li:hover ul li a,
+.custom_context_menu ul li.iehover ul li.iehover ul li a{
+    color:#ffffff;
+}
+
+/* Clear float */
+.clear{
+    clear:both;
+}
+    

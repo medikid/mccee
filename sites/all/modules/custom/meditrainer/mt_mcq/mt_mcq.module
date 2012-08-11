@@ -5,6 +5,7 @@ module_load_include('inc', 'mt_mcq','class_mcq');
 module_load_include('inc', 'mt_mcq','mt_mcq_admin_menu');
 module_load_include('inc', 'mt_mcq','mt_mcq_manage_form');
 module_load_include('inc', 'mt_mcq','mt_mcq_import_form');
+module_load_include('inc', 'mt_mcq','mcq_extract_dummytext_form');
 
 
 

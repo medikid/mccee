@@ -33,8 +33,31 @@ function mt_mcq_menu(){
     'page callback' => 'drupal_get_form',
     'page arguments' => array('setup_mt_mcq_add_form'),
     'access arguments' => array('administer site configuration'),
-);
+    );
      
+     $items['admin/meditrainer/mcq/extract'] = array(
+    'title' => 'Extract',
+    'description' => 'Extract MCQ from dummy text',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mcq_extract_dummytext_form'),
+    'access arguments' => array('administer site configuration'),
+    );
+     
+     $items['admin/meditrainer/mcq/extract/dummytext'] = array(
+    'title' => 'From Dummy Text',
+    'description' => 'Extract MCQ from dummy text',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mcq_extract_dummytext_form'),
+    'access arguments' => array('administer site configuration'),
+    );
+     
+     $items['admin/meditrainer/mcq/extract/dummydb'] = array(
+    'title' => 'From Dummy Database',
+    'description' => 'Extract MCQ from dummy text',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mcq_extract_dummytext_form'),
+    'access arguments' => array('administer site configuration'),
+    );
       
     $items['mcq/import'] = array(
     'title' => 'Import Question Bank',
