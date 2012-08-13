@@ -56,7 +56,7 @@ function get_date_slash_timestamp(){
 function get_import_export_folder_name($import_export_type){
     switch($import_export_type){
         case 'import':
-            $import_folder_name = 'import'.'/'.get_date_slash_timestamp().'/';
+            $import_folder_name = 'import'.'/';
             return $import_folder_name;
             break;
         case 'export':

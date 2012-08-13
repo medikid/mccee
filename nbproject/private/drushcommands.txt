@@ -1,3 +1,0 @@
-
-cmd /c D:\wamp\www\drush\drush.bat -r "D:/wamp/www/mccee" --include="C:\Users\chinnu\.netbeans\7.1\NBDrush" -y drush
-drush

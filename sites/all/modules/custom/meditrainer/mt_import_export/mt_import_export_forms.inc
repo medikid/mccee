@@ -167,7 +167,7 @@
      
      return $file_name;
  }
- 
+
  function db_export_form_submit($form, &$form_state){
      $form_state['rebuild']= true;
      
@@ -256,5 +256,128 @@
         }
         print($header.$data);
    }
+   
+   //////////////////@@@@@@@@@@@@@ IMPORT FORM AND FUNCTION @@@@@@@@@@@@@@@@@@///////////////
+   function db_import_form($form, &$form_state){
+    
+     $form['import_settings'] = array(
+         '#type' => 'fieldset',
+         '#title' => 'Import Table or Objects',
+         '#collapsible' => TRUE,
+         '#collapsed' => FALSE,
+     );
+    
+    
+     $form['import_settings']['table_or_object'] = array(
+            '#type' => 'radios',
+            '#title' => t('Export Item:'),
+            '#options' => array(
+            1 => t('Table'),
+            2 => t('Object'),
+            ),
+            '#default_value' => 1,
+            '#description' => t('Select the item you would like to export.'),
+           
+     );
+     
+     $form['import_settings']['db_table_name'] = array(
+            '#type' => 'select',
+            '#title' => t('Table Name:'),
+            '#options' => dropdown_db_table_name(),
+            '#ajax' => array(
+                'callback' => 'ajax_set_import_file_settings',
+                'wrapper' => 'import_file_settings_div',
+                'event' => 'change',
+                'method' => 'replace'
+                ),
+            '#states' => array(
+                'invisible' => array(
+                ':input[name="table_or_object"]' => array('value' => 2)
+                    )
+                ),
+           
+     );
+     
+     $form['import_settings']['object_name'] = array(
+         '#type' => 'select',
+            '#title' => t('Object Name:'),
+            '#options' => dropdown_object_name(),
+         '#default_value' =>  0,
+         '#ajax' => array(
+            'callback' => 'ajax_set_import_file_settings',
+            'wrapper' => 'import_file_settings_div',
+             'event' => 'change',
+             'method' => 'replace'
+            ),
+         '#states' => array(
+            // Hide the settings when the cancel notify checkbox is disabled.
+            'invisible' => array(
+            ':input[name="table_or_object"]' => array('value' => 1)
+                )
+             ),
+           
+     );     
+     
+     $form['import_file_settings'] = array(
+         '#type' => 'fieldset',
+         '#title' => 'Import File Settings',
+         '#collapsible' => TRUE,
+         '#collapsed' => FALSE,
+         '#prefix' => '<div id="import_file_settings_div">',
+         '#suffix' => '</div>',
+         
+     );
+     $form['import_file_settings']['folder_name'] = array(
+         '#type'=>'textfield',
+         '#title' => 'Folder Name:',
+         '#value' => '',
+        
+     );
+     
+     $form['import_file_settings']['file_name'] = array(
+         '#type'=>'textfield',
+         '#title' => 'File Name:',
+         '#value' => '',
+         
+     );
+
+     
+     $form['submit'] = array(
+         '#type'=>'submit',
+         '#value' => t('import'),
+         '#submit' => array('db_import_form_submit')
+     );
+     
+     return $form;
+ }
+   
+ function db_import_form_submit($form, &$form_state){
+     
+ }
+ 
+ function ajax_set_import_file_settings(&$form, &$form_state){
+     $form['import_file_settings']['#collapsed'] = FALSE;
+     $form['import_file_settings']['#prefix'] = '<div id="import_file_settings_div">';
+     $form['import_file_settings']['#suffix'] = '</div>';
+   
+    $form['import_file_settings']['folder_name']['#value'] = get_import_foldername($form, $form_state); 
+     $form['import_file_settings']['file_name'] ['#value'] = (isset($form_state['input']['object_name']) || isset($form_state['input']['db_table_name']))
+         ? get_export_filename($form_state['triggering_element']['#name'], $form_state['input'][$form_state['triggering_element']['#name']], '.csv')
+         : '' ; // used get export filename function here, that is okay.
+    return $form['import_file_settings'];    
+ }
+ 
+ function get_import_foldername(&$form, &$form_state){
+     $folder_name = get_import_export_folder_name('import');
+     $import_folder_suffix = isset($form_state['input']['object_name'])
+        ? "objects/" : isset($form_state['input']['db_table_name']) ? "tables/" : "";
+     // used get export filename function here, that is okay.
+     $import_file_name = get_export_filename($form_state['triggering_element']['#name'], $form_state['input'][$form_state['triggering_element']['#name']], '/');
+    
+     $folder_name .=  $import_folder_suffix;
+     $folder_name .=  $import_file_name;
+     
+     return $folder_name;
+ }
  
 ?>

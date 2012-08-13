@@ -246,7 +246,7 @@ $update_free_access = FALSE;
  *   $drupal_hash_salt = file_get_contents('/home/example/salt.txt');
  *
  */
-$drupal_hash_salt = 'SlAzqc3-5zS2wtoYUjqNNucaxwjFCJXfLkQbWPZNbew';
+$drupal_hash_salt = 'f_W6Cm8LkZCPBRzyhiEefNc4LC1GONDrJRcj9YndySQ';
 
 /**
  * Base URL (optional).
@@ -276,7 +276,7 @@ $drupal_hash_salt = 'SlAzqc3-5zS2wtoYUjqNNucaxwjFCJXfLkQbWPZNbew';
  * To see what PHP settings are possible, including whether they can be set at
  * runtime (by using ini_set()), read the PHP documentation:
  * http://www.php.net/manual/en/ini.list.php
- * See drupal_initialize_variables() in includes/bootstrap.inc for required
+ * See drupal_environment_initialize() in includes/bootstrap.inc for required
  * runtime settings and the .htaccess file for non-runtime settings. Settings
  * defined there should not be duplicated here so as to avoid conflict issues.
  */
@@ -524,3 +524,4 @@ $conf['404_fast_html'] = '<html xmlns="http://www.w3.org/1999/xhtml"><head><titl
  * Remove the leading hash signs to disable.
  */
 # $conf['allow_authorize_operations'] = FALSE;
+

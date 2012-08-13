@@ -16,8 +16,8 @@ function mt_import_export_menu(){
         'title' => 'Import',
         'description' => 'description',
         'page callback' => 'drupal_get_form',
-        'page arguments' => array('my_admin_function'),
-        'access arguments' => array('administer site configuration'),
+        'page arguments' => array('db_import_form'),
+        'access arguments' => array('Import Tables or Objects'),
         );
         
         $items['admin/meditrainer/import_export/export'] = array(
