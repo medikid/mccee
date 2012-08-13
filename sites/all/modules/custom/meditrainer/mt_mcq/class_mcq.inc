@@ -1,15 +1,5 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- * Description of class_mcq
- *
- * @author chinnu
- */
 class mcq {
    public   $qid, 
             $nid,
@@ -20,15 +10,28 @@ class mcq {
             $choice_c,
             $choice_d,
             $choice_e,
+	    $question_media_yn,
             $speciality,
             $sub_speciality,
                     
             $answer,
-            $rating,
-            $notes;
+            $conf_rating,
+            $notes,
+	    $notes_a,
+	    $notes_b,
+	    $notes_c,
+	    $notes_d,
+	    $notes_e,
+	    $exam,
+	    $exam_level,
+	    $expert_level,
+	    $hints_yn,
+	    $validity_yn,
+	    $objection_yn,
+	    $disc_board_yn,
                     
-    
-   
+	    $mcqLoadType;
+/*   
 function load($qid){
         $query = db_select('mcq_question_bank', 'q');
         $query->join('mcq_answer_bank', 'a', 'a.qid = q.qid');
@@ -85,6 +88,7 @@ function load($qid){
   /*
    * convert object to array
    */
+   /*
   function to_array(){
      $mcq_array = array(); 
       
@@ -128,8 +132,85 @@ function load($qid){
           
       }  
       
+      */
       
-      
-      
+   function fromJson($jsonString, $loadType){
+	    $jsonObject = json_decode(jsonString);
+	    $this->question_text = $jsonObject->question_text;
+	    $this->qid = $jsonObject->qid;
+            $this->nid = $jsonObject->nid ;
+            $this->nid = $jsonObject->nid ;
+            $this->question_text = $jsonObject->question_text ;
+            $this->choice_a = $jsonObject->choice_a ;
+            $this->choice_b = $jsonObject->choice_b ;
+            $this->choice_c = $jsonObject->choice_c ;
+            $this->choice_d = $jsonObject->choice_d ;
+            $this->choice_e = $jsonObject->choice_e ;
+	    $this->question_media_yn = $jsonObject->question_media_yn ;
+            $this->speciality = $jsonObject->speciality ;
+            $this->sub_speciality = $jsonObject->sub_speciality ;
+                    
+            $this->answer = $jsonObject->answer ;
+            $this->conf_rating = $jsonObject->conf_rating ;
+            $this->notes = $jsonObject->notes ;
+	    $this->notes_a = $jsonObject->notes_a ;
+	    $this->notes_b = $jsonObject->notes_b ;
+	    $this->notes_c = $jsonObject->notes_c ;
+	    $this->notes_d = $jsonObject->notes_d ;
+	    $this->notes_e = $jsonObject->notes_e ;
+	    $this->exam = $jsonObject->exam ;
+	    $this->exam_level = $jsonObject->exam_level ;
+	    $this->expert_level = $jsonObject->expert_level ;
+	    $this->hints_yn = $jsonObject->hints_yn ;
+	    $this->validity_yn = $jsonObject->validity_yn ;
+	    $this->objection_yn = $jsonObject->objection_yn ;
+	    $this->disc_board_yn = $jsonObject->disc_board_yn ;
+   }      
   
+
+   
+   
 } //end of class mcq
+
+class MCQ_LOAD_TYPE{
+    
+ const MIN = 1;
+ const BASIC = 2;
+ const NORMAL = 3;
+ const MED = 4;
+ const MAX = 5;
+ 
+// private int $mcqLoadType;
+    
+   function toString(){
+       
+   }
+   
+ public static function getAttrArray($mcqLoadType){
+     $attrArray;
+     
+       switch($mcqLoadType){
+	   case 1:
+	       $attrArray_min = array('qid', 'question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'choice_e', 'question_media_yn');
+	       break;
+	   case 2:
+	       $attrArray = array('qid', 'question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'choice_e', 'question_media_yn', 'answer');
+	       break;
+	   case 3:
+	       $attrArray = array('qid', 'question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'choice_e', 'question_media_yn', 'answer', 'notes', 'notes_a', 'notes_b', 'notes_c', 'notes_d', 'notes_e', 'hints_yn' );
+	       break;
+	   case 4:
+	       $attrArray = array('qid', 'question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'choice_e', 'question_media_yn', 'answer', 'notes', 'notes_a', 'notes_b', 'notes_c', 'notes_d', 'notes_e', 'hints_yn', 'speciality', 'sub_speciality',  'conf_rating', 'exam', 'exam_level', 'expert_level' );
+	       break;
+	   case 5:
+	       $attrArray = array('qid', 'question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'choice_e', 'question_media_yn', 'answer', 'notes', 'notes_a', 'notes_b', 'notes_c', 'notes_d', 'notes_e', 'hints_yn', 'speciality', 'sub_speciality',  'conf_rating', 'exam', 'exam_level', 'expert_level', 'validity_yn', 'objection_yn', 'disc_board_yn');
+	       break;
+       }
+       return $attrArray;
+   }
+}
+
+
+
+
+?>

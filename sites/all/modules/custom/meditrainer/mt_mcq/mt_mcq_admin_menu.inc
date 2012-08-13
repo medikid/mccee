@@ -53,7 +53,7 @@ function mt_mcq_menu(){
      
      $items['admin/meditrainer/mcq/extract/dummydb'] = array(
     'title' => 'From Dummy Database',
-    'description' => 'Extract MCQ from dummy text',
+    'description' => 'Extract MCQ from dummy mcq database',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('mcq_extract_dummytext_form'),
     'access arguments' => array('administer site configuration'),

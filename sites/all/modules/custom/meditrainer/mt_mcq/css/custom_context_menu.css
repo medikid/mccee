@@ -56,7 +56,7 @@
 .custom_context_menu ul li:hover ul,
 .custom_context_menu ul li:focus ul,
 .custom_context_menu ul li.iehover ul{
-    left:50px;
+    left:40px;
     top:10px;
     display:block;
 }

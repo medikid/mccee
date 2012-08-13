@@ -64,17 +64,17 @@ function append_json_paste_trail(keyName){
 
 function append_mcq_json_opener(){
     var json_mcq = "{ ";
-    jQuery('input[name="dummy_mcq_json_object"]').val(json_mcq);
+    jQuery('input[name="dummy_mcq_json_object"]').append(json_mcq);
     return 
 }
 function append_mcq_json(keyName, valueName){
   var  jsonText = " \" " + keyName + "\" : \"" + valueName +"\",";
-    jQuery('input[name="dummy_mcq_json_object"]').val(jsonText);
+    jQuery('input[name="dummy_mcq_json_object"]').append(jsonText);
     return jsonText;
 }
 
 function append_mcq_json_closer(){
     var json_mcq = " }";
-    jQuery('input[name="dummy_mcq_json_object"]').val(json_mcq);
+    jQuery('input[name="dummy_mcq_json_object"]').append(json_mcq);
     return json_mcq;
 }

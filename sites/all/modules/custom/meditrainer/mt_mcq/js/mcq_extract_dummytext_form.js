@@ -25,27 +25,23 @@ jQuery(document).ready(function(){
 
 	}) //end of mouseup binder
 
+	    //raise click event listener on the li list items
 	    jQuery('div.custom_context_menu li').click(function(){
 		var clickedMenuId = jQuery(this).attr('id');
 		var clickedMenuClass = jQuery(this.parentNode).attr('class');
 
 		if (clickedMenuClass == "submenu"){
-			if (textarea_dummy_json.html().length == 0){
-			    textarea_dummy_json.append(append_mcq_json_opener());
-
-			    if (clickedMenuId =="answer"){ selectedText = jQuery(this).html().toLowerCase(); }//override answer
-
-			     textarea_dummy_json.append(append_mcq_json(clickedMenuId,selectedText));	      
-			    } else textarea_dummy_json.append(append_mcq_json(clickedMenuId, selectedText));
-
+		    if (clickedMenuId =="answer"){ selectedText = jQuery(this).html().replace(/<\/?[^>]+>/gi, '').toLowerCase(); }//override answer, remove html tags
+			var updated_json_string = append_mcq_json(textarea_dummy_json.html(), clickedMenuId, selectedText );
+			textarea_dummy_json.html(updated_json_string);//updated hidden field
+			jQuery('input[name="dummy_mcq_json_object"]').val(updated_json_string);
 			append_json_paste_trail(clickedMenuId);//update trail to track last pasted
 			jQuery(menuDivSelector).hide();
 			return false; //this would prevent the double clicked events from li
 		} else {
-		    if (textarea_dummy_json.html().length == 0){
-			    textarea_dummy_json.append(append_mcq_json_opener());
-			     textarea_dummy_json.append(append_mcq_json(clickedMenuId,selectedText));	      
-			    } else textarea_dummy_json.append(append_mcq_json(clickedMenuId, selectedText));
+			   var updated_json_string = append_mcq_json(textarea_dummy_json.html(), clickedMenuId, selectedText );
+			textarea_dummy_json.html(updated_json_string);
+			jQuery('input[name="dummy_mcq_json_object"]').val(updated_json_string);//updated hidden field
 		    append_json_paste_trail(clickedMenuId);//update trail to track last pasted
 		    jQuery(menuDivSelector).hide();
 		}
@@ -57,14 +53,14 @@ function append_json_paste_trail(keyName){
     jQuery(divSelector).css('font-weight', 'bold');
 }
 
-function append_mcq_json_opener(){
-    return json_mcq = "{ ";
-}
-function append_mcq_json(keyName, valueName){
-    jsonText = " \" " + keyName + "\" : \"" + valueName +"\",";
-    return jsonText;
-}
 
-function append_mcq_json_closer(){
-    return json_mcq = " }";
+function append_mcq_json(jsonString, keyName, valueName){
+    var jsonObj;
+    if (jsonString == "" || jsonString == null ){
+	jsonObj = new Object();
+    } else jsonObj = jQuery.parseJSON(jsonString);
+	
+	jsonObj[keyName] = valueName;
+      var updatedJsonString = JSON.stringify(jsonObj);   
+	return updatedJsonString;
 }

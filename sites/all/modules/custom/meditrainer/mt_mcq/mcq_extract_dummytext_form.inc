@@ -17,8 +17,8 @@ function mcq_extract_dummytext_form($form, $form_state){
      
     $form['dummy_mcq_json_object'] = array(
 		'#type'=>'hidden',
-                '#default_value'=>'',	
-		'#suffix' => '<div class="dummy_mcq_json"></div>'
+                '#default_value'=>'',
+		'#suffix' => '<div class="dummy_mcq_json"></div>',
     );
     $form['dummy_mcq_text'] = array(
 	'#title' => t('Paste Your Dummy MCQ Text here:'),
@@ -30,43 +30,101 @@ function mcq_extract_dummytext_form($form, $form_state){
 	'#suffix' => get_mcq_extract_custom_menu("custom_context_menu")
     );
     
-   
-    
     return $form;
     
 }
 
 function mcq_extract_dummytext_form_submit($form, &$form_state){
-    drupal_add_js( 'textarea_dummy_json.append(append_mcq_json_closer())', 'inline' );
-   dsm($form);
+   
+    $jsonString = $form_state['values']['dummy_mcq_json_object']; //get jsonstring from hidden field
+    saveToDummyDB($jsonString); //now save it to dummy DB
+	   
 }
 
+function convertToDummyMCQ($jsonString){
+    $jsonArray = json_decode($jsonString, true);
+    $dummyMCQ = array();
+    foreach ($jsonArray as $key=>$value){
+	switch(trim($key)){
+	    case 'complete_text':
+		$dummyMCQ['d_complete_text'] = $value;
+		break;
+	    case 'question_text':
+		$dummyMCQ['d_question_text'] = $value;
+		break;
+	    case 'choice_a':
+		$dummyMCQ['d_choice_a'] = $value;
+		break;
+	     case 'choice_b':
+		 $dummyMCQ['d_choice_b'] = $value;
+		break;
+	     case 'choice_c':
+		 $dummyMCQ['d_choice_c'] = $value;
+		break;
+	     case 'choice_d':
+		 $dummyMCQ['d_choice_d'] = $value;
+		break;
+	     case 'choice_e':
+		 $dummyMCQ['d_choice_e'] = $value;
+		break;
+	     case 'answer':
+		 $dummyMCQ['d_answer'] = $value;
+		break;
+	    case 'notes':
+		$dummyMCQ['d_notes'] = $value;
+		break;
+	    case 'notes_a':
+		$dummyMCQ['d_notes_a'] = $value;
+		break;
+	    case 'notes_b':
+		$dummyMCQ['d_notes_b'] = $value;
+		break;
+	    case 'notes_c':
+		$dummyMCQ['d_notes_c'] = $value;
+		break;
+	    case 'notes_d':
+		$dummyMCQ['d_notes_d'] = $value;
+		break;
+	    case 'notes_e':
+		$dummyMCQ['d_notes_e'] = $value;
+		break;
+	}
+    }
+    return $dummyMCQ;
+}
+
+function saveToDummyDB($jsonString){    
+    $dummy_mcq = convertToDummyMCQ($jsonString);
+   $upload = db_insert('dummy_mcq')
+	    ->fields($dummy_mcq)
+	   ->execute();
+}
 
 function get_mcq_extract_custom_menu($menuDivClass){
     $cust_menu ="";
     $cust_menu .= '<div class="'.$menuDivClass.'">';
     $cust_menu .= '<ul class="menu">';
     
-    $cust_menu .= '<li id="wholeText" ><a>Complete Text</a></li>';
-    $cust_menu .= '<li id="questionText" ><a>Question Text</a></li>';
+    $cust_menu .= '<li id="complete_text" ><a>Complete Text</a></li>';
+    $cust_menu .= '<li id="question_text" ><a>Question Text</a></li>';
     
     $cust_menu .= '<li id="choices" ><a>Choices</a>';
     $cust_menu .= '<ul class="submenu">';
-    $cust_menu .= '<li id="choiceA" ><a>Choice A</a></li>';
-    $cust_menu .= '<li id="choiceB" ><a>Choice B</a></li>';
-    $cust_menu .= '<li id="choiceC" ><a>Choice C</a></li>';
-    $cust_menu .= '<li id="choiceD" ><a>Choice D</a></li>';
-    $cust_menu .= '<li id="choiceE" ><a>Choice E</a></li>';
+    $cust_menu .= '<li id="choice_a" ><a>Choice A</a></li>';
+    $cust_menu .= '<li id="choice_b" ><a>Choice B</a></li>';
+    $cust_menu .= '<li id="choice_c" ><a>Choice C</a></li>';
+    $cust_menu .= '<li id="choice_d" ><a>Choice D</a></li>';
+    $cust_menu .= '<li id="choice_e" ><a>Choice E</a></li>';
     $cust_menu .= '</ul>';
     $cust_menu .= '</li>';
     
     $cust_menu .= '<li id="notes" ><a>Notes</a>';
     $cust_menu .= '<ul class="submenu">';
-    $cust_menu .= '<li id="notesA" ><a>Notes A</a></li>';
-    $cust_menu .= '<li id="notesB" ><a>Notes B</a></li>';
-    $cust_menu .= '<li id="notesC" ><a>Notes C</a></li>';
-    $cust_menu .= '<li id="notesD" ><a>Notes D</a></li>';
-    $cust_menu .= '<li id="notesE" ><a>Notes E</a></li>';
+    $cust_menu .= '<li id="notes_a" ><a>Notes A</a></li>';
+    $cust_menu .= '<li id="notes_b" ><a>Notes B</a></li>';
+    $cust_menu .= '<li id="notes_c" ><a>Notes C</a></li>';
+    $cust_menu .= '<li id="notes_d" ><a>Notes D</a></li>';
+    $cust_menu .= '<li id="notes_e" ><a>Notes E</a></li>';
     $cust_menu .= '</ul>';
     $cust_menu .= '</li>';
     
@@ -90,18 +148,18 @@ function getJsonPasteTrail(){
     $pasteTrail = '';
     $pasteTrail = '<div class="container-inline">';
     $pasteTrail .= '<div class="json_paste_trail">';
-    $pasteTrail .= '<div>>></div><div id=questionText>questionText</div>';
-    $pasteTrail .= '<div>>></div><div id="choiceA">choiceA</div>';
-    $pasteTrail .= '<div>>></div><div id="choiceB">choiceB</div>';
-    $pasteTrail .= '<div>>></div><div id="choiceC">choiceC</div>';
-    $pasteTrail .= '<div>>></div><div id="choiceD">choiceD </div>';
-    $pasteTrail .= '<div>>></div><div id="choiceE">choiceE</div>';
+    $pasteTrail .= '<div>>></div><div id=question_text>questionText</div>';
+    $pasteTrail .= '<div>>></div><div id="choice_a">choiceA</div>';
+    $pasteTrail .= '<div>>></div><div id="choice_b">choiceB</div>';
+    $pasteTrail .= '<div>>></div><div id="choice_c">choiceC</div>';
+    $pasteTrail .= '<div>>></div><div id="choice_d">choiceD </div>';
+    $pasteTrail .= '<div>>></div><div id="choice_e">choiceE</div>';
     $pasteTrail .= '<div>>></div><div id="answer">answer</div>';
-    $pasteTrail .= '<div>>></div><div id="notesA">notesA</div>';
-    $pasteTrail .= '<div>>></div><div id="notesB">notesB</div>';
-    $pasteTrail .= '<div>>></div><div id="notesC">notesC</div>';
-    $pasteTrail .= '<div>>></div><div id="notesD">notesD</div>';
-    $pasteTrail .= '<div>>></div><div id="notesE">notesE</div>';    
+    $pasteTrail .= '<div>>></div><div id="notes_a">notesA</div>';
+    $pasteTrail .= '<div>>></div><div id="notes_b">notesB</div>';
+    $pasteTrail .= '<div>>></div><div id="notes_c">notesC</div>';
+    $pasteTrail .= '<div>>></div><div id="notes_d">notesD</div>';
+    $pasteTrail .= '<div>>></div><div id="notes_e">notesE</div>';    
     $pasteTrail .= '<div>>></div><div id="notes">notes</div>';
     $pasteTrail .= '</div>';
     $pasteTrail .= '</div>';

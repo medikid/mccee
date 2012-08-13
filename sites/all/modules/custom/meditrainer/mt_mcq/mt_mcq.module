@@ -1,7 +1,7 @@
 <?php
 //module_load_include('inc', 'mt_mcq','mcq_node_setup');
 module_load_include('inc', 'mt_mcq','mt_mcq_add_form');
-module_load_include('inc', 'mt_mcq','class_mcq');
+module_load_include('inc', 'mt_mcq','MCQ');
 module_load_include('inc', 'mt_mcq','mt_mcq_admin_menu');
 module_load_include('inc', 'mt_mcq','mt_mcq_manage_form');
 module_load_include('inc', 'mt_mcq','mt_mcq_import_form');
@@ -39,9 +39,10 @@ function prepare_mcq_node(&$node){
                 } elseif  ($node->answer_e == 1){
                     $answer = 'e';
                 } else $answer = '';
-        $node->answer = $answer;
+        if ($node->answer == null || !isset($node->answer) ) { $node->answer = $answer; }
         
-	$node->exam = $node->aspiring_exam;
+	if ($node->exam == null || !isset($node->exam) ) { $node->exam = $node->aspiring_exam; }
+	
        switch($node->exam){
             case 2:
                 $exam_level = $node->aspiring_exam_can;
@@ -60,7 +61,7 @@ function prepare_mcq_node(&$node){
                 break;
             
         }
-        $node->exam_level = $exam_level;
+	if ($node->exam_level == null || !isset($node->exam_level) ) { $node->exam_level = $exam_level; }
         
         //these are not needed at the moment on the add/edit form
         $node->validity_yn = 0; //$form_data['validity_yn'];
