@@ -1,7 +1,9 @@
 <?php
 
 module_load_include('inc', 'mt_exam', 'mt_exam_admin_menu');
-
+module_load_include('inc', 'mt_exam', 'TestProfile');
+module_load_include('inc', 'mt_exam', 'QuestionSheet');
+module_load_include('inc', 'mt_exam', 'QuestionNavigator_form');
 
 function generate_question_sheet($QTotal, $QFilter=FALSE){
     

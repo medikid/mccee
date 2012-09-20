@@ -246,7 +246,7 @@ $update_free_access = FALSE;
  *   $drupal_hash_salt = file_get_contents('/home/example/salt.txt');
  *
  */
-$drupal_hash_salt = 'f_W6Cm8LkZCPBRzyhiEefNc4LC1GONDrJRcj9YndySQ';
+$drupal_hash_salt = 'T5EQ17H0v6s98ZaB9Gkc8lYjw_VWkLp_COnP1gxS-TE';
 
 /**
  * Base URL (optional).
@@ -524,4 +524,3 @@ $conf['404_fast_html'] = '<html xmlns="http://www.w3.org/1999/xhtml"><head><titl
  * Remove the leading hash signs to disable.
  */
 # $conf['allow_authorize_operations'] = FALSE;
-

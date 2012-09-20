@@ -352,7 +352,29 @@
  }
    
  function db_import_form_submit($form, &$form_state){
-     
+     $table_or_object = $form_state['input']['table_or_object'];
+     $table_name = $form_state['input']['db_table_name'];
+     $object_name = $form_state['input']['object_name'];
+     $folderName = $form_state['input']['folder_name'];
+     $fileName = $form_state['input']['file_name'];
+     switch ($table_or_object){
+	 //table
+	 case "1":
+	     
+	     break;
+	 //object
+	 case "2":
+	     switch ($object_name){
+	     //mcq
+	     case 1:
+		 break;
+	     //mcq_caqb
+	     case 4:
+		 import_mcq_caqb($folderName, $fileName);
+		 break;
+	     }
+	     break;
+     }
  }
  
  function ajax_set_import_file_settings(&$form, &$form_state){
@@ -368,9 +390,20 @@
  }
  
  function get_import_foldername(&$form, &$form_state){
-     $folder_name = get_import_export_folder_name('import');
-     $import_folder_suffix = isset($form_state['input']['object_name'])
-        ? "objects/" : isset($form_state['input']['db_table_name']) ? "tables/" : "";
+     $folder_name = get_import_export_folder_name('import');     
+     $table_or_object = trim($form_state['values']['table_or_object']);
+     switch($table_or_object){
+	 case "1":
+	     $import_folder_suffix =  "tables/";
+	     break;
+	 case "2":
+	     $import_folder_suffix =  "objects/";
+	     break;
+	 default:
+	     $import_folder_suffix =  "";
+	     break;
+     }
+    
      // used get export filename function here, that is okay.
      $import_file_name = get_export_filename($form_state['triggering_element']['#name'], $form_state['input'][$form_state['triggering_element']['#name']], '/');
     

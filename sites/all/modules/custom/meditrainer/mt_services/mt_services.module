@@ -53,7 +53,7 @@ module_load_include('inc', 'mt_services', 'mt_services.services_default');
  */
 function mt_services_services_resources() {
   return array(
-    'mcq' => array(
+    'mccee' => array(
       'retrieve' => array(
         'help' => 'Retrieves mcq question from the question bank',
         'file' => array('file' => 'inc', 'module' => 'mcq_resources'),

@@ -6,7 +6,7 @@ function save_test_profile($form, &$form_state){
     $test_profile_data =  $_REQUEST;
     $profq_id = NULL;
     if ($_SESSION['TEST_PROFILE_DISPLAY_MODE'] == 1){
-        if ($test_profile_data['profq_customize'] == '0'){
+        if ($test_profile_data['profq_is_customized'] == '0'){
             $test_profile_data['profq_composition'][0]='0';
         }
         
@@ -19,7 +19,7 @@ function save_test_profile($form, &$form_state){
         'profq_total'=>$test_profile_data['profq_total'],
         'profq_duration'=>$test_profile_data['profq_duration'],
         'profq_test_mode'=>$test_profile_data['profq_test_mode'],
-        'profq_customize'=>$test_profile_data['profq_customize'],    
+        'profq_is_customized'=>$test_profile_data['profq_is_customized'],    
         'profq_composition'=>serialize($test_profile_data['profq_composition'])
     ));
     $profq_id = $query->execute();
@@ -44,7 +44,7 @@ function dropdown_profq_name(){
            ->condition('uid',$user->uid,'=')
            ->execute();
     foreach($test_profiles as $key=>$test_profile){
-       $options[$test_profile->profq_id]=$test_profile->profq_name;
+       $options[$test_profile->profq_id]=$test_profile->tp_name;
    }
    $options[0]='Select saved profile';
     return $options;
@@ -56,7 +56,7 @@ function dropdown_default_selection_profq_name(){
     $default_test_profile = db_select('mcq_test_profiles','tp')
            ->fields('tp',array('profq_id'))
            ->condition('uid',$user->uid,'=')
-           ->condition('profq_user_default',1)
+           ->condition('profq_is_user_default',1)
            ->execute()
            ->fetchAssoc();
   if (!empty($default_test_profile)) {
@@ -131,15 +131,15 @@ function dropdown_profq_test_mode(){
     return $options;
 }
 
-function dropdown_profq_customize(){
+function dropdown_profq_is_customized(){
     $codelist = new codelist();
-    $options = $codelist->get_dropdown('profq_customize');
+    $options = $codelist->get_dropdown('profq_is_customized');
     return $options;
 }
 
-function dropdown_default_selection_profq_customize(){
+function dropdown_default_selection_profq_is_customized(){
     $codelist = new codelist();
-    $default_selection = $codelist->get_dropdown_default_selection('profq_customize');
+    $default_selection = $codelist->get_dropdown_default_selection('profq_is_customized');
     return $default_selection;
 }
 

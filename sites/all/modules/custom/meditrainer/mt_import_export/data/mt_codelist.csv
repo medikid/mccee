@@ -3,6 +3,7 @@ NULL,import_export,object_name,Select Object to export,,0,,NULL,NULL,NULL,NULL
 NULL,import_export,object_name,mcq,,1,,NULL,NULL,NULL,NULL
 NULL,import_export,object_name,book,,2,,NULL,NULL,NULL,NULL
 NULL,import_export,object_name,members,,3,,NULL,NULL,NULL,NULL
+NULL,import_export,object_name,mcq_caqb,,4,,NULL,NULL,NULL,NULL
 NULL,import_export,db_table_name,Select Table to export,,0,,NULL,NULL,NULL,NULL
 NULL,import_export,db_table_name,mt_codelist,,1,,NULL,NULL,NULL,NULL
 NULL,import_export,db_table_name,mt_members,,2,,NULL,NULL,NULL,NULL

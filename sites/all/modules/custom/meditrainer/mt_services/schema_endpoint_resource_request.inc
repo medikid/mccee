@@ -10,12 +10,14 @@
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@--REQUEST--@@@@@@@@@@@@@@@@@@@@@@@
 
-URL_REQUESTED:  mcq-api/tp/2356.json where 2356 is the testpaper_id
+URL_REQUESTED:  mccee-api/qs/2356.json where 2356 is the qsid
+ * URL_REQUESTED:  mccee-api/q/2356.json where 2356 is the a qid
+ * URL_REQUESTED:  mccee-api/u/2356.json where 2356 is the uid
  */
  $json_data = array(
     'uid'=>3,
      'application'=>'test_panel/android_app',
-     'tpid'=>2356,
+     'qsid'=>2356,
      'cookie'=>'SES2458899664444745.25669874445555',
      'current_qno'=>5,//options var not set, null value, 0, 1, over 1
      'action_requests'=>array(

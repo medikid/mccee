@@ -90,7 +90,32 @@ function get_var_name( &$var, $scope=false, $prefix='UNIQUE', $suffix='VARIABLE'
         return $default_selection;
     }
     
+    function get_code($cat, $sub_cat, $name){
+	$result = db_select('mt_codelist', 'n')
+                ->fields('n')
+		->condition('n.cat', $cat)
+                ->condition('n.sub_cat', $sub_cat)
+                ->condition('n.name', $name)
+                ->execute();
+	$code = "";
+	while ($value = $result->fetchassoc()) {
+            $code = $value['code'];
+        }
+	return $code;
+    }
     
+    function get_codelist($cat, $sub_cat){
+	$result = db_select('mt_codelist', 'n')
+                ->fields('n')
+		->condition('n.cat', $cat)
+                ->condition('n.sub_cat', $sub_cat)
+                ->execute();
+	$code_values = array();
+	while ($value = $result->fetchassoc()) {
+	    array_push($code_values, $value);
+        }
+	return $code_values;
+    }
   //  eval( '$query = db_select('node', 'n'); $query->join('mt_codelist', 'c', 'n.title = c.name'); $result = $query ->fields('n', array('nid', 'title', 'type')) ->fields('c', array('code_id','name', 'code','sub_name', 'sub_code')) ->condition('n.type','membership','=') ->condition('c.sub_name','nid','=') ->execute(); $mismatches=array(); 
    //     foreach ($result as $row) { 
     

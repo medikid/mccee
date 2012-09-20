@@ -12,8 +12,11 @@ class MCQ implements iMCQ {
             $choice_d,
             $choice_e,
 	    $question_media_yn,
+	    $question_media_type,
+	    $question_media_filename,
             $speciality,
             $sub_speciality,
+	    $question_bank_source,
                     
             $answer,
             $conf_rating,
@@ -212,6 +215,7 @@ function fromJson($jsonString){
 	$node->question_media_yn = $this->question_media_yn;
         $node->speciality = $this->speciality;
         $node->sub_speciality = $this->sub_speciality;
+	$node->question_bank_source = $this->question_bank_source;
 
         //set_node_answer($node, $this->answer);
         $node->answer = $this->answer; //
@@ -229,6 +233,11 @@ function fromJson($jsonString){
 	$node->validity_yn = $this->validity_yn;
 	$node->objection_yn = $this->objection_yn;
 	$node->disc_board_yn = $this->disc_board_yn;
+	
+	if ($node->question_media_yn == 1){
+	    $node->question_media_filename = $this->question_media_filename;
+	    $node->question_media_type = $this->question_media_type;
+	}
 	
         node_save($node);
    }

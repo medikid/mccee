@@ -1,17 +1,17 @@
 code_id,cat,sub_cat,name,sub_name,code,sub_code,code_dependency,sub_code_dependency,disabled,date_disabled
-NULL,mt_exam,profq_duration,4 Hours,,240,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_duration,3 Hours,default,180,1,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_duration,2 Hours,,120,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_duration,1 Hour,,60,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_duration,30 Minutes,,30,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_total,200 Questions,,200,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_total,180 Questions,default,180,1,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_total,150 Questions,,150,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_total,100 Questions,,100,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_total,50 Questions,,50,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_total,25 Questions,,25,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_total,10 Questions,,10,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_test_mode,Timed Mode,default,1,1,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_test_mode,Tutor Mode,,2,,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_customize,Use All Specialities,default,0,1,NULL,NULL,NULL,NULL
-NULL,mt_exam,profq_customize,Customize By Specialities,,1,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_duration,4 Hours,,240,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_duration,3 Hours,default,180,1,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_duration,2 Hours,,120,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_duration,1 Hour,,60,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_duration,30 Minutes,,30,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_total,200 Questions,,200,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_total,180 Questions,default,180,1,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_total,150 Questions,,150,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_total,100 Questions,,100,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_total,50 Questions,,50,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_total,25 Questions,,25,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_total,10 Questions,,10,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_test_mode,Timed Mode,default,1,1,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_test_mode,Tutor Mode,,2,,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_is_customized,Use All Specialities,default,0,1,NULL,NULL,NULL,NULL
+NULL,mt_exam,tp_is_customized,Customize By Specialities,,1,,NULL,NULL,NULL,NULL

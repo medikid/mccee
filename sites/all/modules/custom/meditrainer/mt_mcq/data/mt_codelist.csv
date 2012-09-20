@@ -54,6 +54,13 @@ NULL,MCQ,expert_level,Novice,,2,,NULL,NULL,NULL,NULL
 NULL,MCQ,expert_level,Mediocre,,3,,NULL,NULL,NULL,NULL
 NULL,MCQ,expert_level,Expert,,4,,NULL,NULL,NULL,NULL
 NULL,MCQ,expert_level,Advanced,,5,,NULL,NULL,NULL,NULL
+NULL,MCQ,question_media_type,None,,0,,NULL,NULL,NULL,NULL
 NULL,MCQ,question_media_type,Image,,1,,NULL,NULL,NULL,NULL
 NULL,MCQ,question_media_type,Audio,,2,,NULL,NULL,NULL,NULL
 NULL,MCQ,question_media_type,Video,,3,,NULL,NULL,NULL,NULL
+NULL,MCQ,question_media_type,CSV,,4,,NULL,NULL,NULL,NULL
+NULL,MCQ,question_media_type,Data,,5,,NULL,NULL,NULL,NULL
+NULL,MCQ,question_media_type,Notepad,,6,,NULL,NULL,NULL,NULL
+NULL,MCQ,question_bank_source,None,,0,,NULL,NULL,NULL,NULL
+NULL,MCQ,question_bank_source,Admin,,1,,NULL,NULL,NULL,NULL
+NULL,MCQ,question_bank_source,CAQB,,2,,NULL,NULL,NULL,NULL

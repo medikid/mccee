@@ -24,15 +24,27 @@ function mcq_test_profile_form($form, &$form_state){
         '#options'=>  dropdown_profq_name(),
         '#default_value'=> dropdown_default_selection_profq_name(),
         '#ajax'=>array(
-            //'callback'=>'load_selected_profile_callback',
             'callback'=>'ajx_load_saved_exam_profile',
             'wrapper'=>'test_profile_wrapper',
-            // replace the wrapper
-            //'method' => 'replace',
-
             ),
         '#prefix'=>'<div class="container-inline">',
         '#suffix'=>'</div><p>'
+    );
+    
+    $form['select_profile']['edit_profile_yn']=array(
+        '#type'=>'checkbox',
+        '#title'=>'Edit this profile: ',
+        '#default_value'=> 0,
+	'#states'=>array(
+                'invisible'=>array(
+                    ':input[name="profq_name"]'=>array('value'=>'0'),
+                ),                
+            ),
+	'#ajax'=>array(
+            'callback'=>'ajx_load_edit_exam_profile_form',
+            'wrapper'=>'test_profile_wrapper',
+            'method' => 'replace',
+        )
     );
     
     $form['select_profile']['OR_statement']=array(
@@ -120,11 +132,11 @@ function mcq_test_profile_form($form, &$form_state){
         '#default_value'=>  dropdown_default_selection_profq_test_mode(),
     );
 
-   $form['new_profile']['profq_customize']=array(
+   $form['new_profile']['profq_is_customized']=array(
         '#type'=>'radios',
         '#title'=>'Questions Distribution By Speciality: ',
-        '#options'=> dropdown_profq_customize(),
-        '#default_value'=>dropdown_default_selection_profq_customize(),
+        '#options'=> dropdown_profq_is_customized(),
+        '#default_value'=>dropdown_default_selection_profq_is_customized(),
     
     );
       
@@ -136,7 +148,7 @@ function mcq_test_profile_form($form, &$form_state){
         '#default_value'=>array('0'=>'0'),
         '#states'=>array(
                 'visible'=>array(
-                    ':input[name="profq_customize"]'=>array('value'=>'1'),
+                    ':input[name="profq_is_customized"]'=>array('value'=>'1'),
                 ),                
             ),
     
@@ -184,6 +196,89 @@ function ajx_load_create_exam_profile_form($form, &$form_state){
    
 }
 
+function ajx_load_edit_exam_profile_form($form, &$form_state){
+    if ($form_state['values']['edit_profile_yn'] == 1){
+	$_SESSION['TEST_PROFILE_DISPLAY_MODE'] = 1;
+	$selected_profile_id=$form_state['values']['profq_name'];
+	$selected_profile = load_selected_test_profile($selected_profile_id);
+	
+	
+	$form['edit_profile'] =array(
+	    '#type'=>'fieldset',
+	    '#title'=>t('Test Profile Name: '.$selected_profile['profq_name'] .' (Edit Mode)'),
+	    '#prefix'=>'<div id="test_profile_wrapper">',
+	    '#suffix'=>'</div>' 
+	  ); 
+	
+	$form['edit_profile']['profq_test'] = array(
+	    '#type'=>'select',
+	      '#title'=>'Select Exam: ',
+	      '#options'=>  dropdown_profq_test(),
+	     '#default_value'=> $selected_profile['profq_test'],
+	      '#prefix'=>'<div class="container-inline">',
+	      '#suffix'=>'</div>'
+	  );
+     
+  
+    $form['edit_profile']['profq_total'] = array(
+      '#type'=>'select',
+        '#title'=>'Total Number of Questions: ',
+        '#options'=>  dropdown_profq_total(),
+        '#default_value'=>  $selected_profile['profq_total'],
+        '#prefix'=>'<div class="container-inline">',
+        '#suffix'=>'</div>'     
+    );
+    
+     $form['edit_profile']['profq_duration']=array(
+      '#type'=>'select',
+        '#title'=>'Test Duration: ',
+        '#options'=> dropdown_profq_duration(),	 
+        '#default_value'=>  $selected_profile['profq_duration'],
+        '#prefix'=>'<div class="container-inline">',
+        '#suffix'=>'</div>'    
+    );
+   
+      $form['edit_profile']['profq_test_mode'] = array(
+        '#type'=>'radios',
+        '#title'=>'Test Mode: ',
+        '#options'=> //dropdown_profq_test_mode(),
+	  array(
+	     1 => "array",
+	     2 => "surrey"
+	 ),
+        '#default_value'=>  $selected_profile['profq_test_mode']
+    );
+
+   $form['edit_profile']['profq_is_customized'] = array(
+        '#type'=>'radios',
+        '#title'=>'Questions Distribution By Speciality: ',
+        '#options'=> dropdown_profq_is_customized(),
+        '#default_value'=>$selected_profile['profq_is_customized']
+    );
+      
+      
+    $form['edit_profile']['profq_composition'] = array(
+        '#type'=>'checkboxes',
+        '#title'=>'Select Speciality: ',
+        '#options'=>  dropdown_profq_composition(),
+        '#default_value'=>array('0'=>'0'),
+        '#states'=>array(
+                'visible'=>array(
+                    ':input[name="profq_is_customized"]'=>array('value'=>'1'),
+                ),                
+            ),
+    
+    );
+    
+	return $form['edit_profile'];
+    }/* else {
+	$saved_profile = ajx_load_saved_exam_profile($form, &$form_state);
+	return $saved_profile;
+    }
+    */
+    
+}
+
 function ajx_load_saved_exam_profile($form, &$form_state){
      $selected_profile_id=$form_state['values']['profq_name'];
      if ($selected_profile_id == '0'){
@@ -210,7 +305,8 @@ function ajx_load_saved_exam_profile($form, &$form_state){
       '#suffix'=>'</div>' 
     
     );    
-    
+ 
+     //non-edit mode
     $form['saved_profile']['profq_test']=array(
         '#type'=>'markup',
         '#markup'=> print_selected_profq_test($selected_profile['profq_test']),
@@ -245,12 +341,11 @@ function ajx_load_saved_exam_profile($form, &$form_state){
         '#type'=>'markup',
         '#markup'=> print_selected_test_composition(unserialize($selected_profile['profq_composition']))
     );
+    //    
+   
     
-  return $form['saved_profile'];
-    
+  return $form['saved_profile'];    
   } 
-    
-    
     
 }
 

@@ -95,7 +95,8 @@ function mt_mcq_node_insert($node){
             'choice_e'=>$node->choice_e,
             'question_media_yn'=>$node->question_media_yn,   
             'speciality'=>$node->speciality,
-            'sub_speciality'=>$node->sub_speciality
+            'sub_speciality'=>$node->sub_speciality,
+	    'question_bank_source'=>$node->question_bank_source
                 ))
           ->execute();
         
@@ -120,6 +121,16 @@ function mt_mcq_node_insert($node){
             
         ))
         ->execute();
+	
+	if ($node->question_media_yn == 1){	
+	db_insert('mcq_question_media')
+	->fields(array(
+	    'qid'=>$qid,
+	    'question_media_type'=>$node->question_media_type,
+	    'question_media_filename'=>$node->question_media_filename
+	))
+	->execute();
+	}	
            
     }
 }
@@ -242,7 +253,7 @@ function get_qid_by_nid($nid){
 function get_nid_by_qid($qid){
     $nid=db_query('SELECT nid FROM {mcq_question_bank} WHERE qid IN(:qids)', array(':qids'=>$qid))->fetchField();
 
-    return nid;
+    return $nid;
 }
 /*
 function set_node_answer(&$node, $answer){

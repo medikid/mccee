@@ -1,6 +1,7 @@
 <?php
 module_load_include('inc','mt_core','codelist');
 module_load_include('inc', 'mt_core', 'mt_core_admin_menu');
+module_load_include('inc', 'mt_core', 'mt_file');
 
 function get_csv_data_filepath($module_name, $table_name){
         $file_path = drupal_get_path('module', $module_name) . "/data/" . $table_name . ".csv";

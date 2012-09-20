@@ -2,6 +2,7 @@
 
 module_load_include('inc', 'mt_import_export', 'mt_import_export_admin_menu');
 module_load_include('inc', 'mt_import_export','mt_import_export_forms');
+module_load_include('inc', 'mt_import_export','import_objects');
 
 /*
  * $list = array (

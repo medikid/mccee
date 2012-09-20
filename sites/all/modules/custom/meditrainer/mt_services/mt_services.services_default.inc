@@ -13,15 +13,15 @@
       $endpoint = new stdClass();
 	$endpoint->disabled = FALSE; /* Edit this to true to make a default endpoint disabled initially */
 	$endpoint->api_version = 3;
-	$endpoint->name = 'mcc_api';
+	$endpoint->name = 'api';
 	$endpoint->server = 'rest_server';
-	$endpoint->path = 'mcc_api';
+	$endpoint->path = 'api';
 	$endpoint->authentication = array(
 	'services' => 'services',
 	);
 	$endpoint->server_settings = array();
 	$endpoint->resources = array(
-	'mcq' => array(
+	'mccee' => array(
 	    'operations' => array(
 	    'retrieve' => array(
 		'enabled' => 1,
