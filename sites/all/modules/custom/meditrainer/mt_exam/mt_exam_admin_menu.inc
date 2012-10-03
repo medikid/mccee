@@ -32,6 +32,15 @@ function mt_exam_menu(){
      //   'type' => MENU_CALLBACK,
     );
     
+    $items['admin/meditrainer/exam/question_navigator'] = array(
+    'title' => 'Question Navigator Form',
+    'description' => 'View MCQs.',
+    'file'=>'QuestionNavigator_form.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' =>array('QuestionNavigator_form'),
+    'access arguments' => array(true),
+     //   'type' => MENU_CALLBACK,
+    );
     
     $items['admin/meditrainer/exam/view_test_results'] = array(
         'title'=> 'View MCQ Test results',

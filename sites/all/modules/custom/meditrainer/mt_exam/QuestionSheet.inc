@@ -22,7 +22,7 @@ class QuestionSheet{
     }
     
    
-    function save(){
+    function save_qs(){
 	$this->generated_on = time();
 	
 	$fields = array(
@@ -40,6 +40,10 @@ class QuestionSheet{
 		->fields($fields);
 	
 	$this->qsid = $query->execute();
+    }
+    
+    function save_qnav(){
+	
     }
     
     function load(){
@@ -95,10 +99,11 @@ class QuestionSheet{
 			$x++;
 		}
 		
-//		while ($x<=200){
-//			$randKeys['q'.$x]='0';
-//			$x++;	 
-//		}
+/*		while ($x<=200){
+			$randKeys['q'.$x]='0';
+			$x++;	 
+		}
+ */
 	 
 	$this->questions = $randKeys;
     }

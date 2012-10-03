@@ -3,6 +3,7 @@
 module_load_include('inc', 'mt_exam', 'mt_exam_admin_menu');
 module_load_include('inc', 'mt_exam', 'TestProfile');
 module_load_include('inc', 'mt_exam', 'QuestionSheet');
+module_load_include('inc', 'mt_exam', 'AnswerSheet');
 module_load_include('inc', 'mt_exam', 'QuestionNavigator_form');
 
 function generate_question_sheet($QTotal, $QFilter=FALSE){
@@ -11,4 +12,32 @@ function generate_question_sheet($QTotal, $QFilter=FALSE){
 
 function load_question_sheet(){
     
+}
+
+/*
+ * implements hook_theme
+ */
+function mt_exam_theme($existing, $type, $theme, $path){
+    return array(
+	'QuestionNavigator_form' => array(	    
+	'render element' => 'form',
+	'template' => 'QuestionNavigator_form',
+	//'path'=>drupal_get_path('module', 'mt_exam').'/templates',
+	'path'=> path_to_theme().'/templates',
+	'preprocess'=>'mt_exam_preprocess_QuestionNavigator_form'
+	 //   'file'=>'QuestionNavigator_form.inc',
+	  //  'arguments' => array('form' => NULL),
+    ),
+  );
+}
+
+function mt_exam_preprocess_QuestionNavigator_form(&$vars){
+    $vars['form']['#theme'] = 'medikid_blue';
+    $vars['mcq_viewer'] = drupal_render($vars['form']['mcq_viewer']);
+    $vars['navigation_block'] = drupal_render($vars['form']['mcq_viewer']['navigation']);
+    $vars['question_block'] = drupal_render($vars['form']['mcq_viewer']['question']);
+    $vars['notes_block'] = drupal_render($vars['form']['mcq_viewer']['notes_viewer']);
+    $vars['nav_buttons_block'] = drupal_render($vars['form']['mcq_viewer']['nav_buttons']);
+    //this is must
+    $vars['form_extras'] = drupal_render($vars['form']);
 }

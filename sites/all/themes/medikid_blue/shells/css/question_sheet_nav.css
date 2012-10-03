@@ -1,0 +1,91 @@
+/****blocking area set as height 40px, width 200px****/
+/*height = 40px*/
+/*width = 200px*/
+ body{
+  margin:0;
+  overflow:hidden;
+ }
+/********** USER TOOLBAR ***************/
+.user_toolbar{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:bold;
+	background-color:#0C0;
+	height:40px; /*block area edit*/
+	width:100%;
+	position:fixed;
+	left:0px;
+	top:0px;
+}
+/********** QUESTION SHEET NAVBAR ***************/
+.question_sheet_navbar { 
+  position:fixed;
+  top:40px; /*block area edit*/
+  left:0;
+  width:200px; /*block area edit*/
+  height:100%;
+  background:#CC0;
+  overflow:scroll;
+}
+
+@media screen{
+  body>.user_toolbar{
+   position:fixed;
+  }
+  body>.question_sheet_navbar{
+   position:fixed;
+  }
+ }
+ 
+ul.qs_nav_items {
+//	margin-left:10px;
+//	margin-top:10px;
+	padding:0px;
+}
+
+ul.qs_nav_items li.fl{
+	margin-left:10px;
+}
+
+li.qs_nav_item {
+	display:inline;
+	list-style-type: none;
+	margin:0;
+	padding:0;
+}
+
+li.qs_nav_item ul{
+	margin:0;
+	padding:0;
+	background:#999;
+}
+li.qs_nav_item ul:hover, li.qs_nav_item ul#odd:hover{
+	background:#F93;
+	cursor:pointer;
+}
+/**highlight the selected one(class=current)**/
+li.qs_nav_item ul.current {
+	background:#FF0;
+}
+/**alertnate list item background colors**/
+li.qs_nav_item ul#odd{
+	background:#CCC;
+}
+
+li.qs_nav_item ul li {
+display: inline;
+list-style-type: none;
+padding: 5px;
+}
+
+ 
+ 
+ /********** QUESTION SHEET CONTENT **********/
+.content{
+	margin-top:40px; /*block area edit*/
+	margin-left:200px; /*block area edit*/
+  height:100%;
+  overflow:auto;
+  background:#F39;
+  
+ }
