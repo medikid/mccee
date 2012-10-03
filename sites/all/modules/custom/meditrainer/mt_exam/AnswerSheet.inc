@@ -5,13 +5,7 @@ class AnswerSheet{
     public  $qsid,
 	    $uid,
 	    $qs,
-	    $qnav,
-	    $fl,
-	    $vw,
-	    $qn,
-	    $an,
-	    $va,
-	    $dur;
+	    $qnav;
     
     function __construct($user_id, $qsid = null) {
 	$this->uid = $user_id;

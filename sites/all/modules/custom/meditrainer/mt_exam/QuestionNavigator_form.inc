@@ -3,11 +3,23 @@ function QuestionNavigator_form($form, &$form_state){
    drupal_add_js(drupal_get_path('module', 'mt_exam') . '/js/QuestionNavigator.js');
    drupal_add_js(drupal_get_path('module', 'mt_exam') . '/js/mt_timer.js');
    
+   $as = new AnswerSheet(1,1);
+   
     $form['mcq_viewer']=array(
       '#type'=>'fieldset',
       '#title'=>t('Question Sheet'),
 	'#prefix'=>'<div id="q_viewer_wrapper">'	
     );
+    
+    $form['mcq_viewer']['qnav'] = array(
+	'#type'=>'fieldset',
+	'#title'=>t('Nav List')
+	 );
+    $form['mcq_viewer']['qnav']['qnav_html'] = array(
+	'#type'=>'item',
+	'#markup'=>t($as->get_qnav_html())
+	 );
+    
      $form['mcq_viewer']['timer'] = array(
 	'#type'=>'fieldset',
 	'#title'=>t('Timer')
