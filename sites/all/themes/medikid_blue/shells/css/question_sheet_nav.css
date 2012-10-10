@@ -36,7 +36,7 @@
    position:fixed;
   }
  }
- 
+ /*************Added to module specific css***********************
 ul.qnav_items {
 //	margin-left:10px;
 //	margin-top:10px;
@@ -64,10 +64,12 @@ li.qnav_item ul:hover, li.qs_nav_item ul#odd:hover{
 	cursor:pointer;
 }
 /**highlight the selected one(class=current)**/
+ /*
 li.qnav_item ul.current {
 	background:#FF0;
 }
 /**alertnate list item background colors**/
+ /*
 li.qnav_item ul#odd{
 	background:#CCC;
 }
@@ -77,7 +79,7 @@ display: inline;
 list-style-type: none;
 padding: 5px;
 }
-
+*/
  
  
  /********** QUESTION SHEET CONTENT **********/

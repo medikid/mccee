@@ -34,6 +34,7 @@ function mt_exam_theme($existing, $type, $theme, $path){
 function mt_exam_preprocess_QuestionNavigator_form(&$vars){
     $vars['form']['#theme'] = 'medikid_blue';
     $vars['mcq_viewer'] = drupal_render($vars['form']['mcq_viewer']);
+    $vars['qnav']=drupal_render($vars['form']['mcq_viewer']['qnav']['qnav_html']);
     $vars['navigation_block'] = drupal_render($vars['form']['mcq_viewer']['navigation']);
     $vars['question_block'] = drupal_render($vars['form']['mcq_viewer']['question']);
     $vars['notes_block'] = drupal_render($vars['form']['mcq_viewer']['notes_viewer']);
@@ -41,3 +42,5 @@ function mt_exam_preprocess_QuestionNavigator_form(&$vars){
     //this is must
     $vars['form_extras'] = drupal_render($vars['form']);
 }
+
+

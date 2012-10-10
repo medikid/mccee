@@ -1,9 +1,10 @@
 <?php
 function QuestionNavigator_form($form, &$form_state){
-   drupal_add_js(drupal_get_path('module', 'mt_exam') . '/js/QuestionNavigator.js');
+   drupal_add_js(drupal_get_path('module', 'mt_exam') . '/js/QuestionNavigator.js');   
+   drupal_add_css(drupal_get_path('module', 'mt_exam') .'/css/QuestionNavigator.css');
    drupal_add_js(drupal_get_path('module', 'mt_exam') . '/js/mt_timer.js');
    
-   $as = new AnswerSheet(1,1);
+//   $as = new AnswerSheet(1,1);
    
     $form['mcq_viewer']=array(
       '#type'=>'fieldset',
@@ -17,7 +18,7 @@ function QuestionNavigator_form($form, &$form_state){
 	 );
     $form['mcq_viewer']['qnav']['qnav_html'] = array(
 	'#type'=>'item',
-	'#markup'=>t($as->get_qnav_html())
+//	'#markup'=>t($as->get_qnav_html())
 	 );
     
      $form['mcq_viewer']['timer'] = array(

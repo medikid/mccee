@@ -54,6 +54,12 @@ function mt_exam_menu(){
     );
     
 
+    $items['meditrainer/exam/mcq_viewer'] = array(
+    'title' => 'MCQ Viewer', 
+    'page callback' => 'QuestionNavigator_form', 
+    'access arguments' => array('access test'), 
+    'type' => MENU_CALLBACK,
+  );
 
     return $items;
 }

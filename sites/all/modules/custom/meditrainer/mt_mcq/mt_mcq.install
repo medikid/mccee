@@ -1,7 +1,10 @@
 <?php
 module_load_include('inc', 'mt_mcq','db_schema/db_schema_mcq_question_bank');
 module_load_include('inc', 'mt_mcq','db_schema/db_schema_mcq_answer_bank');
+module_load_include('inc', 'mt_mcq','db_schema/db_schema_mcq_question_media');
+module_load_include('inc', 'mt_mcq','db_schema/db_schema_mcq_question_sheet_nav');
 module_load_include('inc', 'mt_mcq','db_schema/db_schema_dummy_mcq');
+
 /*
  * implements hook_enable
  */
@@ -42,6 +45,8 @@ function mt_mcq_schema(){
     $schema=array();
     get_schema_mcq_question_bank($schema);
     get_schema_mcq_answer_bank($schema);
+    get_schema_mcq_question_media($schema);
+    get_schema_mcq_question_sheet_nav($schema);    
     get_schema_dummy_mcq($schema);
     return $schema;
 }
