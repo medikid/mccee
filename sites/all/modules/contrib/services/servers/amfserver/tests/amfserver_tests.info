@@ -1,0 +1,13 @@
+name = amfserver_tests
+description = "Provides tests for the amfserver, depends on the SabreAMF library to test"
+package = Services - servers
+core = 7.x
+files[] = amfserver.test
+hidden = TRUE
+dependencies[] = amfserver
+; Information added by drupal.org packaging script on 2011-10-25
+version = "7.x-3.03"
+core = "7.x"
+project = "amfserver"
+datestamp = "1319546131"
+

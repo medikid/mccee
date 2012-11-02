@@ -1,0 +1,14 @@
+name = amfserver
+description = "Provides an amfserver to use in the services module so actionscript based clients can communicate with drupal via services"
+package = Services - servers
+core = 7.x
+; version = 7.x-3.x-rc1
+configure = admin/config/services/amfserver/settings
+files[] = amfserver.resources.inc
+dependencies[] = services (>3.0-rc1)
+; Information added by drupal.org packaging script on 2011-10-25
+version = "7.x-3.03"
+core = "7.x"
+project = "amfserver"
+datestamp = "1319546131"
+

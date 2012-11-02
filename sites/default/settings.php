@@ -205,7 +205,7 @@ $databases = array (
   array (
     'default' => 
     array (
-      'database' => 'mccee',
+      'database' => 'drupal716',
       'username' => 'root',
       'password' => '',
       'host' => 'localhost',
@@ -246,7 +246,7 @@ $update_free_access = FALSE;
  *   $drupal_hash_salt = file_get_contents('/home/example/salt.txt');
  *
  */
-$drupal_hash_salt = 'T5EQ17H0v6s98ZaB9Gkc8lYjw_VWkLp_COnP1gxS-TE';
+$drupal_hash_salt = 'Wr8I1bwcWODTLP4sAK4hc_9vvMpImOepsrRfsQ4Bh04';
 
 /**
  * Base URL (optional).

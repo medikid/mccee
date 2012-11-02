@@ -1,0 +1,358 @@
+<?php
+/**
+ * @file
+ * The amfserver module provides an amf based connection protocol for the services module.
+ * 
+ * This file implements the logic of the module
+ * 
+ * @author: rolf vreijdenberger (rolf@dpdk.nl) 
+ */
+
+include_once("amfserver.common.inc");
+
+
+/**
+ * Implementation of hook_server():
+ * hook from services.servers.api.php
+ * Converts an incoming request into a Drupal function call and then converts the result back into the appropriate return format.
+ * This is the main entry point to your server implementation.
+ * It is what is executed when opening the endpoint url
+ */
+
+function amfserver_server() {
+  //first off, is this a valid amf call or is someone looking at the endpoint?
+  if (amfserver_is_browser_request()) {
+    print amfserver_get_endpoint_message();
+    return;
+  }
+
+  //The amfserver itself, a subclass of the Zend amfserver
+  require_once 'amfserver.resources.inc';
+  $server = new AmfServerServer();
+  //we add the classmappings here, they are configurable via the amfserver settings 
+  $mappings = db_query('SELECT class_php, class_as3 FROM {amfserver_classmapping}');
+  foreach ($mappings as $mapping) {
+    $server->setClassMap($mapping->class_as3, $mapping->class_php);
+  }
+  //the endpoint object
+  $endpoint = services_endpoint_load(services_get_server_info('endpoint', ''));
+  //set the debug settings from the endpoint on the server. Zend Amf uses a production setting which is the reverse of debug.
+  //when it is not a production setting, the onStatus messages (errors) will have extended information about the error, which you can view in a http sniffer or in your flash client
+  $server->setProduction(!$endpoint->debug);
+  //set the proxy class to handle all incoming requests 
+  $server->setClass('AmfServerServiceProxy');
+  //configure it with the server and the endpoint. we will need the server and endpoint there to do some data juggling
+  AmfServerServiceProxy::$endpoint = $endpoint;
+  AmfServerServiceProxy::$server = $server;
+  
+  //handle the request
+  $data = $server->handle();
+  //we can add headers if necessary
+  //drupal_add_http_header("powered-by", "drupal amfserver");
+  echo $data;
+  //thank you, bye bye!
+}
+
+
+
+
+
+/**
+ * if it is a non amf request, we assume someone is looking at the endpoint in the browser
+ */
+function amfserver_is_browser_request() {
+  //the raw input data
+  return file_get_contents('php://input') == '';
+}
+
+/**
+ * the message to show when an endpoint is visited directly
+ */
+function amfserver_get_endpoint_message() {
+  $message = '';
+  if (amfserver_has_zend()) {
+    $message .= t("This message is here to let you know your amfserver installation is ok!");
+    $message .= "<br />";
+    $message .= t("The amfserver with Zend AMF is installed and working.");
+  }
+  else {
+    $message .= t("This message is here to let you know your amfserver installation is NOT ok!");
+    $message .= "<br />";
+    $message .= t("The amfserver is installed but Zend AMF is not installed or not installed correctly. See the module description or the help files to see how and where to install the Zend library.");
+  }
+  $endpoint = services_endpoint_load(services_get_server_info('endpoint', ''));
+  $message .= "<br />";
+  $message .= "<br />";
+  $message .= t("The amfserver version is:") . ' "' . amfserver_get_version() . '"'; 
+  $message .= "<br />";
+  $message .= t('The endpoint name of this endpoint is:') . ' "' . $endpoint->name . '"'; 
+  $message .= "<br />";
+  $message .= t("The debug mode of the endpoint is") . " " . (($endpoint->debug == 0) ? t("OFF.") : t("ON.")) . " ". t("OFF is the recommended setting for any production site."); 
+  $message .= "<br />";
+  $message .= t("The amfserver uses the normal drupal session authentication mechanism. This is a default configuration for all services."); 
+  $message .= "<br />";
+  $message .= "<br />";
+  
+  $endpoint = services_endpoint_load(services_get_server_info('endpoint', ''));
+  $message .= t("Number of other (optional) endpoint authentication methods:") . ' ' . count($endpoint->authentication);
+  foreach ($endpoint->authentication as $auth_module => $settings) {
+    $message .= "<br /> -- " . t("Authentication module:") . " " . $auth_module . ' with settings:' . $settings; 
+  }
+  $message .= "<br />";
+  $message .= "<br />";
+  
+  $mappings = db_query('SELECT class_as3, class_php FROM {amfserver_classmapping}');
+  $message .= t("Number of classmappings defined:") . ' ' . $mappings->rowCount();
+  foreach ($mappings as $mapping) {
+    $message .= "<br /> ### ";
+    $message .= "<br /> -- " . t("actionscript 3 class:") . " '" . $mapping->class_as3;
+    $message .= "<br /> -- " . t('php class:') . " '" . $mapping->class_php . "'"; 
+  }
+  return $message;
+}
+
+
+/*
+ * Implementation of hook_server_info():
+ * hook from services.servers.api.php
+ * Specify information about your server.
+ * Identifies a server implementation to Services.
+ *
+ * @return
+ *   An associative array with the following keys.
+ *   - name: The display name of this server.
+ */
+function amfserver_server_info() {
+  return array(
+    'name' => 'amfserver'
+  );  
+}
+
+/**
+ * Implements hook_help.
+ *
+ * Displays help and module information.
+ *
+ * @param path 
+ *   Which path of the site we're using to display help
+ * @param arg 
+ *   Array that holds the current path as returned from arg() function
+ */
+function amfserver_help($path, $arg) {
+  switch ($path) {
+    case AMFSERVER_PATH_ADMIN_HELP:
+      return '<p>' .  
+      t("the amfserver (version:" . " " . amfserver_get_version() . ") is a Zend AMF based server that can be used through the services module. 
+      It allows for actionscript 3 clients like flash, flex and air to connect to the drupal backend via the endpoint defined by this server via the AMF protocol (aka flash remoting)") .
+      "</p><p>" .
+      t("The amfserver homepage can be found on") . ' ' . l("www.drupal.org/project/amfserver", "http://www.drupal.org/project/amfserver") . '.' .
+      "</p><p>" .
+      t("Make sure that <ul><li>An endpoint is defined so you can access drupal via that endpoint in your actionscript code</li><li>you visit the endpoint url for a correct installation</li><li>the right resources are enabled via the endpoint configuration for the amfserver</li>
+      <li>the right permissions are set so you can access the resources you want to use (like nodes, users etc)</li></ul>") .
+     "</p><p>" .
+       t("The amfserver is proudly sponsored by") . ' ' . l("dpdk", "http://www.dpdk.nl") . '. ' . t("The opensource drupal actionscript 3 library by dpdk is recommended for both D7 amfserver connections and D6 AMFPHP connections. 
+      It makes use of a class called DrupalProxy and handles all the low level details for you. It has a strong and simple api for actionscript programmers and can be used in flash, flex and air. It can be found on" . " " . l("www.dpdk.nl/opensource", "http://www.dpdk.nl/opensource/source-code") . ".") .
+     "</p><p>" .
+      t("For debugging and analyzing amf traffic") . ' ' . l("Charles", "http://www.charlesproxy.com") . ' ' . t("is recommended. It can view normal http traffic and can analyze amf data and headers. A great tool for your development cycle.") . 
+      '</p><p>' .
+      t("For more information, visit the") . ' ' . l("amfserver module page", "http://www.drupal.org/project/amfserver") . 
+      '</p>';
+      break;
+    case AMFSERVER_PATH_ADMIN:
+     //return t("Currently there are no global settings for the configuration of the amfserver.");
+      break;  
+    }
+} 
+
+/**
+ * implementation of hook_menu()
+ */
+function amfserver_menu() {
+  $items[AMFSERVER_PATH_ADMIN] = array(
+    'title' => 'amfserver',
+    'description' => 'Manage the amfserver settings.',
+    'file' => 'amfserver.admin.inc',
+    'page callback' => 'amfserver_configuration_settings',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array(AMFSERVER_PERM_ADMIN),
+  );
+  
+  $items[AMFSERVER_PATH_ADMIN_SETTINGS] = array(
+    'title' => 'amfserver settings',
+    'file' => 'amfserver.admin.inc',
+    'page callback' => 'amfserver_configuration_settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+    'access arguments' => array(AMFSERVER_PERM_ADMIN),
+  );
+  
+  
+   $items[AMFSERVER_PATH_ADMIN_CLASSMAPPING] = array(
+    'title' => 'amfserver classmapping',
+    'file' => 'amfserver.admin.inc',
+    'page callback' => 'amfserver_configuration_classmapping',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -8,
+    'access arguments' => array(AMFSERVER_PERM_ADMIN),
+  );
+  
+  return $items;
+}
+
+
+/**
+ * implementation of hook_permission
+ */
+function amfserver_permission() {
+  return array(
+    AMFSERVER_PERM_ADMIN => array(
+      'title' => t('administer amfserver module'),
+      'description' => t('configure and setup the amfserver module.'),
+    ),
+  );
+}
+
+
+
+  /*
+  * Implements hook_services_resources()
+  * hook from services.services.api.php
+  * 
+  * this is the place where we can define the resources for a module, in this case the amfserver module itself provides some test services.
+  * It is provided purely as an example for the amfserver to test and for module writers to see how it's done.
+  * normally, the implementation of a service would be done in a seperate module 
+  * 
+  *   A detailed example of creating a new resource can be found at
+  *   http://drupal.org/node/783460 and more information about how
+  *   REST resources are managed can be found at http://drupal.org/node/783254.
+  * 
+  *   * @return
+  *   An associative array which defines available resources.
+  *
+  *   The associative array which defines services has eight possible top
+  *   level keys:
+  *
+  *     - create
+  *     - retrieve
+  *     - update
+  *     - delete
+  *     - index
+  *     - actions
+  *     - targeted actions
+  *     - relationships
+  *
+  *   The CRUD functions are pretty self-explanatory. Index is an extra CRUD-
+  *   type function that allows you to create pageable lists.
+  *
+  *   Actions are performed directly on the resource type, not a individual
+  *   resource. The following example is hypothetical (but plausible). Say
+  *   that you want to expose a API for the apachesolr module. One of the
+  *   things that could be exposed is the functionality to reindex the whole
+  *   site at apachesolr/reindex.
+  *
+  *   Targeted actions acts on a individual resource. A good, but again -
+  *   hypothetical, example would be the publishing and unpublishing of nodes
+  *   at node/123/publish.
+  *
+  *   Relationship requests are convenience methods (sugar) to get something
+  *   thats related to a individual resource. A real example would be the
+  *   ability to get the files for a node at node/123/files.
+  *
+  *   The first five (the CRUD functions  index) define the indvidual service
+  *   callbacks for each function. However 'actions', 'targeted actions',
+  *   and 'relationships' can contain multiple callbacks.
+  *   
+  *   The following keys are used to describe a callback.
+  *
+  *   - help: Text describing what this callback does.
+  *   - callback: The name of a function to call when this resource is
+  *     requested.
+  *   - access callback: The name of a function to call to check whether
+  *     the requesting user has permission to access this resource. If not
+  *     specified, this defaults to 'user_access'.
+  *   - access arguments: The arguments to pass to the access callback.
+  *   - access arguments append: A boolean indicating whether the resource's
+  *     arguments should be appended to the access arguments. This can be useful
+  *     in situations where an access callback is specific to the particular
+  *     item ('edit all nodes' vs 'edit my nodes'). Defaults to FALSE.
+  *   - args: an array describing the arguments which should be passed to this
+  *     resource when it is called. Each element in the array is an associative
+  *     array containing the following keys:
+  *
+  *     - name: The name of this argument.
+  *     - type: The data type of this argument (int, string, array)
+  *     - description: Text describing this argument's usage.
+  *     - optional: A boolean indicating whether or not this argument is optional.
+  *     - source: Where this argument should be retrieved from. This can be
+  *       'data' (indicating the POST data), 'param' (indicating the query
+  *       string) or 'path' (indicating the url path). In the case of path,
+  *       an additional parameter must be passed indicating the index to be used.
+  *     - default value: this is a value that will be passed to the method for
+  *       this particular argument if no argument value is passed
+  *
+  */
+function amfserver_services_resources() {  
+   return array(
+    'amfservice' => array(
+      'retrieve' => array(
+        'help' => 'retrieves the version of the amfserver',
+        'file' => array('type' => 'inc', 'module' => 'amfserver', 'name' => 'amfserver.resources'),
+        'callback' => '_amfserver_service_retrieve',
+        'access callback' => '_amfserver_service_permission',
+     ),
+      'actions' => array(
+        'ping' => array(
+          'help' => 'pings the amfserver and sends back the optional message you send to it',
+          'file' => array('type' => 'inc', 'module' => 'amfserver', 'name' => 'amfserver.resources'),
+          'callback' => '_amfserver_service_ping',
+          'access callback' => '_amfserver_service_permission',
+          'args' => array(
+            array(
+              'name' => 'message',
+              'optional' => TRUE,
+              'source' => array('path' => 0),
+              'type' => 'string',
+              'description' => 'a message you want to give to the server',
+              'default value' => 'nothing'
+           ),
+         ),
+       ),
+         'getUser' => array(
+          'help' => 'returns a simple "AmfServerUser" object that has actionscript classmapping of "org.drupal.amfserver.User""',
+          'file' => array('type' => 'inc', 'module' => 'amfserver', 'name' => 'amfserver.resources'),
+          'callback' => '_amfserver_service_get_user',
+          'access callback' => '_amfserver_service_permission',
+       ),
+         'sendUser' => array(
+          'help' => 'sends a classmapped "org.drupal.amfserver.User" object that has php classmapping to "AmfServerUser""',
+          'file' => array('type' => 'inc', 'module' => 'amfserver', 'name' => 'amfserver.resources'),
+          'callback' => '_amfserver_service_send_user',
+          'access callback' => '_amfserver_service_permission',
+          'args' => array(
+            array(
+              'name' => 'user',
+              'optional' => FALSE,
+              'source' => array('path' => 0),
+              'description' => 'a user you want to send to the server',
+           ),
+         ),
+       ),
+         'sleep' => array(
+          'help' => 'makes the php script sleep for the number of seconds provided',
+          'file' => array('type' => 'inc', 'module' => 'amfserver', 'name' => 'amfserver.resources'),
+          'callback' => '_amfserver_service_sleep',
+          'access callback' => '_amfserver_service_permission',
+          'args' => array(
+            array(
+              'name' => 'seconds',
+              'optional' => FALSE,
+              'source' => array('path' => 0),
+              'type' => 'int',
+              'description' => 'an int between 1 and 10',
+           ),
+         ),
+       ),
+     ),
+   ),
+ );
+}

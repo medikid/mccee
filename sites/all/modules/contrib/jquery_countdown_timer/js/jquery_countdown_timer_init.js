@@ -6,13 +6,14 @@
       $('#jquery-countdown-timer').not('.jquery-countdown-timer-processed').addClass('jquery-countdown-timer-processed').countdown({
 	timestamp : ts,
 	callback : function(days, hours, minutes, seconds){
-          var message = "";
-          message += days + " day" + ( days==1 ? '':'s' ) + ", ";
-          message += hours + " hour" + ( hours==1 ? '':'s' ) + ", ";
-          message += minutes + " minute" + ( minutes==1 ? '':'s' ) + " and ";
-          message += seconds + " second" + ( seconds==1 ? '':'s' ) + " left";
+          var dateStrings = new Array();
+          dateStrings['@days'] = Drupal.formatPlural(days, '1 day', '@count days');
+          dateStrings['@hours'] = Drupal.formatPlural(hours, '1 hour', '@count hours');
+          dateStrings['@minutes'] = Drupal.formatPlural(minutes, '1 minute', '@count minutes');
+          dateStrings['@seconds'] = Drupal.formatPlural(seconds, '1 second', '@count seconds');
+          var message = Drupal.t('@days, @hours, @minutes and @seconds left', dateStrings);
           note.html(message);
-	}
+        }
       });
     }
   }

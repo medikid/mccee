@@ -96,6 +96,7 @@ dependencies[] = mt_exam
 dependencies[] = mt_notes
 dependencies[] = mt_import_export
 dependencies[] = mt_services
+dependencies[] = mt_mindmaps
 
 files[] = meditrainer.profile
 

@@ -1,0 +1,221 @@
+<?php
+/**
+ * @file
+ *  testing file for the amfserver
+ */
+include_once 'SabreAMF/Client.php';
+
+class AmfServerTestCase extends ServicesWebtestCase {
+  
+  protected $privileged_user = NULL;
+  protected $endpoint = NULL;
+  protected $client = NULL;
+  protected $endpoint_url = NULL;
+  
+
+  /**
+   * Implementation of setUp().
+   */
+  public function setUp() {
+    parent::setUp('ctools', 'services', 'amfserver');
+    // Set up endpoint.
+    $this->endpoint = $this->saveAMFEndpoint();
+    $this->endpoint_url = $this->getAbsoluteUrl($this->endpoint->path);
+    //setup sabreamf client
+    $this->client = new SabreAMF_Client($this->endpoint_url);
+    $this->client->setEncoding(3);
+  }
+  
+  /**
+   * Implementation of getInfo().
+   */
+  public static function getInfo() {
+    return array( 'name' => t('amfserver resources'), 'description' => t('Test the amfserver'), 'group' => t('amfserver'));
+  }
+  
+
+  public function testDefaults() {
+    
+    $this->assertTrue(TRUE, t('simple test for the setup'), 'Debug');
+    $this->assertTrue(TRUE, 'endpoint path: ' . $this->endpoint->path, 'Debug');
+    $this->assertTrue(TRUE, 'endpoint path absolute url: ' . $this->endpoint_url, 'Debug');
+    
+    $request = "amfservice.ping";
+    $result = $this->client->sendRequest($request, array());
+    $this->assertTrue($this->isAMFResult($result), $request . ' returns a result', 'amfserver: test');
+    $this->assertContainsText($result, "hello, you said:", $request . ' result', 'amfserver: test');
+    
+    $request = "amfservice.ping";
+    $argument = "testing 123";
+    $result = $this->client->sendRequest($request, array( $argument));
+    $this->assertTrue($this->isAMFResult($result), $request . ' returns a result containing: ' . $argument, 'amfserver: test');
+    $this->assertContainsText($result, t('hello, you said: "@result"', array( "@result" => $argument)), $request . ' result', 'amfserver: test');
+    
+    $request = "amfservice.getUser";
+    $result = $this->client->sendRequest($request, array());
+    $this->assertTrue($this->isAMFResult($result), $request . ' returns a result', 'amfserver: test');
+    debug($result, 'user object', TRUE);
+    // $this->assertContainsText ( $result, "hello, you said:", $request . ' result', 'amfserver: test' );
+    
+
+
+    $request = "amfservice.ping";
+    $result = $this->client->sendRequest($request, array( "one argument is fine", "two is too much"));
+    $this->assertTrue($this->isAMFStatus($result), $request . ' returns a status object', 'amfserver: test');
+    $this->assertAMFStatusContainsText($result, 'Too many arguments supplied', $request . ' status message, too many arguments', 'amfserver: test');
+    
+    $request = "nonexistentservice.nonexistetnmethod";
+    $result = $this->client->sendRequest($request, array());
+    $this->assertTrue($this->isAMFStatus($result), $request . ' returns a status object', 'amfserver: test');
+    $this->assertAMFStatusContainsText($result, 'requested resource not found:', $request . ' status message, resource not found', 'amfserver: test');
+    //debug ( $result, 'nonexistent', TRUE );
+    
+
+
+    $request = "AmfServerServiceProxy.execute";
+    $result = $this->client->sendRequest($request, array());
+    $this->assertTrue($this->isAMFStatus($result), $request . ' returns a status object', 'amfserver: test');
+    $this->assertAMFStatusContainsText($result, 'requested resource not found:', $request . ' status message, resource not found', 'amfserver: test');
+    
+    $page = $this->getEndpoint($this->endpoint_url);
+    $this->assertContainsText($page, 'The amfserver with Zend AMF is installed and working.', 'endpoint call in browser functions normally: ' . substr($page, 0, 500) . "....", 'amfserver: test');
+  }
+  
+  public function testNodeService() {
+    $request = "node.retrieve";
+    $result = $this->client->sendRequest($request, array( 1));
+    $this->assertTrue($this->isAMFResult($result), $request . ' returns a result object if node 1 exists', 'amfserver: test');
+    $this->assertTrue($result['nid'] == 1, 'node id is 1', 'amfserver: test');
+    //debug($result, 'node 1', TRUE);
+    
+
+
+    $request = "node.retrieve";
+    $result = $this->client->sendRequest($request, array( 1, 'too many arguments'));
+    $this->assertTrue($this->isAMFStatus($result), $request . ' must return a status object', 'amfserver: test');
+    $this->assertAMFStatusContainsText($result, 'Too many arguments supplied', $request . ' status message, too many arguments', 'amfserver: test');
+    //debug($result, 'node 1 status', TRUE);
+    
+
+
+    $request = "node.retrieve";
+    $result = $this->client->sendRequest($request, array());
+    $this->assertTrue($this->isAMFStatus($result), $request . ' must return a status object', 'amfserver: test');
+    $this->assertAMFStatusContainsText($result, 'Too few arguments supplied', $request . ' status message, too few arguments', 'amfserver: test');
+  
+
+   //debug($result, 'node 1 status', TRUE);
+  
+
+
+  }
+  
+
+  public function testEndPoint() {
+    //$this->privileged_user = $this->drupalCreateUser ( array ('administer amfserver') );
+    $this->privileged_user = $this->drupalCreateUser();
+    $this->drupalLogin($this->privileged_user);
+    $page = $this->getEndpoint($this->endpoint_url);
+    $this->assertContainsText($page, 'The amfserver with Zend AMF is installed and working.', 'logged in user: endpoint call in browser functions normally: ' . substr($page, 0, 150) . "....", 'amfserver: test');
+    $this->drupalLogout();
+    $page = $this->getEndpoint($this->endpoint_url);
+    $this->assertContainsText($page, 'The amfserver with Zend AMF is installed and working.', 'logged out user: endpoint call in browser functions normally: ' . substr($page, 0, 500) . "....", 'amfserver: test');
+  }
+  
+
+  /**
+   * gets the result data from a call to a url
+   * 
+   * @param string $url
+   */
+  public function getEndpoint($url) {
+    $ch = curl_init();
+    $timeout = 5;
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+    $data = curl_exec($ch);
+    curl_close($ch);
+    return $data;
+  }
+  /**
+   * Assertion that a haystack contains a needle
+   *
+   * @param string $haystack
+   * @param string $needle
+   * @param string $message
+   * @param string $group
+   */
+  public function assertContainsText($haystack, $needle, $message, $group) {
+    $this->assertTrue(FALSE !== strpos($haystack, $needle), $message, $group);
+  }
+  
+  /**
+   * assertion that checks if an amf status message (fault/description) contains a certain text
+   * 
+   * @param * $result
+   * @param string $needle
+   * @param string $message
+   * @param string $group
+   */
+  public function assertAMFStatusContainsText($result, $needle, $message, $group) {
+    $haystack = '';
+    if (is_array($result)) {
+      if (isset($result['description'])) {
+        $haystack = $result['description'];
+      }
+      elseif (isset($result['faultString'])) {
+        $haystack = $result['faultString'];
+      }
+    }
+    $this->assertContainsText($haystack, $needle, $message, $group);
+  }
+  
+  /**
+   * checks if a result from the amf client is a status message
+   * 
+   * @param bool $result
+   */
+  public function isAMFStatus($result) {
+    if (is_array($result) && (isset($result['description']) || isset($result['faultString']))) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+  
+  /**
+   * returns if a result from the amf client is a valid result
+   * @param bool $result
+   */
+  public function isAMFResult($result) {
+    return ! $this->isAMFStatus($result);
+  }
+  
+  /**
+   * creates and saves a new endpoint
+   * TODO; seems that if an endpoint is crated with a random path, all the tests fail...Is this my setup or faulty testsuite code? cause normally, it all functions fine
+   */
+  public function saveAMFEndpoint() {
+    $endpoint = new stdClass();
+    $endpoint->disabled = FALSE; /* Edit this to true to make a default endpoint disabled initially */
+    $endpoint->api_version = 3;
+    $endpoint->name = 'amf' . $this->randomName(10);
+    $endpoint->title = 'amfserver';
+    $endpoint->server = 'amfserver';
+    $endpoint->path = 'amf';
+    //TODO: the next line always fails the tests? howcome
+    //TODO: seems that if the endpoint is not there on the site we're testing on, then it won't work during testing (iow: 'amf' is already present)
+    //$endpoint->path = 'amf'. $this->randomName ( 10 );
+    $endpoint->authentication = array();
+    $endpoint->resources = array( 'amfservice' => array( 'operations' => array( 'retrieve' => array( 'enabled' => 1)), 'actions' => array( 'ping' => array( 'enabled' => 1), 'getUser' => array( 'enabled' => 1), 'sendUser' => array( 'enabled' => 1), 'sleep' => array( 'enabled' => 1))), 'comment' => array( 'operations' => array( 'create' => array( 'enabled' => 1), 'retrieve' => array( 'enabled' => 1), 'update' => array( 'enabled' => 1), 'delete' => array( 'enabled' => 1), 'index' => array( 'enabled' => 1)), 'actions' => array( 'countAll' => array( 'enabled' => 1), 'countNew' => array( 'enabled' => 1))), 'file' => array( 'operations' => array( 'create' => array( 'enabled' => 1), 'retrieve' => array( 'enabled' => 1), 'delete' => array( 'enabled' => 1), 'index' => array( 'enabled' => 1))), 'node' => array( 'operations' => array( 'retrieve' => array( 'enabled' => 1), 'create' => array( 'enabled' => 1), 'update' => array( 'enabled' => 1), 'delete' => array( 'enabled' => 1), 'index' => array( 'enabled' => 1)), 'relationships' => array( 'files' => array( 'enabled' => 1), 'comments' => array( 'enabled' => 1))), 'system' => array( 'actions' => array( 'connect' => array( 'enabled' => 1), 'get_variable' => array( 'enabled' => 1), 'set_variable' => array( 'enabled' => 1), 'del_variable' => array( 'enabled' => 1))), 'taxonomy_term' => array( 'operations' => array( 'retrieve' => array( 'enabled' => 1), 'create' => array( 'enabled' => 1), 'update' => array( 'enabled' => 1), 'delete' => array( 'enabled' => 1), 'index' => array( 'enabled' => 1)), 'actions' => array( 'selectNodes' => array( 'enabled' => 1))), 'taxonomy_vocabulary' => array( 'operations' => array( 'retrieve' => array( 'enabled' => 1), 'create' => array( 'enabled' => 1), 'update' => array( 'enabled' => 1), 'delete' => array( 'enabled' => 1), 'index' => array( 'enabled' => 1)), 'actions' => array( 'getTree' => array( 'enabled' => 1))), 'user' => array( 'operations' => array( 'retrieve' => array( 'enabled' => 1), 'create' => array( 'enabled' => 1), 'update' => array( 'enabled' => 1), 'delete' => array( 'enabled' => 1), 'index' => array( 'enabled' => 1)), 'actions' => array( 'login' => array( 'enabled' => 1), 'logout' => array( 'enabled' => 1))));
+    $endpoint->debug = 1;
+    $endpoint->export_type = FALSE;
+    services_endpoint_save($endpoint);
+    $endpoint = services_endpoint_load($endpoint->name);
+    $this->assertTrue(TRUE, t('Endpoint successfully created: ' . $endpoint->name));
+    $this->assertTrue(TRUE, t('Endpoint path successfully created: ' . $endpoint->path));
+    return $endpoint;
+  }
+
+
+}

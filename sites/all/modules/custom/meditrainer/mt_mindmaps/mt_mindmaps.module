@@ -1,0 +1,7 @@
+<?php
+module_load_include('inc','mt_mindmaps','mt_mindmaps.services_graphmind');
+
+ services_graphmind_endpoint_new();
+//services_endpoint_save($endpt);
+
+?>

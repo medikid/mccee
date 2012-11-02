@@ -1,0 +1,12 @@
+name = Mindmaps
+description = Meditrainer Mindmapping module
+package = MediTrainer
+core = 7.x
+files[] = mt_mindmaps.module
+files[] = mt_mindmaps.install
+dependencies[] = services
+dependencies[] = graphmind_futures_wheel
+dependencies[] = graphmind_og
+dependencies[] = graphmind_relationship
+dependencies[] = graphmind_taxonomy_manager
+

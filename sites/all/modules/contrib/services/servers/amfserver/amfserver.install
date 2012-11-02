@@ -1,0 +1,100 @@
+<?php
+/**
+ * @file
+ *
+ * Install, uninstall and update the amfserver module.
+ *
+ *
+ */
+
+include_once("amfserver.common.inc");
+
+/**
+ * Implements hook_requirements()
+ * what requirements are needed for succesfull installation?
+ */
+function amfserver_requirements($phase) {
+  $t = get_t();
+
+  $requirements['Zend'] = array(
+    'title' => $t('Zend Framework'), 
+    'value' => $t(''), 
+  );
+
+  if (!amfserver_has_zend()) { 
+    $requirements['Zend']['description'] = $t('Zend not found. You must dowload <a href="http://framework.zend.com/download/latest">the Zend Framework with the Zend AMF module</a>, and extract the library/Zend folder to sites/all/libraries/Zend.');
+    $requirements['Zend']['severity'] = REQUIREMENT_ERROR; 
+  }
+  else {
+    include_once 'sites/all/libraries/Zend/Version.php';
+    $version = Zend_Version::VERSION;
+    $latest_version = Zend_Version::getLatest();
+    $requirements['Zend']['value'] = $version;
+
+    if (Zend_Version::compareVersion($latest_version) > 0 && $phase == "install") {
+     $requirements['Zend']['description'] = $t('A newer version of the Zend framework (!version) is available for use with the amfserver. <a href="http://framework.zend.com/download/latest">Click here</a> to download it.', array('!version' => $latest_version));
+     $requirements['Zend']['severity'] = REQUIREMENT_INFO;
+    }
+  }
+  return $requirements;
+}
+
+ /**
+ * Implements hook_install()
+ * http://api.drupal.org/api/drupal/developer--hooks--install.php/function/hook_install/6
+ * 
+ * TODO: create configuration table for each endpoint
+ * http://api.drupal.org/api/drupal/modules--node--node.install
+ */
+function amfserver_install() {
+  //default classmapping for the demo service from the amfserver
+  db_insert('amfserver_classmapping')
+    ->fields(array(
+    'class_php' => "AmfServerUser",
+    'class_as3' => "org.drupal.amfserver.User",
+  ))->execute();
+}
+
+
+/**
+ * Implements hook_uninstall()
+ * http://api.drupal.org/api/drupal/developer--hooks--install.php/function/hook_uninstall/6
+ */
+function amfserver_uninstall() {
+  //delete all possible amfserver entries in the services endpoint table.
+  db_delete('services_endpoint')->condition('server', 'amfserver')->execute();
+}
+
+/**
+ * Implements hook_schema()
+ * tables defined here will be installed during installation of the module and uninstalled during uninstallation of the module
+ */
+function amfserver_schema() {
+  $schema['amfserver_classmapping'] = array(
+    'description' => 'The table for classmapping an as3 class to a php class.', 
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for a classmapping.', 
+        'type' => 'serial', 
+        'unsigned' => TRUE, 
+        'not null' => TRUE,
+      ), 
+      'class_php' => array(
+        'description' => 'The php class to map.', 
+        'type' => 'varchar', 
+        'length' => 255, 
+        'not null' => TRUE, 
+        'default' => '',
+      ), 
+      'class_as3' => array(
+        'description' => 'The as3 class to map.', 
+        'type' => 'varchar', 
+        'length' => 255, 
+        'not null' => TRUE, 
+        'default' => '',
+      ), 
+    ), 
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
