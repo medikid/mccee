@@ -1,0 +1,8 @@
+name = MT Media Content
+description = Meditrainer Media Content
+package = MediTrainer
+core = 7.x
+files[] = mt_media.module
+files[] = mt_media.install
+dependencies[] = media
+dependencies[] = media_youtube

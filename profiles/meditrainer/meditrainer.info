@@ -88,6 +88,12 @@ dependencies[] = views
 dependencies[] = views_ui
 dependencies[] = views_bulk_operations
 
+dependencies[] = file_entity
+dependencies[] = media
+dependencies[] = media_internet
+dependencies[] = media_youtube
+dependencies[] = remote_stream_wrapper
+
 dependencies[] = mt_core
 dependencies[] = mt_memberships
 dependencies[] = mt_members
@@ -97,6 +103,7 @@ dependencies[] = mt_notes
 dependencies[] = mt_import_export
 dependencies[] = mt_services
 dependencies[] = mt_mindmaps
+dependencies[] = mt_media
 
 files[] = meditrainer.profile
 

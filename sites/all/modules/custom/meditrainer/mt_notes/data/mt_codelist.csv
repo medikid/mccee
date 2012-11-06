@@ -1,5 +1,5 @@
 code_id,cat,sub_cat,name,sub_name,code,sub_code,code_dependency,sub_code_dependency,disabled,date_disabled
-NULL,mt_notes,name_book,Meditrainer Notes,code_book,0,MTN,NULL,NULL,NULL,NULL
+NULL,mt_notes,name_book,MCCEE Notes,code_book,0,MTN,NULL,NULL,NULL,NULL
 NULL,mt_notes,name_chapter,"Ethical, Legal and Organizational Aspects of medicine",code_chapter,1,ELOM,NULL,NULL,NULL,NULL
 NULL,mt_notes,name_chapter,Anesthesia and Perioperative Medicine,code_chapter,2,A,NULL,NULL,NULL,NULL
 NULL,mt_notes,name_chapter,Cardiology and Cardiovascular Surgery,code_chapter,3,C,NULL,NULL,NULL,NULL

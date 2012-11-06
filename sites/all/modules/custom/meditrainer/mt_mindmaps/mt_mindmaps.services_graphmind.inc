@@ -188,8 +188,7 @@ function services_graphmind_endpoint_new() {
     //  $endpoints = array();
     if (module_exists('services') && function_exists('services_endpoint_new')) {
 	$endpoint = services_endpoint_new();
-    } else
-	$endpoint = new stdClass();
+    } else $endpoint = new stdClass();
 
     services_graphmind_import($endpoint);
 
@@ -200,6 +199,25 @@ function services_graphmind_endpoint_new() {
     }
 
     set_graphmind_default_endpoint($endpoint->path);
+}
+
+function services_graphmind_endpoint_delete(){
+    
+    if (module_exists('services') && function_exists('services_endpoint_new')) {
+	$endpoint = services_endpoint_new();
+    } else $endpoint = new stdClass();
+
+    services_graphmind_import($endpoint);
+    
+    $endpoints_all = services_endpoint_load_all();
+    $deleted = "";
+    
+    if (array_key_exists($endpoint->name, $endpoints_all)){
+	services_endpoint_delete($endpoints_all[$endpoint->name]);
+	$deleted = true;
+    } $deleted = false;
+    
+    return $deleted;
 }
 
 ?>
