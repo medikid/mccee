@@ -1,6 +1,6 @@
 <?php
 module_load_include('inc', 'mt_notes','setup_notes');
-
+module_load_include('inc', 'mt_notes','contenttype_book_extend');
 
 /*
  * implements hook_enable
@@ -9,6 +9,7 @@ function mt_notes_enable(){
     
     db_upload_from_csv('mt_notes', 'mt_codelist', 'mt_codelist', array('code_id','code'));
     create_book_from_mt_codelist();
+    notes_install();
     
 }
 
@@ -18,7 +19,8 @@ function mt_notes_enable(){
 function mt_notes_disable(){
     
     db_delete_from_csv('mt_notes', 'mt_codelist', 'mt_codelist', array('sub_cat','code','name'));
-    deltete_book_from_mt_codelist();
+    delete_book_from_mt_codelist();
+    notes_uninstall();
 }
 
 /*
