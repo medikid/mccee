@@ -1,5 +1,5 @@
 <?php
-include_once '/class_member.inc';
+module_load_include('inc', 'mt_members', 'class_member');
 
 function setup_create_account_form(&$form, &$form_state){
 	
