@@ -8,14 +8,14 @@
  * 
  */
 
-function notes_install(){
+function book_extension_install(){
     $t = get_t();
 
   /**** STEP 1 ****/
 
   // machine name of the content type
-  $name = 'notes';
-
+  $name = 'book';
+/*
   // define the node type
   $notes = array(
     'type' => $name,
@@ -35,9 +35,9 @@ function notes_install(){
   // save the content type
   node_type_save($content_type);
 
-
+*/
   /**** STEP 2 ****/
-
+/*
   // add peristant variables that control settings
   variable_set('additional_settings__active_tab_' . $name, 'edit-menu');
   variable_set('node_preview_' . $name, 2);
@@ -46,18 +46,18 @@ function notes_install(){
   variable_set('menu_options_' . $name, array());
   variable_set('menu_parent_' . $name, 'main-menu:0');
 
-
+*/
   /**** STEP 3 ****/
 
   // create all the fields we are adding to our content type
-  foreach ( _notes_installed_fields() as $field) {
+  foreach (_book_extension_installed_fields() as $field) {
     field_create_field($field);
   }
 
   // create all the instances for our fields
-  foreach ( _notes_installed_instances() as $instance) {
+  foreach ( _book_extension_installed_instances() as $instance) {
     $instance['entity_type'] = 'node';
-    $instance['bundle'] = $notes['type'];
+    $instance['bundle'] = $name;
     field_create_instance($instance);
   }
 }
@@ -74,7 +74,7 @@ function notes_install(){
     ****************************/
   
   
-  function _notes_installed_fields(){
+  function _book_extension_installed_fields(){
     return array(
 	'field_mindmap_content' => array(
 	'translatable' => '0',
@@ -220,7 +220,7 @@ function notes_install(){
       );
   }
     
-  function _notes_installed_instances(){
+  function _book_extension_installed_instances(){
      return array(
       'field_mindmap_content' => array(
 	'label' => 'Mindmap Content',
@@ -351,7 +351,7 @@ function notes_install(){
      );
   }
   
-  function notes_uninstall(){
+  function book_extension_uninstall(){
       // machine name of the content type
 	$name = 'notes';
 
