@@ -353,7 +353,7 @@ function book_extension_install(){
   
   function book_extension_uninstall(){
       // machine name of the content type
-	$name = 'notes';
+	$name = 'book';
 
 	// gather all job nodes created
 	$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
