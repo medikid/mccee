@@ -1,201 +1,213 @@
 <?php
 
- 
-    /*
-     * new product class of membership is setup
-     * tables involved = node type, uc_product_classes
-     */
-    function setup_membership_class(){
-        $TABLE_NAME = 'node_type';
-        $csv_data_node_type = load_csv($TABLE_NAME, get_csv_data_filepath('mt_memberships', $TABLE_NAME));
-        foreach ($csv_data_node_type[$TABLE_NAME] as $row => $data_node_type) {
-            $upload = db_insert($TABLE_NAME)->fields($data_node_type)->execute();
-            }
-        
-        $TABLE_NAME = 'uc_product_classes';
-        $csv_data_uc_product_class = load_csv($TABLE_NAME, get_csv_data_filepath('mt_memberships', $TABLE_NAME));
-        foreach($csv_data_uc_product_class[$TABLE_NAME] as $row=>$data_uc_product_class){
-        $upload = db_insert($TABLE_NAME)->fields($data_uc_product_class)->execute();
-        }
-        
-    }
-    
-    function delete_membership_class(){
-        $TABLE_NAME = 'node_type';
-        db_delete_from_csv('mt_memberships', $TABLE_NAME, $TABLE_NAME, array('name','description'));
-        
-        $TABLE_NAME = 'uc_product_classes';
-        db_delete_from_csv('mt_memberships', $TABLE_NAME, $TABLE_NAME, array('name','description'));
-    }
-        
-    function setup_roles(){
-        $TABLE_NAME = 'role';
-        $csv_data_roles = load_csv($TABLE_NAME, get_csv_data_filepath('mt_memberships', $TABLE_NAME));
-        foreach ($csv_data_roles[$TABLE_NAME] as $row => $data_roles) {
-            $data_roles['rid'] = NULL;
-            $upload = db_insert($TABLE_NAME)->fields($data_roles)->execute();
-            }
-    }
-    
-    function delete_roles(){
-        $TABLE_NAME = 'role';
-        db_delete_from_csv('mt_memberships', $TABLE_NAME, $TABLE_NAME, array('name','weight'));
-    }
-  
-    /*
-     * new product class of membership is setup
-     * tables involved = node type, uc_product_classes
-     */
-    function setup_roles_and_memberships(){
-        $data_node = load_csv('node', get_csv_data_filepath('mt_memberships', 'node'));
-        $data_uc_products = load_csv('uc_products', get_csv_data_filepath('mt_memberships', 'uc_products'));
-        $data_uc_product_features = load_csv('uc_product_features', get_csv_data_filepath('mt_memberships', 'uc_product_features'));
-        $data_uc_roles_products = load_csv('uc_roles_products', get_csv_data_filepath('mt_memberships', 'uc_roles_products'));
-       
-        for($row=1;$row<=count($data_uc_products['uc_products']);$row++){
-            create_membership_and_role(
-                    $data_node['node'][$row],
-                    $data_uc_products['uc_products'][$row],
-                    $data_uc_product_features['uc_product_features'][$row],
-                    $data_uc_roles_products['uc_roles_products'][$row]);
-        }
-    }
-    
-    function delete_roles_and_memberships(){
-        $NODE_TYPE = 'membership';
-        $select_nodes = db_select('node','nd')
-        ->fields('nd', array('nid', 'vid'))
-                ->condition('type', $NODE_TYPE)
-                ->execute();
-        while($nids_vids = $select_nodes->fetchAssoc()){
-        //delete node data from table node
-        node_delete($nids_vids['nid']);
-        
-        //delete node data from uc_products
-        $delete_us_product = db_delete('uc_products')
-                ->condition('nid',$nids_vids['nid'])
-                ->condition('vid',$nids_vids['vid'])
-                ->execute();
-        
-        
-        //delete node data from uc_product_features
-        $delete_us_product = db_delete('uc_product_features')
-                ->condition('nid',$nids_vids['nid'])
-                ->condition('fid','role')
-                ->execute();
-        
-        //delete node data from uc_roles_products
-        $delete_us_product = db_delete('uc_roles_products')
-                ->condition('nid',$nids_vids['nid'])
-                ->execute();
-        
-        }
-        
-    }
-    
-    /*
-     * create new membership and populates node and uc_products table
-     * parameters @data_node=row data from csv table  ex $data_node[$row_id]
-     * parameters @data_oc_products=row data from csv table  ex $data_uc_products[$row_id]
-     * 
-     * returns new node id (nid) that was created
-     */
-    function create_membership_and_role($data_node, $data_uc_products, $data_uc_product_features, $data_uc_roles_products){
-        
-      require_once 'modules/node/node.pages.inc'; // Required for node_object_prepare();
-      global $user;
-      
-      $node = new stdClass();
-      $node->type = 'membership';
 
-      node_object_prepare($node); // This sets up all the default node fields so we don't accidentally leave something off.
+function get_membership_codelist(){
+   $query = db_select('mt_codelist', 'cdl')
+	    ->fields('cdl')
+	    ->condition('sub_cat', 'membership_type')
+	    ->execute();
+    $data = array();
+    while($result = $query->fetchAssoc()){
+	$data[$result['code']] ['name'] = $result['name'];
+	  $data[$result['code']]['code'] = $result['code'];
+	   $data[$result['code']][$result['sub_name']]= $result['sub_code'];
+    }
+    return $data;
+}
+
+function get_membership_data(){
+    $membership_data = array();
+    $codelist_data = get_membership_codelist();
+    
+    foreach ($codelist_data as $key=>$value){
+	$d = explode("-", $value['name']);
+	$e = explode(" ", trim($d[1]));
+	
+	$membership_data[$key]['name'] = $value['name'];
+	$membership_data[$key]['model'] = $value['code'];
+	$membership_data[$key]['sell_price'] = $value['price'];
+	$membership_data[$key]['role_name'] = trim($d[0]);
+	$membership_data[$key]['role_type'] = trim(str_ireplace("User", " ", $d[0]));
+	$membership_data[$key]['duration'] = trim($e[0]);
+	$membership_data[$key]['granularity'] = trim($e[1]);
+    }
+    
+    return $membership_data;
+}
+
+/*
+ * adds memberships products to Node and uc_products tables
+ */
+function add_new_memberships($membership_data){
+    $node = new stdClass();
+    $node->type = "membership";
+    $node->title = $membership_data['name'];
+    $node->comment = 0;
+    node_object_prepare($node);
+    
+    $node->model = $membership_data['model'];
+    $node->sell_price = $membership_data['sell_price'];
+    $node->shippable = 0;
+    
+    node_save($node);
+    
+    return $node->nid;
+}
+
+function delete_memberships($nid){
+    node_delete($nid);
+}
+
+function add_new_role($membership_data){
+    $entry_count = db_select('role', 'rl')
+		    ->fields('rl')
+		    ->condition('name',$membership_data['role_name'])
+		    ->execute()
+		    ->rowCount();
+    $rid=0;
+    if ($entry_count > 0){
+	$rid = db_select('role', 'rl')
+		    ->fields('rl', array('rid'))
+		    ->condition('name', $membership_data['role_name'])
+		    ->execute()
+		    ->fetchField();
+    } else {    
+	    $r = new stdClass();
+	    $r->name = $membership_data['role_name'];
+	    user_role_save($r);
+	    $rid = $r->rid;
+    }
+    
+    return $rid;
+}
+
+/*
+ * add a node type to node_type
+ */
+function add_membership_node_type($node_type_name){
+    $node_type = new stdClass();
+    $node_type->type = strtolower($node_type_name);
+    $node_type->name = $node_type_name;
+    $node_type->base = "uc_product";
+    $node_type->module = "uc_product";
+    $node_type->description = "Site Membership Subscription";
+    $node_type->title_label = "Name";
+    
+    node_type_set_defaults($node_type);
+    
+    return node_type_save($node_type);
+}
+
+function delete_membership_node_type($node_type_name){    
+    db_delete('node_type')->condition('name', $node_type_name)->execute();
+}
+/*
+ * add node_type to product_classes of membership
+ */
+function add_membership_product_class($node_type_name){
+    $node_type = db_select('node_type', 'nt')
+		    ->fields('nt')
+		    ->condition('name', $node_type_name)
+		    ->execute()
+		    ->fetchAssoc();
+    
+    $membership_product_class = array(
+	'pcid'=>$node_type['type'],
+	'name'=>$node_type['name'],
+	'description'=>$node_type['description']
+    );
+    
+    $is_saved = db_insert('uc_product_classes')
+		->fields($membership_product_class)
+		->execute();
+    return $is_saved;
+}
+
+function delete_membership_product_class($node_type_name){
+    db_delete('uc_product_classes')->condition('name', $node_type_name)->execute();
+}
+
+function add_membership_product_features($membership_data, $nid){
+    
+    $data_product_features = array(
+	'pfid'=>NULL,
+	'nid'=>$nid,
+	'fid'=>'role',
+	'description'=>	"<strong>SKU:</strong>".$membership_data['model']
+	."<br /><strong>Role:</strong>".$membership_data['role_name']
+	."<br /><strong>Expiration:</strong>".$membership_data['duration']." ".$membership_data['granularity']."(s)"
+	."<br /><strong>Shippable:</strong> No<br /><strong>Multiply by quantity:</strong> No"
+    );
+    
+    $pfid = db_insert('uc_product_features')->fields($data_product_features)->execute();
+    
+    return $pfid;
+}
+
+function delete_membership_product_features($nid){
+    db_delete('uc_product_features')->condition('nid', $nid)->execute();
+}
+
+function add_roles_products($membership_data, $nid, $pfid, $rid){
+ $data_roles_products = array(
+     'rpid' => NULL,
+     'pfid' => $pfid,
+     'nid' => $nid,
+     'model' => $membership_data['model'],
+     'rid' => $rid,
+     'start_override' => 0,
+     'start_time' => 0,
+     'end_override' => 1,
+     'end_time' => 0,
+     'duration' => $membership_data['duration'],
+     'granularity' => $membership_data['granularity'],
+     'shippable' => 0,
+     'by_quantity' => 0
+     );
+ $rpid = db_insert('uc_roles_products')->fields($data_roles_products)->execute();
+ return $rpid;
+}
+
+function delete_roles_products($nid){
+    db_delete('uc_roles_products')->condition('nid', $nid)->execute();
+}
+
+function memberships_install(){
+    $membership_node_type_name = "Membership";
+    add_membership_node_type($membership_node_type_name);
+    add_membership_product_class($membership_node_type_name);
+    
+    $memberships_data = get_membership_data();
    
-        //struction of node;
-        $node->type = $data_node['type'];
-        $node->title = $data_node['title'];
-        $node->uid = $user->uid;
-        $node->status = $data_node['status'];
-        $node->comment = $data_node['comment'];
-        $node->promote = $data_node['promote'];
-        $node->sticky = $data_node['sticky'];
-        $node->created = REQUEST_TIME;
-
-        //structure of uc_product
-        //$node->revision =  NULL;
-        $node->model = $data_uc_products['model'];
-        $node->list_price =  $data_uc_products['list_price'];
-        $node->cost = $data_uc_products['cost'];
-        $node->sell_price = $data_uc_products['sell_price'];
-        $node->weight = $data_uc_products['weight'];
-        $node->weight_units = $data_uc_products['weight_units'];
-        $node->length = $data_uc_products['length'];
-        $node->width = $data_uc_products['width'];
-        $node->height = $data_uc_products['height'];
-        $node->length_units = $data_uc_products['length_units'];
-        $node->pkg_qty = $data_uc_products['pkg_qty'];
-        $node->default_qty = $data_uc_products['default_qty'];
-        $node->ordering = $data_uc_products['ordering'];
-        $node->shippable = $data_uc_products['shippable'];
-
-        $node->menu = Array
-                        (
-                            'link_title' => '',
-                            'mlid' => 0,
-                            'plid' => 0,
-                            'menu_name' => 'main-menu',
-                            'weight' => 0,
-                            'options' => Array(),
-                            'module' => 'menu',
-                            'expanded' => 0,
-                            'hidden' => 0,
-                            'has_children' => 0,
-                            'customized' => 0,
-                            'parent_depth_limit' => 8
-                        );
-
-        // Prepare the node for saving
-        if ($node = node_submit($node)) {
-        // Save it
-        node_save($node);
-        }
-        $node_id = $node->nid;
-        
-        $pfid = next_available_index('uc_product_features', 'pfid');
-        //save product_feature - related to role feature
-        $role_feature_data = array(
-            'pfid'=> NULL,
-            'nid'=>$node_id,
-            'fid'=>$data_uc_product_features['fid'],
-            'description'=>$data_uc_product_features['description']
-        );
-        uc_product_feature_save($role_feature_data);
-        
-        $data_uc_roles_products['pfid']= $pfid;
-        $data_uc_roles_products['nid']=  $node_id;
-        $csv_role_decode_old= get_csv_role_decode();
-        $rid = db_select('role', 'rl')
-                ->fields('rl', array('rid'))
-                ->condition('name',$csv_role_decode_old[$data_uc_roles_products['rid']],'=')
-                ->execute()
-                ->fetchAssoc();
-        //now assign the current rid
-        $data_uc_roles_products['rid'] = $rid['rid'];
-        $data_insert_uc_roles_products = db_insert('uc_roles_products')
-                                        ->fields($data_uc_roles_products)
-                                        ->execute();
-    
+    foreach($memberships_data as $membership_data){
+	$nid = add_new_memberships($membership_data);
+	$pfid = add_membership_product_features($membership_data, $nid);
+	$rid = add_new_role($membership_data);
+	$rpid = add_roles_products($membership_data, $nid, $pfid, $rid);
     }
     
-    function get_csv_role_decode(){
-        $TABLE_NAME = 'role';
-        $data_roles = load_csv($TABLE_NAME, get_csv_data_filepath('mt_memberships', $TABLE_NAME));
-        foreach($data_roles[$TABLE_NAME] as $key=>$value){
-            $csv_role_decode[$value['rid']]= $value['name'];
-        }
-        
-        return $csv_role_decode;        
+}
+
+function memberships_uninstall(){
+    $membership_node_type_name = "Membership";
+    $node = db_select('node', 'nd')->fields('nd')->condition('type', strtolower($membership_node_type_name))->execute();
+
+    while ($r = $node->fetchAssoc()){
+	$rp = db_select('uc_roles_products', 'rp')->fields('rp')->condition('nid', $r['nid'])->execute()->fetchAssoc();
+	$nid = $rp['nid'];
+	
+	delete_roles_products($nid);
+	delete_membership_product_features($nid);
+	delete_memberships($nid);
+
+	//$rid = $rp['rid'];
+	//db_delete('role')->condition('rid', $rid)->execute();
     }
     
+    delete_membership_node_type($membership_node_type_name);
+    delete_membership_product_class($membership_node_type_name);
+}
+
     function activate_payment_gateway($payment_gateway_name, $activate_yn){
      $gateway_variable = 'uc_payment_method_'. $payment_gateway_name .'_checkout';
         variable_set($gateway_variable, $activate_yn);
