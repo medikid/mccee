@@ -1,6 +1,6 @@
 <?php
 module_load_include('inc', 'mt_memberships','setup_memberships');
-
+module_load_include('inc', 'mt_memberships','setup_paypal_wps');
 
 /*
  * implements hook_enable
@@ -8,12 +8,15 @@ module_load_include('inc', 'mt_memberships','setup_memberships');
 function mt_memberships_enable(){
    
     memberships_install();
+    codelist_sync_membership_nid();
     
     //paypal website payment standard and turn_off check option
     activate_payment_gateway('check', 0);
     activate_payment_gateway('paypal_ec', 0);
     activate_payment_gateway('paypal_wps', 1);
     activate_payment_gateway('credit', 1);
+    
+    setup_paypal_wps(true);//set to true if sandbox
     
 }
 

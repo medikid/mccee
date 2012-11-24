@@ -11,6 +11,31 @@ module_load_include('inc','mt_members','submit_button');
 module_load_include('inc','mt_members','mt_members_admin_menu');
 
 
+/*
+ * implements hook_user_load
+ */
+function mt_members_user_load($users){
+    
+    $member_data = db_select('mt_members', 'm')->fields('m')->condition('uid', $users->uid)->execute()->fetchAssoc();
+    
+    $users->muid = $member_data['muid'];
+    $users->first_name = $member_data['first_name'];
+    $users->last_name = $member_data['last_name'];
+    $users->membership_type = $member_data['membership_type'];
+    $users->parked_user_reason = $member_data['parked_user_reason'];
+    $users->aspiring_exam_can = $member_data['aspiring_exam_can'];
+    $users->aspiring_exam_us = $member_data['aspiring_exam_us'];
+    $users->aspiring_exam_uk = $member_data['aspiring_exam_uk'];
+    $users->aspiring_exam_au = $member_data['aspiring_exam_au'];
+    $users->reg_date = $member_data['reg_date'];
+    $users->reg_expiry = $member_data['reg_expiry'];
+    $users->opt_newsletter = $member_data['opt_newsletter'];
+    $users->acc_status = $member_data['acc_status'];
+    $users->acc_susp = $member_data['acc_susp'];
+    $users->payment_status = $member_data['payment_status'];
+    $users->payment_id = $member_data['payment_id'];
+}
+
 //$_SESSION['member_registration']['current_step'] = 1;
 /**
  * Implements hook_form_alter().
@@ -179,8 +204,12 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
   				$pass = user_password();
   				user_save($user, array('status' => 1, 'checkout_pending' => NULL, 'pass' => $pass));
   				$user->password = $pass; // Mail token.
-  
-  				_user_mail_notify('register_no_approval_required', $user);
+				
+				//now set user role
+				set_user_role_n_expiry($user, $user->membership_type);
+				
+				//now send an email for user email verification
+  				user_reg_email_notify($user);
   			}
   		}
   	}
@@ -201,16 +230,37 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
       save_step2_form_to_session($form, $form_state);
       
       $newest_member= create_new_user($form, $form_state);
-      if ($newest_member){         
-      $message = 'New user account has been created and an email sent to '.
-                $newest_member->mail
-                .'. Please follow the link provided on the email to approve the account and set password.';
+      if ($newest_member){  
+	  
+	  //now send email confirmation, user will click on the link
+	  user_reg_email_notify($newest_member);
+	    $message = 'New user account has been created and an email sent to '.$newest_member->mail.'. Please follow the link provided on the email to approve the account and set password.';
        
       unset($_SESSION['member_registration']);
       } else $message = 'Sorry, unable to create the user account. Plese contact Site Administration through Contact Us form';
   
       drupal_set_message($message, 'status');
   }
+  
+  function user_reg_email_notify($new_account_info){
+      $user_reg_process = variable_get('user_register');
+      $email_context = "";
+      switch ($user_reg_process){
+	  case 0:
+	    $email_context = 'register_admin_created';
+	      break;
+	  case 1:
+	     $email_context = 'register_no_approval_required';
+	      break;
+	  case 2:
+	    $email_context = 'register_pending_approval'; 
+	      break;
+      }
+      
+      _user_mail_notify($email_context, $new_account_info);      
+      
+  }
+  
   
   function create_new_user(&$form, &$form_state){
     	$new_user_info = get_user_creation_args($form, $form_state);
@@ -274,6 +324,25 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
        }
   }
   
+  function set_user_role_n_expiry($uid, $membership_type){      
+      $membership_nid = get_nid_by_membership_type($membership_type);      
+      $roles_products = db_select('uc_roles_products', 'ucrp')->fields('ucrp')->condition('nid', $membership_nid)->execute()->fetchAssoc();
+      
+	$rid = $roles_products['rid'];
+	$duration = $roles_products['duration'];
+	$granularity = $roles_products['granularity'];
+	$expiry_timestamp = _uc_roles_get_expiration($duration, $granularity);
+	
+	// Load user object
+	$account = user_load(array('uid' => $uid));
+
+	$is_granted = uc_roles_grant($account, $rid, $expiry_timestamp );
+
+	watchdog('user', $is_granted);
+  }
+  
+  
+  //user _uc_roles_get_expiration instead
   function set_membership_duration($membership_type){
       
       $expiry_date = REQUEST_TIME;

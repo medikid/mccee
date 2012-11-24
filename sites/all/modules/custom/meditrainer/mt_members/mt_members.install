@@ -7,6 +7,9 @@ function mt_members_enable(){
     
     db_upload_from_csv('mt_members','mt_codelist', 'mt_codelist', array());
     
+    //set user_register process to 1 .. ie user self-registers account and email notify email sent to user for verifying email and to set passwd
+    variable_set('user_register', 1);
+    
 }
 
 /*
