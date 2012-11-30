@@ -1,0 +1,55 @@
+<?php
+ 
+/*
+ * implements hook_mail
+ */
+function mt_message_mail($key, &$message, $params){
+    /*
+    $message['headers']['MIME-Version'] = '1.0';
+    $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+    $message['headers']['Content-Transfer-Encoding'] = '8Bit';
+    $message['headers']['X-Mailer'] = 'Drupal';
+    */
+    switch($key){
+	case "email_activate_granted_paid_role":
+	   get_email_message($key, $message, $params);	    
+	    break;
+    }
+}
+
+function get_email_message($key, &$message, $params){
+    $tpl_folder = "email_templates";
+      switch($key){
+	  case "email_activate_granted_paid_role":
+	      module_load_include('inc', 'mt_message', $tpl_folder."/".$key);
+	      
+	      $email_message = message_activate_granted_paid_role($params['order']);
+	      
+	      if (isset($params['from'])) {
+		    $message['from'] = $params['from'];
+		} else $message['from'] = $email_message['from'];
+
+		if (isset($params['to'])) {
+		    $message['to'] = $params['to'];
+		} else $message['to'] = $email_message['to'];
+
+		if (isset($params['subject'])) {
+		    $message['subject'] = $params['subject'];
+		} else $message['subject'] = $email_message['subject'];
+
+		if (isset($params['body'])) {
+		    $message['body'] = $params['body']; //
+		}  $message['body'] = $email_message['body'];
+		/*
+		if (isset($params['headers']) && is_array($params['headers'])) {
+		    $message['headers'] += $params['headers'];
+		} else $message['headers'] = $email_message['headers'];
+	      */
+		
+	      break;
+      }
+  }
+  
+ 
+
+?>

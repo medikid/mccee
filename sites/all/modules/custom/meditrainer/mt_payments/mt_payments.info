@@ -1,0 +1,8 @@
+name = Payments
+description = MCQ module for creating MCQ Question Bank database
+package = MediTrainer
+core = 7.x
+files[] = mt_payments.install
+files[] = mt_payments.module
+
+dependencies[] = mt_memberships

@@ -15,25 +15,26 @@ module_load_include('inc','mt_members','mt_members_admin_menu');
  * implements hook_user_load
  */
 function mt_members_user_load($users){
+    foreach ($users as $account){
+    $member_data = db_select('mt_members', 'm')->fields('m')->condition('uid', $account->uid)->execute()->fetchAssoc();
     
-    $member_data = db_select('mt_members', 'm')->fields('m')->condition('uid', $users->uid)->execute()->fetchAssoc();
-    
-    $users->muid = $member_data['muid'];
-    $users->first_name = $member_data['first_name'];
-    $users->last_name = $member_data['last_name'];
-    $users->membership_type = $member_data['membership_type'];
-    $users->parked_user_reason = $member_data['parked_user_reason'];
-    $users->aspiring_exam_can = $member_data['aspiring_exam_can'];
-    $users->aspiring_exam_us = $member_data['aspiring_exam_us'];
-    $users->aspiring_exam_uk = $member_data['aspiring_exam_uk'];
-    $users->aspiring_exam_au = $member_data['aspiring_exam_au'];
-    $users->reg_date = $member_data['reg_date'];
-    $users->reg_expiry = $member_data['reg_expiry'];
-    $users->opt_newsletter = $member_data['opt_newsletter'];
-    $users->acc_status = $member_data['acc_status'];
-    $users->acc_susp = $member_data['acc_susp'];
-    $users->payment_status = $member_data['payment_status'];
-    $users->payment_id = $member_data['payment_id'];
+       $account->muid = $member_data['muid'];
+	$account->first_name = $member_data['first_name'];
+	$account->last_name = $member_data['last_name'];
+	$account->membership_type = $member_data['membership_type'];
+	$account->parked_user_reason = $member_data['parked_user_reason'];
+	$account->aspiring_exam_can = $member_data['aspiring_exam_can'];
+	$account->aspiring_exam_us = $member_data['aspiring_exam_us'];
+	$account->aspiring_exam_uk = $member_data['aspiring_exam_uk'];
+	$account->aspiring_exam_au = $member_data['aspiring_exam_au'];
+	$account->reg_date = $member_data['reg_date'];
+	$account->reg_expiry = $member_data['reg_expiry'];
+	$account->opt_newsletter = $member_data['opt_newsletter'];
+	$account->acc_status = $member_data['acc_status'];
+	$account->acc_susp = $member_data['acc_susp'];
+	$account->payment_status = $member_data['payment_status'];
+	$account->payment_id = $member_data['payment_id'];
+    }
 }
 
 //$_SESSION['member_registration']['current_step'] = 1;
@@ -74,13 +75,6 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
 	//dsm($form['storage']);
 	//return $form;
   }
-  
- //implements hook_simpletest
- function mt_members_simpletest(){
- 		$dir = drupal_get_path('module', 'mt_members') .'/tests';
- 		$tests = file_scan_directory($dir, '\.test$');
- 		return array_keys($tests); 	
- }
   
   function mt_members_setup_forms(&$form, &$form_state, $current_step){
   	switch($current_step){
@@ -157,18 +151,7 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
   	$new_user = create_new_user($form, $form_state);
   	
   	if($new_user){
-  	
-  	
-  	//$package_id = $new_member->mem_type;
-  	//$package = eiab_packages($package_id);
-  
-  	// Run it now so we can get the roles.
-  	//autoassignrole_user('insert', $form_state['values'], $user, NULL);
-  
-  	// Store submitted form information.
-  
-  	//uc_cart_remove_item($package_id);
-     
+  	     
         $membership_nid = get_nid_by_membership_type($membership_id);
   	uc_cart_add_item($membership_nid,1,NULL,NULL,FALSE);
   
@@ -177,14 +160,24 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
   
   }
 
-  //implements hook_order
-  function multiform_form_user_register_order($op, &$order, $arg = NULL) {
+  //implements hook_uc_order
+  function mt_members_uc_order($op, $order, $arg2) {
+      //drupal_set_message("OP=".$op." ORDER= <pre>".print_r($order)."</pre> ARG2=".$arg2);
+      /*
+       * in-checkout:OP="save" ORDER->order_status="in_checkout"
+       * 
+       * 
+       * completed-returnurl:OP="load" ORDER->order-status="pending"
+       */
   	if ($op == 'update') {
-  		// Retrieve submitted user form.
-  		$user_info = $_SESSION['membership_registration']['new_member'];
-  
-  		if ($user_info && $order->order_status == 'in_checkout') {
+  		 
+  		if ( $order->order_status == 'in_checkout') {
+		    // Retrieve submitted user form.
+		    $user_info = $_SESSION['membership_registration']['new_member'];
+			if ($user_info ){
+		    
   			$user_values = $user_info['values'];
+			$user_values['status'] = 0; //account inactivated until order is complete
   			$user_values['checkout_pending'] = TRUE;
   			$user = user_save(NULL, $user_values);
   
@@ -193,20 +186,20 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
   
   			// Update order object.
   			$order->uid = $user->uid;
-  
-  			watchdog('user', 'New user created: @user', array('@user' => $user->name), WATCHDOG_INFO);
+			}
+  			
   		}
   
-  		if ($arg == 'completed') {
+  		if ($arg2 == 'completed' && $order->order_status == 'payment_received') {
   			$user = user_load($order->uid);
   
-  			if ($user && $company_user->status == 0 && $user->checkout_pending) {
+  			if ($user && $user->status == 0 && $user->checkout_pending) {
   				$pass = user_password();
   				user_save($user, array('status' => 1, 'checkout_pending' => NULL, 'pass' => $pass));
   				$user->password = $pass; // Mail token.
 				
-				//now set user role
-				set_user_role_n_expiry($user, $user->membership_type);
+				//now set role and expirty
+				set_user_role_n_expiry($uid, $membership_type);
 				
 				//now send an email for user email verification
   				user_reg_email_notify($user);
@@ -231,7 +224,6 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
       
       $newest_member= create_new_user($form, $form_state);
       if ($newest_member){  
-	  
 	  //now send email confirmation, user will click on the link
 	  user_reg_email_notify($newest_member);
 	    $message = 'New user account has been created and an email sent to '.$newest_member->mail.'. Please follow the link provided on the email to approve the account and set password.';
@@ -266,12 +258,26 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
     	$new_user_info = get_user_creation_args($form, $form_state);
   	$is_created_user = user_save(NULL, $new_user_info);
         
-        $new_member_info = get_member_creation_args($form, $form_state);
-        $new_member_info['uid']= (int)$is_created_user->uid;
-        create_new_member($new_member_info);
+	$uid = $is_created_user->uid;
+	$member_creation_args = get_member_creation_args($form, $form_state);
+	$member_creation_args['uid'] = $uid;
+	$member_creation_args['membership_type'] = (int)$form_state['input']['membership_type'];	
+        upgrade_user_to_member($uid, $member_creation_args);
+	
   	return $is_created_user;
   }
   
+  function upgrade_user_to_member($uid, $member_creation_args){	       
+	
+	//set role/expiry if free_membership, else we will set it once payment is complete
+	if ($member_creation_args['membership_type'] == 0){	
+	set_user_role_n_expiry($member_creation_args['uid'], $member_creation_args['membership_type']);
+	}
+	
+        insert_new_member($member_creation_args);      
+  }
+  
+    
   function get_user_creation_args(&$form, &$form_state){
   	$new_member = new member();
   	$new_member->load_new_member_from_session();
@@ -296,7 +302,7 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
                       'first_name' => $new_member->first_name,
                       'last_name'=> $new_member->last_name,
                       'membership_type'=>(int)$new_member->membership_type,
-                   //    'parked_user_reason'=>0,
+			'parked_user_reason'=>0,
                       'aspiring_exam_can'=>(int)$new_member->aspiring_exam_can,
                    //    'aspiring_exam_us'=> 0,
                    //    'aspiring_exam_uk'=> 0,
@@ -313,7 +319,7 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
        return $member_creation_args;      
   }
   
-  function create_new_member($member_creation_args){
+  function insert_new_member($member_creation_args){
     try {
       $insert_member = db_insert('mt_members')
         ->fields($member_creation_args)
@@ -337,10 +343,19 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
 	$account = user_load(array('uid' => $uid));
 
 	$is_granted = uc_roles_grant($account, $rid, $expiry_timestamp );
-
-	watchdog('user', $is_granted);
   }
   
+  function is_user_free_member($uid){
+      $is_free_user = "";
+      $query = db_select('mt_members', 'mtmb')->fields('mtmb')->condition('uid', $uid)->execute()->fetchAssoc();
+      if ($query['membership_type'] == 0){
+	  $is_free_user = true;
+      } else if($query['membership_type'] > 0){
+	  $is_free_user = false;
+      }
+      
+      return $is_free_user;
+  }
   
   //user _uc_roles_get_expiration instead
   function set_membership_duration($membership_type){

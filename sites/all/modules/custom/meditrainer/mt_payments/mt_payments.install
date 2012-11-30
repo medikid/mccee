@@ -1,0 +1,34 @@
+<?php
+module_load_include('inc', 'mt_payments', 'mt_payments.rules');
+/*
+ * implements hook_enable
+ */
+function mt_payments_enable(){   
+   // import_rule_activate_granted_role();
+   
+  
+  
+}
+
+/*
+ * implements hook_disable
+ */
+function mt_payments_disable(){
+   
+}
+
+/*
+ * implements hook_install
+ */
+function mt_payments_install(){
+    
+}
+
+/*
+ * implements hook_uninstall
+ */
+function mt_payments_uninstall(){
+    
+}
+
+?>

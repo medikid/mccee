@@ -1,0 +1,37 @@
+<?php
+ 
+  
+  function get_user_role_by_order($order){
+      $order_id = $order->order_id;
+      $uid = $order->uid;
+      
+      $order_product = db_select('uc_order_products', 'op')->fields('op')->condition('order_id', $order_id)->execute()->fetchAssoc();
+      $nid = $order_product['nid'];
+      $order_product_id = $order_product['order_product_id'];
+      $order_product_title = $order_product['title'];
+      
+      $roles_product = db_select('uc_roles_products', 'rp')->fields('rp')->condition('nid', $nid)->execute()->fetchAssoc();
+      $rid = $roles_product['rid'];
+      $role_duration = $roles_product['duration'];
+      $role_granularity = $roles_product['granularity'];
+      
+      $role_expiration = db_select('uc_roles_expirations', 're')
+				    ->fields('re', array('expiration'))
+				    ->condition('uid', $uid)
+				    ->condition('rid', $rid)
+				    ->execute()
+				    ->fetchAssoc();
+      
+      $user_role = new stdClass();
+      $user_role->order_id =  $order_id;//order->oid
+      $user_role->uid = $uid;//$ordier->uid
+      $user_role->nid = $nid;//uc_order_products(oid)
+      $user_role->order_product_id = $order_product_id; ////uc_order_products(oid)
+      $user_role->role_title = $order_product_title;//uc_order_products(oid)
+      $user_role->rid = $rid ;//uc_roles_prodtucs(nid)
+      $user_role->role_duration = $role_duration;//uc_roles_products(nid)
+      $user_role->role_granularity = $role_granularity;//uc_roles_products(nid)
+      $user_role->expiration_timestamp = $role_expiration['expiration']; //uc_roles_expiration(uid, rid);
+      
+      return $user_role;
+  }
