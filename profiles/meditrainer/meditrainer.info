@@ -67,6 +67,7 @@ dependencies[] = module_filter
 
 dependencies[] = rules
 dependencies[] = rules_scheduler
+dependencies[] = rules_admin
 
 dependencies[] = schema
 
@@ -104,6 +105,8 @@ dependencies[] = mt_import_export
 dependencies[] = mt_services
 dependencies[] = mt_mindmaps
 dependencies[] = mt_media
+dependencies[] = mt_message
+dependencies[] = mt_payments
 
 files[] = meditrainer.profile
 

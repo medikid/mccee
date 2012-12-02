@@ -48,13 +48,13 @@ function get_schema_mt_members(&$schema){
       'not null' => TRUE,
       'default' => 0,
     ),
-    'aspiring _exam_uk' => array(
+    'aspiring_exam_uk' => array(
       'description' => 'UK - PLAB exam chosen for membership',
       'type' => 'int',
       'not null' => TRUE,
        'default' => 0, 
     ),
-    'aspiring _exam_au' => array(
+    'aspiring_exam_au' => array(
       'description' => 'Australia - AMC exam chosen for membership',
       'type' => 'int',
       'not null' => TRUE,

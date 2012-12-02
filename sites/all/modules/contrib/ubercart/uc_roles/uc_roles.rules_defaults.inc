@@ -62,7 +62,7 @@ function uc_roles_default_rules_configuration() {
     'format' => filter_default_format(),
   ));
   $configs['uc_role_notify_revoke'] = $rule;
-
+  
   // Notify the user when a role is renewed.
   $rule = rules_reaction_rule();
   $rule->label = t('Notify customer when a role is renewed');

@@ -1,4 +1,5 @@
 <?php
+ module_load_include('inc', 'mt_members', 'mt_members.rules');
 
 /*
  * implements hook_enable
@@ -7,6 +8,10 @@ function mt_members_enable(){
     
     db_upload_from_csv('mt_members','mt_codelist', 'mt_codelist', array());
     
+    //set user_register process to 1 .. ie user self-registers account and email notify email sent to user for verifying email and to set passwd
+    variable_set('user_register', 1);
+    inactivate_rule("uc_role_notify_grant");//inactivate role notify grant inserted by uc_roles.rules
+    
 }
 
 /*
@@ -14,6 +19,7 @@ function mt_members_enable(){
  */
 function mt_members_disable(){
     db_delete_from_csv('mt_members','mt_codelist', 'mt_codelist', array('sub_cat','name','code'));
+    activate_rule("uc_role_notify_grant");
 }
 
 

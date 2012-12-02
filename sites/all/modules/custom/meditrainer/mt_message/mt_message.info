@@ -1,0 +1,6 @@
+name = Messages
+description = Meditrainer Messaging module
+package = MediTrainer
+core = 7.x
+files[] = mt_message.install
+files[] = mt_message.module

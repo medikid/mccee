@@ -1,0 +1,14 @@
+<?php
+
+function mt_message_enable(){
+    
+}
+function mt_message_disable(){
+    
+}
+function mt_message_install(){
+    
+}
+function mt_message_uninstall(){
+    
+}
