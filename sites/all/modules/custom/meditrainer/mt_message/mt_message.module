@@ -4,28 +4,47 @@
  * implements hook_mail
  */
 function mt_message_mail($key, &$message, $params){
-    /*
-    $message['headers']['MIME-Version'] = '1.0';
+    $langcode = isset($message['language']) ? $message['language']->language : NULL;
+    
+    //$message['headers']['MIME-Version'] = '1.0';
     $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
-    $message['headers']['Content-Transfer-Encoding'] = '8Bit';
-    $message['headers']['X-Mailer'] = 'Drupal';
-    */
+    //$message['headers']['Content-Transfer-Encoding'] = '8Bit';
+    //$message['headers']['X-Mailer'] = 'Drupal';
+    
     switch($key){
 	case "email_activate_granted_paid_role":
 	   get_email_message($key, $message, $params);	    
 	    break;
+	case "email_activate_granted_free_role":
+	   get_email_message($key, $message, $params);	    
+	    break;
     }
+    
+    // Apply an input format to the message body if specified.
+      if (isset($params['format'])) {
+        $message['body'] = explode("\n", check_markup($body, $params['format'], $langcode));
+      }
+      else {
+        $message['body'] = explode("\n", $body);
+      }
 }
 
 function get_email_message($key, &$message, $params){
     $tpl_folder = "email_templates";
+    $email_message = "";
+    
       switch($key){
 	  case "email_activate_granted_paid_role":
-	      module_load_include('inc', 'mt_message', $tpl_folder."/".$key);
-	      
-	      $email_message = message_activate_granted_paid_role($params['order']);
-	      
-	      if (isset($params['from'])) {
+		module_load_include('inc', 'mt_message', $tpl_folder."/".$key);
+		$email_message = message_activate_granted_paid_role($params['order']);
+	      break;
+	      case 'email_activate_granted_free_role':
+		    module_load_include('inc', 'mt_message', $tpl_folder."/".$key); 
+		    $email_message = message_activate_granted_free_role($params['user']);
+		    break;
+      }
+      
+      if (isset($params['from'])) {
 		    $message['from'] = $params['from'];
 		} else $message['from'] = $email_message['from'];
 
@@ -46,8 +65,6 @@ function get_email_message($key, &$message, $params){
 		} else $message['headers'] = $email_message['headers'];
 	      */
 		
-	      break;
-      }
   }
   
  

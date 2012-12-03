@@ -189,7 +189,7 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
 			}
   			
   		}
-  
+  /***Inactivated because assigning a role and notifying user happens automatically*********
   		if ($arg2 == 'completed' && $order->order_status == 'payment_received') {
   			$user = user_load($order->uid);
   
@@ -199,13 +199,15 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
   				$user->password = $pass; // Mail token.
 				
 				//now set role and expirty
-				set_user_role_n_expiry($uid, $membership_type);
+				set_user_role_n_expiry($user->uid, $user->membership_type);
 				
 				//now send an email for user email verification
   				user_reg_email_notify($user);
   			}
   		}
-  	}
+   * 
+   */
+  	}   
   }
   
   function disable_validation(&$form, &$form_state)
@@ -272,6 +274,10 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
 	//set role/expiry if free_membership, else we will set it once payment is complete
 	if ($member_creation_args['membership_type'] == 0){	
 	set_user_role_n_expiry($member_creation_args['uid'], $member_creation_args['membership_type']);
+	
+	$user = user_load($uid);
+	//call the event to notify and activate free membership
+	rules_invoke_event('free_roles_notify_grant', $user);
 	}
 	
         insert_new_member($member_creation_args);      
@@ -340,7 +346,7 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
 	$expiry_timestamp = _uc_roles_get_expiration($duration, $granularity);
 	
 	// Load user object
-	$account = user_load(array('uid' => $uid));
+	$account = user_load($uid);
 
 	$is_granted = uc_roles_grant($account, $rid, $expiry_timestamp );
   }
