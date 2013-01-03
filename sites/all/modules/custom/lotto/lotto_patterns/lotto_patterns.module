@@ -1,0 +1,185 @@
+<?php
+/*
+ * //positives
+ * diagonal_step_up
+ * diagnoal step_down
+ * ladder
+ * piller
+ * 
+ * //negative
+ * blackcloud
+ * 
+ * horizontal_beam(unpredictable)
+ * 
+ * 
+ * diagonal step up 5
+ * diagnoal step down 5
+ * pillar down 5
+ * diagonal under step up 5
+ * diagonal under step down 5
+ * 
+ */
+
+function lotto_pattern_feed($lottery_name, $lottery_id, $num_draws){
+    $lotto_pattern_feed = array();
+    $x = 0;
+    while ($x < $num_draws){
+	$lottery_results_id = $lottery_id - $x;
+	$lotto_pattern_feed[$lottery_results_id] = lotto_binary_results($lottery_name, $lottery_results_id);
+	$x++;
+    }
+    return $lotto_pattern_feed;
+}
+
+//diag_step_up
+function lotto_pattern_diag_step_up($lottery_pattern_feed, $lottery_id, $number, $num_draws){
+    $pattern="";
+    $x=$lottery_id;
+    $y=$number;
+    $i=0;
+    while($i < $num_draws){
+	if (($y-$i) > 0){
+	$pattern .= $lottery_pattern_feed[$x-$i][$y-$i];    
+	}
+    $i++;
+    }
+    
+    return $pattern;
+}
+
+//diag_step_down
+function lotto_pattern_diag_step_down($lottery_pattern_feed, $lottery_id, $number, $num_draws){
+    $pattern="";
+    $x=$lottery_id;
+    $y=$number;
+    $i=0;
+    while($i < $num_draws){
+	if (($y+$i) <= count($lottery_pattern_feed[$x])){
+	    $pattern .= $lottery_pattern_feed[$x-$i][$y+$i];  
+	}
+    $i++;
+    }
+    
+    return $pattern;
+}
+//pillar_down
+function lotto_pattern_pillar_down($lottery_pattern_feed, $lottery_id, $number, $num_draws){
+    $pattern="";
+    $x=$lottery_id;
+    $y=$number;
+    $i=0;
+    while($i < $num_draws){
+    $pattern .= $lottery_pattern_feed[$x-$i][$y];    
+    $i++;
+    }
+    
+    return $pattern;
+}
+
+//disg_und_step_up
+function lotto_pattern_diag_under_step_up($lottery_pattern_feed, $lottery_id, $number, $num_draws){
+    $pattern="";
+    $x=$lottery_id;
+    $y=$number;
+    $i=0;
+    while($i < $num_draws){
+	if($i == 1){
+	    $pattern .= $lottery_pattern_feed[$x-$i][$y];
+	} else {
+	    if (($y-$i) > 0){
+		$pattern .= $lottery_pattern_feed[$x-$i][$y-$i];  
+	    }
+	}
+    $i++;
+    }
+    
+    return $pattern;
+}
+
+//disg_und_step_up
+function lotto_pattern_diag_under_step_down($lottery_pattern_feed, $lottery_id, $number, $num_draws){
+    $pattern="";
+    $x=$lottery_id;
+    $y=$number;
+    $i=0;
+    while($i < $num_draws){
+	if($i == 1){
+	    $pattern .= $lottery_pattern_feed[$x-$i][$y];
+	} else {
+	    if (($y+$i) <= count($lottery_pattern_feed[$x])){
+		$pattern .= $lottery_pattern_feed[$x-$i][$y+$i]; 
+	    }
+	}
+    $i++;
+    }
+    
+    return $pattern;
+}
+
+function lotto_pattern_insert($lottery_name, $lottery_id, $num_draws){
+    switch($lottery_name){
+	case 'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $pattern_feed = lotto_pattern_feed($lottery_name, $lottery_id, $num_draws);
+	    $pattern = array(
+		'lpid'=>null,
+		'lottery_name'=>$lottery_name,
+		'lottery_id'=>$lottery_id
+	    );
+	    
+	    $i = 1; $x=80;
+	    while ($i <= $x){
+		$pattern['num'] = $i;
+		$pattern['diag_step_up'] = lotto_pattern_diag_step_up($pattern_feed, $lottery_id, $i, $num_draws);
+		$pattern['pillar_down'] = lotto_pattern_pillar_down($pattern_feed, $lottery_id, $i, $num_draws);
+		$pattern['diag_step_down'] = lotto_pattern_diag_under_step_down($pattern_feed, $lottery_id, $i, $num_draws);
+		$pattern['diag_und_step_up'] = lotto_pattern_diag_under_step_up($pattern_feed, $lottery_id, $i, $num_draws);
+		$pattern['diag_und_step_down'] = lotto_pattern_diag_under_step_down($pattern_feed, $lottery_id, $i, $num_draws);
+		
+		$inserted = db_insert('lotto_patterns')->fields($pattern)->execute();
+		$i++;
+	    }     
+	break;
+    }
+    return $inserted;
+}
+
+function lotto_patterns_import($lottery_name, $lottery_id_top, $lottery_id_bottom, $num_draws){
+    switch($lottery_name){
+	case 'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $y=1;
+	    $lottery_id = $lottery_id_top;
+	    $pattern_feed = lotto_pattern_feed($lottery_name, $lottery_id, $num_draws);
+	    while ($lottery_id >= $lottery_id_bottom){
+		
+		$pattern_feed = lotto_pattern_feed($lottery_name, $lottery_id, $num_draws);
+	    $pattern = array(
+		'lpid'=>null,
+		'lottery_name'=>$lottery_name,
+		'lottery_id'=>$lottery_id
+	    );
+	    
+	    $i = 1; $x=80;
+	    while ($i <= $x){
+		$pattern['num'] = $i;
+		$pattern['diag_step_up'] = lotto_pattern_diag_step_up($pattern_feed, $lottery_id, $i, $num_draws);
+		$pattern['pillar_down'] = lotto_pattern_pillar_down($pattern_feed, $lottery_id, $i, $num_draws);
+		$pattern['diag_step_down'] = lotto_pattern_diag_under_step_down($pattern_feed, $lottery_id, $i, $num_draws);
+		$pattern['diag_und_step_up'] = lotto_pattern_diag_under_step_up($pattern_feed, $lottery_id, $i, $num_draws);
+		$pattern['diag_und_step_down'] = lotto_pattern_diag_under_step_down($pattern_feed, $lottery_id, $i, $num_draws);
+		
+		$inserted = db_insert('lotto_patterns')->fields($pattern)->execute();
+		$i++;
+	    }     
+		
+		$y++;
+		$lottery_id = $lottery_id_top - $y;
+		
+	    }
+	    
+	    break;
+    }
+}

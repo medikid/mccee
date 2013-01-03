@@ -1,0 +1,175 @@
+<?php
+module_load_include('inc', 'lotto_import_export', 'lotto_import_export_admin_menu');
+module_load_include('inc', 'lotto_import_export', 'lotto_import_export_forms');
+
+
+/*
+ * upload csv entries into db
+ */ 
+function lotto_data_upload_from_csv($module_name, $table_name, $csv_file_name, $non_string_fields=array()){
+    $TABLE_NAME = $table_name;
+    $CSV_FILE_NAME = $csv_file_name;
+    $NON_STRING_FIELDS = $non_string_fields;
+    $FIELD_NAMES_ARRAY = array();
+    $FIELD_NAMES = "";
+    $VALUES = "";
+    $row = 0;
+    
+    $DEFAULT_INDEXES = array();
+    $DATE_INDEXES = array();
+
+    $records = file(drupal_get_path('module', $module_name) . "/data/" . $CSV_FILE_NAME . ".csv");
+    foreach ($records as $line) {
+        $record = csv_row_to_array($line);
+	$DATA = array();
+        if ($row == 0) {
+            foreach ($record as $i => $value) {
+		$TABLE_FIELDS = get_csv_header_fields($TABLE_NAME);               
+		$FIELD_NAMES_ARRAY[$i] = $TABLE_FIELDS[trim($value)]['field_name'];		
+
+		if ( isset($TABLE_FIELDS[trim($value)]['default_value']) ){
+		    $DEFAULT_INDEXES[$TABLE_FIELDS[trim($value)]['field_name']] = $TABLE_FIELDS[trim($value)]['default_value'];
+		}
+
+		if ( $TABLE_FIELDS[trim($value)]['type'] == 'date' ){
+		    $DATE_INDEXES[$TABLE_FIELDS[trim($value)]['field_name']] = $TABLE_FIELDS[trim($value)]['format'];
+		}
+	    }
+	} else {
+	    foreach ($record as $i => $value) {
+		if ( isset($DATE_INDEXES[$FIELD_NAMES_ARRAY[$i]]) ){
+		    $DATA[$FIELD_NAMES_ARRAY[$i]] = string_to_unix_timestamp( $value, $DATE_INDEXES[$FIELD_NAMES_ARRAY[$i]]);
+		} else if(isset($DEFAULT_INDEXES[$FIELD_NAMES_ARRAY[$i]])){
+		    $DATA[$FIELD_NAMES_ARRAY[$i]] = ($DEFAULT_INDEXES[$FIELD_NAMES_ARRAY[$i]] == 'NULL') ? NULL : $DEFAULT_INDEXES[$FIELD_NAMES_ARRAY[$i]];
+		} else {		
+		    $DATA[$FIELD_NAMES_ARRAY[$i]]  = $value;
+		}
+		
+	    }
+	    $date_upload = db_insert($TABLE_NAME)
+				->fields($DATA)
+				->execute();
+	    
+	}
+	$row++;	
+    }
+}
+
+
+/*
+ * deletes matching CSV entries from database
+ */
+function lotto_data_delete_from_csv($module_name, $table_name, $csv_file_name, $filter_by=array(), $use_db_query=TRUE){
+    $TABLE_NAME = $table_name;
+    $CSV_FILE_NAME = $csv_file_name;
+    $FILTER_BY = $filter_by;
+    $FIELD_NAMES_ARRAY = array();
+    $FIELD_NAMES = "";
+    $VALUES = "";
+    $row = 0;
+
+    $records = file(drupal_get_path('module', $module_name) . "/data/" . $CSV_FILE_NAME . ".csv");
+    foreach ($records as $line) {
+        $record = csv_row_to_array($line);
+        if ($row == 0) {
+            foreach ($record as $i => $value) {
+		$TABLE_FIELDS = get_csv_header_fields($TABLE_NAME);               
+		$FIELD_NAMES_ARRAY[$i] = $TABLE_FIELDS[trim($value)]['field_name'];
+
+		$DEFAULT_INDEXES = array();
+		$DATE_INDEXES = array();
+
+		if ( isset($TABLE_FIELDS[trim($value)]['default_value'])){
+		    $DEFAULT_INDEXES[$TABLE_FIELDS[trim($value)]['field_name']] = $TABLE_FIELDS[trim($value)]['default_value'];
+		}
+
+		if ( $TABLE_FIELDS[trim($value)]['type'] == 'date'){
+		    $DATE_INDEXES[$TABLE_FIELDS[trim($value)]['field_name']] = 'UNIX_TIMESTAMP';
+		}
+		
+                //$FIELD_NAMES_ARRAY[$i] = trim($value);
+                $FIELD_NAMES .= $i == 0 ? "`" . trim($value) . "`" : ", `" . trim($value) . "`";
+            }
+        } else {
+
+            $db_delete = db_delete($TABLE_NAME);
+            
+            foreach ($record as $column => $val) {
+                if (in_array($FIELD_NAMES_ARRAY[$column], $FILTER_BY)){
+                    $db_delete->condition($FIELD_NAMES_ARRAY[$column], $val);
+                } 
+            }
+
+               $db_delete->execute();
+
+        }
+        $row++;
+    }
+}
+
+function get_csv_header_fields($table_name){
+    $header_fields = array();
+    switch($table_name){
+	case 'lotto_max':
+	    $header_fields['PRODUCT'] = array('field_name'=>'lmxid', 'type'=>'int', 'default_value'=>'NULL');
+	    $header_fields['DRAW NUMBER'] = array('field_name'=>'draw_number', 'type'=>'int');
+	    $header_fields['SEQUENCE NUMBER'] = array('field_name'=>'draw_sequence', 'type'=>'int');
+	    $header_fields['DRAW DATE'] = array('field_name'=>'draw_date', 'type'=>'date', 'format'=>'d/m/Y');
+	    $header_fields['NUMBER DRAWN 1'] = array('field_name'=>'n1', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 2'] = array('field_name'=>'n2', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 3'] = array('field_name'=>'n3', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 4'] = array('field_name'=>'n4', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 5'] = array('field_name'=>'n5', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 6'] = array('field_name'=>'n6', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 7'] = array('field_name'=>'n7', 'type'=>'int');
+	    $header_fields['BONUS NUMBER'] = array('field_name'=>'bn', 'type'=>'int');
+	    break;
+	case 'lotto_max_extra':
+	    $header_fields['PRODUCT'] = array('field_name'=>'lmxeid', 'type'=>'int', 'default_value'=>'NULL');
+	    $header_fields['DRAW NUMBER'] = array('field_name'=>'draw_number', 'type'=>'int');
+	    $header_fields['DRAW DATE'] = array('field_name'=>'draw_date', 'type'=>'date', 'format'=>'d/m/Y');
+	    $header_fields['NUMBER DRAWN 1'] = array('field_name'=>'en1', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 2'] = array('field_name'=>'en2', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 3'] = array('field_name'=>'en3', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 4'] = array('field_name'=>'en4', 'type'=>'int');	    
+	    break;
+	case 'lotto_keno':
+	    $header_fields['PRODUCT'] = array('field_name'=>'lkid', 'type'=>'int', 'default_value'=>'NULL');
+	    $header_fields['DRAW NUMBER'] = array('field_name'=>'draw_number', 'type'=>'int');
+	    $header_fields['DRAW DATE'] = array('field_name'=>'draw_date', 'type'=>'date', 'format'=>'m/d/Y g:i:s A');
+	    $header_fields['BONUS MULTIPLIER'] = array('field_name'=>'bm', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 1'] = array('field_name'=>'n1', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 2'] = array('field_name'=>'n2', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 3'] = array('field_name'=>'n3', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 4'] = array('field_name'=>'n4', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 5'] = array('field_name'=>'n5', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 6'] = array('field_name'=>'n6', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 7'] = array('field_name'=>'n7', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 8'] = array('field_name'=>'n8', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 9'] = array('field_name'=>'n9', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 10'] = array('field_name'=>'n10', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 11'] = array('field_name'=>'n11', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 12'] = array('field_name'=>'n12', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 13'] = array('field_name'=>'n13', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 14'] = array('field_name'=>'n14', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 15'] = array('field_name'=>'n15', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 16'] = array('field_name'=>'n16', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 17'] = array('field_name'=>'n17', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 18'] = array('field_name'=>'n18', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 19'] = array('field_name'=>'n19', 'type'=>'int');
+	    $header_fields['NUMBER DRAWN 20'] = array('field_name'=>'n20', 'type'=>'int');
+	    
+    }
+    
+    return $header_fields;
+}
+
+function string_to_unix_timestamp($str_date, $date_format){
+    $date = date_parse_from_format($date_format, $str_date);
+    
+    $unix_timestamp = mktime($date['hour'], $date['minute'], $date['second'], $date['month'], $date['day'], $date['year']);
+
+    return $unix_timestamp;
+}
+
+?>

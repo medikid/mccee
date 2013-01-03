@@ -1,0 +1,6 @@
+name = LottoPatterns
+description = Lotto Patterns module
+package = Lotto
+core = 7.x
+files[] = lotto_patterns.module
+files[] = lotto_patterns.install

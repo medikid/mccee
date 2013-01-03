@@ -1,0 +1,734 @@
+<?php
+//NEVER LOAD IEM API or INIT FILES IN THE MODULE. You should load them only inside a function when you need them.
+module_load_include('inc', 'mt_iem', 'iem_settings');
+module_load_include('inc', 'mt_iem', 'mt_iem_admin_menu');
+module_load_include('inc', 'mt_iem', 'mt_iem_settings_form');
+module_load_include('inc', 'mt_iem', 'mt_iem_newsletter_form');
+module_load_include('inc', 'mt_iem', 'mt_iem.mail');
+
+/************************MT NEWSLETTER**********************************/
+function mt_iem_newsletter_id_by_key($newsletter_key){
+    $newsletter = db_select('mt_newsletter', 'nl')
+		->fields('nl')
+		->condition('newsletter_key', $newsletter_key)
+		->execute()
+		->fetchAssoc();
+    
+    return $newsletter['iem_newsletter_id'];
+}
+
+function mt_iem_subscriber_id_get($uid){
+    $user = db_select('mt_members', 'mb')
+		->fields('mb')
+		->condition('uid', $uid)
+		->execute()
+		->fetchAssoc();
+    return $user['iem_subscriber_id'];
+}
+
+function mt_iem_subscriber_id_set($uid, $subscriber_id){
+    $user = db_update('mt_members')
+		->fields( array('iem_subscriber_id' => $subscriber_id ))
+		->condition('uid', $uid)
+		->execute();
+    return $user;
+}
+
+function mt_iem_uid_by_subscriber_id($subscriber_id){
+    $user = db_select('mt_members', 'mb')
+		->fields('mb')
+		->condition('iem_subscriber_id', $subscriber_id)
+		->execute()
+		->fetchAssoc();
+    return $user['uid'];
+}
+
+/************************IEM API****************************/
+/*
+ * Loads IEM API by api file name, returns an object
+ */
+function api_init($api_name) {
+    //$api_name = Lists, User, Subscribers, CustomField,
+    include_once('iem_api_init.inc');
+    
+    $object = null;
+    
+    switch($api_name){
+	case 'User':
+	    include_once SENDSTUDIO_API_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new User_API();
+	    break;
+	case 'Lists':
+	    include_once SENDSTUDIO_API_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new Lists_API();
+	    break;
+	case 'Subscribers':
+	    include_once SENDSTUDIO_API_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new Subscribers_API();
+	    break;
+	case 'CustomFields':
+	    include_once SENDSTUDIO_API_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new CustomFields_API();
+	    break;
+	case 'Jobs':
+	    include_once SENDSTUDIO_API_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new Jobs_API();
+	    break;
+	case 'Jobs_Send':
+	    include_once SENDSTUDIO_API_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new Jobs_Send_API();
+	    break;
+	case 'Newsletters':
+	    include_once SENDSTUDIO_API_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new Newsletters_API();
+	    break;
+	default:
+	    $object = new API();
+	    break;
+    }    
+    
+    return $object;
+}
+
+/*
+ * Destroys the object
+ */
+function api_exit($object){
+    unset($object);
+}
+
+//****************USER_API*************************************/
+/*
+ * Creates user
+ */
+function mt_iem_user_create($username, $password, $email, $fullname, $isSystemAdmin = true) {
+    $IEM_API_USER = api_init('User');
+    
+    $IEM_API_USER->username = $username;
+    $IEM_API_USER->password = $password;
+
+
+    $IEM_API_USER->fullname = $fullname;
+    $IEM_API_USER->emailaddress = $email;
+
+    $IEM_API_USER->groupid = 1;
+    $IEM_API_USER->usertimezone = 'GMT-8:00';
+    $IEM_API_USER->status = true;
+
+    $IEM_API_USER->systemadmin = $isSystemAdmin;
+    $IEM_API_USER->admintype = "a";
+    $user_id = $IEM_API_USER->Create();
+    
+    api_exit($IEM_API_USER);
+    
+    return $user_id;
+}
+/*
+ * Crates an user with XML API Setup. Login to create the xml token
+ */
+function mt_iem_xml_user_create($username, $password, $email, $fullname, $isSystemAdmin = true) {    
+    $IEM_API_USER = api_init('User');
+    
+    $IEM_API_USER->username = $username;
+    $IEM_API_USER->password = $password;
+
+
+    $IEM_API_USER->fullname = $fullname;
+    $IEM_API_USER->emailaddress = $email;
+    
+    $IEM_API_USER->xmlapi = true;
+
+    $IEM_API_USER->groupid = 1;
+    $IEM_API_USER->usertimezone = 'GMT-8:00';
+    $IEM_API_USER->status = true;
+
+    $IEM_API_USER->systemadmin = $isSystemAdmin;
+    $IEM_API_USER->admintype = "a";
+    $user_id = $IEM_API_USER->Create();
+    
+    api_exit($IEM_API_USER);
+    
+    mt_iem_xml_user_data_pull($user_id);
+    
+    return $user_id;
+}
+/*
+ * Sync data after you manually setup xml token
+ */
+function mt_iem_xml_user_data_pull($user_id){
+    $IEM_API_USER = api_init('User');
+    $IEM_API_USER->Load($user_id);
+    
+    iem_settings_set('IEM_MT_USERS_LIST_ADMIN', $IEM_API_USER->username);
+    iem_settings_set('IEM_MT_USERS_LIST_ADMIN_ID', $IEM_API_USER->userid);
+    iem_settings_set('IEM_MT_USERS_LIST_ADMIN_NAME', $IEM_API_USER->fullname);
+    iem_settings_set('IEM_MT_USERS_LIST_ADMIN_EMAIL', $IEM_API_USER->emailaddress);
+    iem_settings_set('IEM_MT_USERS_LIST_ADMIN_XML_TOKEN', $IEM_API_USER->xmltoken);
+    
+    api_exit($IEM_API_USER);
+}
+
+/*
+ * Find IEM User by Username
+ */
+function mt_iem_user_find($username) {
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_USER =  api_init('User');
+    
+    $user_id = $IEM_API_USER->Find($username);
+    
+    //mt_iem_api_unload($IEM_API);
+    api_exit($IEM_API_USER);
+    return $user_id;
+}
+
+//*******************LISTS API***********************************/
+/*
+ * Create List
+ */
+function mt_iem_list_create($list_name, $owner_name, $custom_fields = array(), $notify_owner = false, $reply_to_email = "") {
+    $IEM_API_USER = api_init('User');
+    
+    $owner_id = $IEM_API_USER->Find($owner_name);
+    $IEM_API_USER->Load($owner_id);
+    
+    $IEM_API_LIST = api_init('Lists');
+
+    $IEM_API_LIST->name = $list_name;
+    $IEM_API_LIST->ownername = $IEM_API_USER->fullname;
+    $IEM_API_LIST->owneremail = $IEM_API_USER->emailaddress;
+    $IEM_API_LIST->replytoemail = $IEM_API_USER->emailaddress;
+    $IEM_API_LIST->bounceemail = $IEM_API_USER->emailaddress;
+
+    $IEM_API_LIST->customfields = $custom_fields;
+
+    $IEM_API_LIST->notifyowner = $notify_owner;
+
+    $list_id = $IEM_API_LIST->Create();
+    
+    //mt_iem_api_unload($IEM_API);
+    api_exit($IEM_API_USER);
+    api_exit($IEM_API_LIST);
+    return $list_id;
+}
+/*
+ * Create List for XML Admin User
+ */
+function mt_iem_user_list_create($list_name, $owner_name, $custom_fields = array(), $notify_owner = false, $reply_to_email = ""){
+    $list_id = mt_iem_list_create($list_name, $owner_name, $custom_fields, $notify_owner, $reply_to_email);
+    mt_iem_list_pulldata($list_id);
+}
+
+/*
+ * Sync data
+ */
+function mt_iem_list_pulldata($list_id){
+    $IEM_API_LIST = api_init('Lists');
+    $IEM_API_LIST->Load($list_id);
+    
+    iem_settings_set('IEM_MT_USERS_LIST_NAME', $IEM_API_LIST->name);
+    iem_settings_set('IEM_MT_USERS_LIST_ID', $IEM_API_LIST->listid);
+    api_exit($IEM_API_LIST);
+}
+
+/*
+ * Find IEM Contact List by List Name. Return List ID
+ */
+function mt_iem_list_find($list_name) {
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_LIST = api_init('Lists');
+    $list_id = $IEM_API_LIST->Find($list_name);
+    
+    //mt_iem_api_unload($IEM_API);
+    api_exit($IEM_API_LIST);
+    return $list_id;
+}
+/******************************CUSTOM FIELDS****************************************/
+/*
+ * create a custom field and add a list association
+ */
+function mt_iem_customfield_add($field_name, $field_type, $list_name_associations = array(), $owner_name = 'Admin') {
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_CUSTOMFIELD = api_init('CustomFields');
+
+    $IEM_API_CUSTOMFIELD->Settings = array('FieldName' => $field_name);
+    $IEM_API_CUSTOMFIELD->fieldtype = $field_type;
+    $IEM_API_CUSTOMFIELD->isglobal = 1;
+    $IEM_API_CUSTOMFIELD->ownerid = mt_iem_user_find($owner_name);
+
+    $field_id = $IEM_API_CUSTOMFIELD->Create();
+    
+    if ( count($list_name_associations) > 0){
+	foreach ($list_name_associations as $list_name) {
+	    $associations_set = mt_iem_customfield_association_set($field_name, $list_name, $owner_name);
+	} 
+    }
+    //api_exit($IEM_API_USER);
+    api_exit($IEM_API_CUSTOMFIELD);
+    return $field_id;
+}
+/*
+ * Find custom field by its name
+ */
+function mt_iem_customfield_find($field_name) {    
+    $query = iem_db_query_construct_select('', array('customfields'), array(array( 'name', $field_name )));
+    $result = iem_db_query($query);
+    $field_id = 0;
+    while ($result_array = iem_db_query_fetch($result)){
+	$field_id = $result_array['fieldid'];
+    }
+
+    return $field_id;
+}
+
+function mt_iem_customfield_delete($field_name) {
+    $field_id = mt_iem_customfield_find($field_name);
+    
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_CUSTOMFIELD = api_init('CustomFields');
+    $deleted = $IEM_API_CUSTOMFIELD->Delete($field_id);
+    
+    //mt_iem_api_unload($IEM_API);
+    api_exit($IEM_API_CUSTOMFIELD);
+    return $deleted;
+}
+/*
+ * Set associations to Customfield adn the list name, username
+ */
+function mt_iem_customfield_association_set($field_name, $list_name, $list_owner_name) {
+    $list_id = mt_iem_list_find($list_name);
+    $list_owner_id = mt_iem_user_find($list_owner_name);
+    
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_CUSTOMFIELD = api_init('CustomFields');
+    $field_id = mt_iem_customfield_find($field_name);
+    $IEM_API_CUSTOMFIELD->Load($field_id);
+    
+    $field_associations = $IEM_API_CUSTOMFIELD->Associations;
+    
+    
+   if( !in_array( $list_id, $field_associations)){
+       array_push( $field_associations, $list_id);
+   }
+   $IEM_API_USER = api_init('User');
+   $IEM_API_USER->Load($list_owner_id);
+   
+   $saved = $IEM_API_CUSTOMFIELD->SetAssociations( $field_associations, $IEM_API_USER);
+   
+   api_exit($IEM_API_USER);
+    api_exit($IEM_API_CUSTOMFIELD);
+    return $saved;
+}
+
+function mt_iem_customfield_association_unset($field_name, $list_name) {
+    $list_id = mt_iem_list_find($list_name);
+    
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_CUSTOMFIELD = api_init('CustomFields');
+    
+    $IEM_API_CUSTOMFIELD->Load($field_name);
+    
+   if(in_array($list_id, $IEM_API_CUSTOMFIELD['Associations'])){
+       $key = array_search($list_id, $IEM_API_CUSTOMFIELD['Associations']);
+       unset($IEM_API_CUSTOMFIELD['Associations'][$key]);
+       
+       //reorder keys
+       array_values($IEM_API_CUSTOMFIELD['Associations'][$key]);
+   }
+   
+  $saved = $IEM_API_CUSTOMFIELD->Save();   
+  
+    //mt_iem_api_unload($IEM_API);
+    api_exit($IEM_API_CUSTOMFIELD);
+  return $saved;
+}
+
+function iem_customfield_field_id_sync($customfield_category){
+    $iem_customfields = iem_customfield_settings_get($customfield_category);
+    foreach ($iem_customfields as $value){
+	$field_id = mt_iem_customfield_find( $value['name'] );
+	iem_customfield_field_id_set( $value['name'], $field_id);
+    }
+}
+
+/*
+ * Get Customfield settings by category name from the codelist table
+ */
+function iem_customfield_settings_get($customfield_category){    
+    $code_list = new codelist();
+    $MT_IEM_CUSTOMFIELDS = $code_list->get_codelist('mt_iem', $customfield_category);
+    return $MT_IEM_CUSTOMFIELDS;
+}
+/*
+ * Get customfield fieldid by customfield name from the codelist table
+ */
+function iem_customfield_field_id_set($customfield_name, $field_id){
+    $updated = db_update('mt_codelist')
+		->fields(array('code'=>$field_id))
+		->condition('cat', 'mt_iem')
+		->condition('name', $customfield_name)
+		->execute();
+    return $updated;
+}
+/*
+ * Set customfield fieldid by customfield name from the codelist table
+ */
+function iem_customfield_field_id_get($customfield_name){
+    $code_list = new codelist();
+    $customfield_settings = $code_list->get_codelist('mt_iem', null, $customfield_name);
+    return $customfield_settings[0]['code'];
+}
+/************************DB Custruct********************************************/
+/*
+ * Construct the query text. Remembre to incude ' surronding the text condition. from and where are arrays
+ */
+function iem_db_query_construct_select($select='', $from='', $where=''){
+    $IEM_API = api_init('API');
+    $query = "";
+    
+    if ( !is_array($select) || $select == ''){
+	$query .= " SELECT * ";
+    } else {
+	$query .= " SELECT ";
+	foreach ($select as $value){
+	    $query .= "`".$value."`, ";
+	}
+    }
+    
+    if (is_array($from)){
+	$query .= " FROM ";
+	foreach ($from as $value){
+	    $query .= "".SENDSTUDIO_TABLEPREFIX .$value." ";
+	}
+    }
+    
+    if ( !is_array($where) || $where == ''){
+	$query .= " ";
+    } else {
+	$query .= " WHERE ";
+	foreach ($where as $condition){
+	    $key = $condition[0];
+	    $value = (is_int($condition[1])) ?  $condition[1] : "'".$condition[1]."'" ;
+	    if (isset($condition[2]) || isset($condition[3])){
+	    $operator = $condition[2];
+	    $and_or = ($condition[3] == null) ? "": $condition[3] ;
+	    } else {
+		$operator = "=";
+		$and_or = "";
+	    }
+	   
+	    $query .= "".$key." ";
+	    $query .= "$operator";
+	    $query .= " ".$value." ";
+	    $query .= "".$and_or." ";
+	}
+    }
+    api_exit($IEM_API);
+    return $query;
+}
+
+/*
+ * Query and get the result
+ */
+function iem_db_query($query){
+    $IEM_API = api_init('API');
+    $result = $IEM_API->Db->Query($query);
+    api_exit($IEM_API);
+    return $result;
+}
+
+/*
+ * Fetch the result array
+ */
+function iem_db_query_fetch($result){
+   $IEM_API = api_init('API');
+  $result_array =  $IEM_API->Db->Fetch($result);
+  api_exit($IEM_API);
+  return $result_array;
+}
+
+/*********************Subscribers API*************************************/
+/*
+ * Add subscriber by email id and list name
+ */
+function mt_iem_subscriber_add($email, $list_name, $is_confirmed = true, $email_format = 'h') {
+    $list_id = mt_iem_list_find($list_name);
+
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_LIST = api_init('Lists');
+    $list_id = $IEM_API_LIST ->Find($list_name);
+    
+    $IEM_API_SUBSCRIBER = api_init('Subscribers');
+    $IEM_API_SUBSCRIBER->confirmed = $is_confirmed;
+    $IEM_API_SUBSCRIBER->format = $email_format;
+    
+    $subscriber_id = $IEM_API_SUBSCRIBER->AddToList($email, $list_id );
+    
+    //mt_iem_api_unload($IEM_API);
+    api_exit($IEM_API_LIST);
+    api_exit($IEM_API_SUBSCRIBER);
+    return $subscriber_id;
+}
+/*
+ * Find subscriber by email id and list name
+ */
+function mt_iem_subscriber_find($email, $list_name) {
+    $list_id = mt_iem_list_find($list_name);
+
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_SUBSCRIBER = api_init('Subscribers');
+    $subscriber_id = $IEM_API_SUBSCRIBER->IsSubscriberOnList($emailaddress, array($list_id));
+    
+    //mt_iem_api_unload($IEM_API);
+    api_exit($IEM_API_SUBSCRIBER);
+    return $subscriber_id;
+}
+
+function mt_iem_subscriber_email_by_id($subscriber_id){
+    $IEM_API_SUBSCRIBER = api_init('Subscribers');
+    $subscriber_email = $IEM_API_SUBSCRIBER->GetEmailForSubscriber($subscriber_id);
+    api_exit($IEM_API_SUBSCRIBER);
+    
+    return $subscriber_email;
+}
+/*
+ * Find if an email is on the contact list
+ */
+function mt_iem_subscriber_isOnList($email, $list_name) {
+    $list_id = mt_iem_list_find($list_name);
+
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_SUBSCRIBER = api_init('Subscribers');
+
+    if ($IEM_API_SUBSCRIBER->IsSubscriberOnList($email, array($list_id))) {
+	//mt_iem_api_unload($IEM_API);
+	api_exit($IEM_API_SUBSCRIBER);
+	return true;
+    } else
+	//mt_iem_api_unload($IEM_API);	
+	api_exit($IEM_API_SUBSCRIBER);
+	return false;
+}
+
+function mt_iem_subscriber_data_add($mt_subscriber_id, $data=array()){
+    foreach ($data as $field_name=>$value){
+	$field_id = mt_iem_customfield_find($field_name);
+	if (mt_iem_subscriber_data_exist($mt_subscriber_id, $field_id)){
+	    mt_iem_subscriber_data_update($mt_subscriber_id, $field_id, $value);
+	} else mt_iem_subscriber_data_insert($mt_subscriber_id, $field_id, $value );
+    }
+    return true;
+}
+
+function mt_iem_subscriber_data_insert($mt_subscriber_id, $field_id, $data ){
+    $IEM_API = api_init('API');
+    $insert_query = "INSERT INTO ".SENDSTUDIO_TABLEPREFIX."subscribers_data ";
+    $insert_query .= "(`subscriberid`, `fieldid`, `data`)";
+    $insert_query .= "VALUES (".$mt_subscriber_id." , ".$field_id." , ";
+    $insert_query .= is_int($data) ? $data : "'".$data."'";
+    $insert_query .= " ); ";
+    iem_db_query($insert_query);
+    api_exit($IEM_API);
+    return true;
+}
+
+function mt_iem_subscriber_data_update($mt_subscriber_id, $field_id, $data){
+    $IEM_API = api_init('API');
+    $update_query = "UPDATE ".SENDSTUDIO_TABLEPREFIX."subscribers_data SET `data` = ";
+    $update_query .= is_int($data) ? $data : "'".$data."'";
+    $update_query .= " ";
+    $update_query .= "WHERE `subscriberid`=".$mt_subscriber_id." AND `fieldid`=".$field_id." ";
+    iem_db_query($update_query);
+    api_exit($IEM_API);
+    return true;
+}
+
+function mt_iem_subscriber_data_exist($mt_subscriber_id, $field_id){
+    $data_exist = '';
+    $query = iem_db_query_construct_select( '', array('subscribers_data'), array( array('subscriberid', $mt_subscriber_id, '=', 'AND' ) , array('fieldid', $field_id )  ));
+    $result = iem_db_query($query);
+    $result_array = iem_db_query_fetch($result);
+    if ( count($result_array) > 0){
+	$data_exist = true;
+    } else $data_exist = false;
+    return $data_exist;
+}
+/**********************Newsletter API*******************************/
+
+function mt_iem_newsletter_create($newsletter_key, $email_format='b', $active=1){
+    $newsletter = db_select('mt_newsletter', 'nl')
+	    ->fields('nl')->condition('newsletter_key', $newsletter_key)->execute()->fetchAssoc();
+    
+    $IEM_API_NEWSLETTER = api_init('Newsletters');
+    $IEM_API_NEWSLETTER->name = $newsletter['newsletter_name'];
+    $IEM_API_NEWSLETTER->format = $email_format;
+    $IEM_API_NEWSLETTER->active = $active;
+    $IEM_API_NEWSLETTER->ownerid = iem_settings_get('IEM_MT_USERS_LIST_ADMIN_ID');	    
+    $IEM_API_NEWSLETTER->subject = $newsletter['subject'];
+    $IEM_API_NEWSLETTER->textbody = $newsletter['text_body'];
+    $IEM_API_NEWSLETTER->htmlbody = $newsletter['html_body'];
+    
+    $newsletter_id = $IEM_API_NEWSLETTER->Create();
+    
+    $update_db = db_update('mt_newsletter')
+		->fields(array(
+		    'iem_newsletter_id'=>$newsletter_id,
+		    'mail_format'=>$email_format,
+		    'active' =>$active))
+		    ->condition('nlid', $newsletter['nlid'])
+	    ->execute();
+    api_exit($IEM_API_NEWSLETTER);
+    return $newsletter_id;
+}
+
+function mt_iem_newsletter_update($iem_newsletter_id, $newsletter_vars){
+    $IEM_API_NEWSLETTER = api_init('Newsletters');
+    
+    $IEM_API_NEWSLETTER->Load($iem_newsletter_id);
+    
+    $IEM_API_NEWSLETTER->name = $newsletter_vars['newsletter_name'];
+    $IEM_API_NEWSLETTER->format = $newsletter_vars['mail_format'];
+    $IEM_API_NEWSLETTER->active = $newsletter_vars['active'];
+    $IEM_API_NEWSLETTER->ownerid = iem_settings_get('IEM_MT_USERS_LIST_ADMIN_ID');	    
+    $IEM_API_NEWSLETTER->subject = $newsletter_vars['subject'];
+    $IEM_API_NEWSLETTER->textbody = $newsletter_vars['text_body'];
+    $IEM_API_NEWSLETTER->htmlbody = $newsletter_vars['html_body'];
+    
+    $newsletter_id = $IEM_API_NEWSLETTER->Save($iem_newsletter_id);
+    api_exit($IEM_API_NEWSLETTER);
+    
+    return $newsletter_id;
+}
+
+function mt_iem_newsletter_delete($iem_newsletter_id){
+ $IEM_API_NEWSLETTER = api_init('Newsletters');
+ $deleted = $IEM_API_NEWSLETTER->Delete($iem_newsletter_id, iem_settings_get('IEM_MT_USERS_LIST_ADMIN_ID'));
+ 
+ api_exit($IEM_API_NEWSLETTER);
+ return $deleted;
+}
+
+/**************************JOBBS API***************************************/
+//create job details by Email
+function mt_iem_job_details_create($newsletter_id, $subscriber_id){
+  return  $details = array(
+	"NewsletterChosen" => $newsletter_id,
+	"Newsletter" => $newsletter_id,
+      
+	"Lists" =>  array(iem_settings_get('IEM_MT_USERS_LIST_ID')),
+	"SendCriteria" => Array (
+	    "Email" => mt_iem_subscriber_email_by_id($subscriber_id),
+	    "Confirmed" => 1,
+	    "List" =>  iem_settings_get('IEM_MT_USERS_LIST_ID'), 	    
+	    //customize criteria to include customfield
+	   // "CustomFields" =>array(
+	    //	8 =>'Soma' // 8 is the customfield id
+	   // )
+	    ), 
+	
+	"SendFromName" => iem_settings_get('IEM_MT_USERS_LIST_ADMIN'),
+	"SendFromEmail" => iem_settings_get('IEM_MT_USERS_LIST_ADMIN_EMAIL'),
+	"ReplyToEmail" => iem_settings_get('IEM_MT_USERS_LIST_ADMIN_EMAIL_NOREPLY'),
+	"BounceEmail" => iem_settings_get('IEM_MT_USERS_LIST_ADMIN_EMAIL'),
+	"SendStartTime" => time(),  
+      
+	//customize this to customfield first name
+	"To_FirstName" =>2, 
+	"To_LastName" =>3,
+      
+	//Email Settings
+	'BackStep' => 2,
+	'SendSize' => 1,
+	'Multipart' => 1,
+	'TrackOpens' => 1,
+	'TrackLinks' => 1,
+	'EmbedImages' => 0,      
+	"Charset" => 'UTF-8',
+	//email results
+	"EmailResults" => array(
+	    'success'=>0,
+	    'total'=>0,
+	    'failure'=>0
+	)
+      
+	); 
+}
+
+function mt_iem_job_create($newsletter_id, $subscriber_id){
+    $owner_id = iem_settings_get('IEM_MT_USERS_LIST_ADMIN_ID');
+    $list_id = iem_settings_get('IEM_MT_USERS_LIST_ID');
+    $job_details = mt_iem_job_details_create($newsletter_id, $subscriber_id);
+    
+    $IEM_API_JOBS = api_init('Jobs');//Create($jobtype=null, $when=0, $ownerid=0, $details=array(), $fktype='newsletter', $fkid=0, $lists=array(), $approved=0)
+   $job_id = $IEM_API_JOBS->Create('Send', time(), $owner_id, $job_details, 'newsletter', $newsletter_id, array($list_id), 1);//('Send',NOW,1,$details,'newsletter',2,1,1)
+
+   api_exit($IEM_API_JOBS);
+   return $job_id;
+}
+
+function mt_iem_job_send($newsletter_id, $subscriber_id){
+    $job_id = mt_iem_job_create($newsletter_id, $subscriber_id);
+    $fetch_id = mt_iem_job_send_fetch();
+    $sent = mt_iem_job_send_process($fetch_id);
+    return $sent;
+}
+
+/*****************************JOBS SEND**************************************/
+
+function mt_iem_job_send_fetch(){
+    $IEM_API_JOBS_SEND = api_init('Jobs_Send');
+    $job_id = $IEM_API_JOBS_SEND->FetchJob();
+    api_exit($IEM_API_JOBS_SEND);
+
+    return $job_id;
+}
+function mt_iem_job_send_process($job_id){
+    $IEM_API_JOBS_SEND = api_init('Jobs_Send');
+    $job_processed = $IEM_API_JOBS_SEND->ProcessJob($job_id); 
+    api_exit($IEM_API_JOBS_SEND);
+    return $job_processed;
+}
+
+function mt_iem_job_send_all(){
+    $IEM_API_JOBS_SEND = api_init('Jobs_Send');
+    while ($job_id = $IEM_API_JOBS_SEND->FetchJob()){
+	$job_processed = $IEM_API_JOBS_SEND->ProcessJob($job_id); 
+    }
+    api_exit($IEM_API_JOBS_SEND);
+
+    return true;
+}
+
+function mt_iem_newsletter_send($newsletter_key, $subscriber_ids){
+    $IEM_API_JOBS_SEND = api_init('Jobs_Send');
+    $newsletter_id = mt_iem_newsletter_id_by_key($newsletter_key);
+    
+    if (!is_array($subscriber_ids)){
+	$subscriber_ids = array($subscriber_ids);
+    }
+    
+    $jids = array();
+    foreach ($subscriber_ids as $p=>$subscriber_id){
+	$jid = mt_iem_job_create($newsletter_id, $subscriber_id);
+	array_push($jids, $jid );
+	mt_iem_newsletter_send_log($newsletter_id, $subscriber_id);
+    }
+        
+    while ($fid = $IEM_API_JOBS_SEND->FetchJob()){
+	if (in_array($fid, $jids)){
+	    $IEM_API_JOBS_SEND->ProcessJob($fid);
+	} else $IEM_API_JOBS_SEND->ProcessJob($fid);
+    }
+    
+    api_exit($IEM_API_JOBS_SEND);
+    return $jids;   
+}
+
+function mt_iem_newsletter_send_log($newsletter_id, $subscriber_id){
+    $uid = mt_iem_uid_by_subscriber_id($subscriber_id);
+    $nllgid = db_insert('mt_newsletter_log')
+	    ->fields(array('nllgid'=>null, 'nlid'=>$newsletter_id, 'uid'=>$uid, 'sent_timestamp'=> time()))
+	    ->execute();
+    return $nllgid;
+}
+?>

@@ -1,0 +1,13 @@
+code_id,cat,sub_cat,name,sub_name,code,sub_code,code_dependency,sub_code_dependency,disabled,date_disabled
+NULL,mt_interspire_em,iem_settings,IEM_FOLDER_NAME,promo,0,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,DRUPAL_ROOT_PATH,,1,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_ROOT_PATH,,2,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_DB_TABLE_PREFIX,promo_,3,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_MT_USERS_LIST_NAME,mt_users,4,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_MT_USERS_LIST_ID,,5,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_MT_USERS_LIST_ADMIN,mt_admin,6,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_MT_USERS_LIST_ADMIN_NAME,Meditrainer,7,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_MT_USERS_LIST_ADMIN_ID,,8,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_MT_USERS_LIST_ADMIN_PASSWORD,drupal123,9,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_MT_USERS_LIST_ADMIN_EMAIL,admin@meditrainer.com,10,,NULL,NULL,NULL,NULL
+NULL,mt_interspire_em,iem_settings,IEM_MT_USERS_LIST_ADMIN_EMAIL_NOREPLY,no_reply@meditrainer.com,11,,NULL,NULL,NULL,NULL

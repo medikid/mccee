@@ -1,0 +1,21 @@
+/* 
+    Document   : lotto_grid
+    Created on : 22-Dec-2012, 6:41:44 PM
+    Author     : chinnu
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+}
+
+.number-grid td {
+    border: 1px solid #000000;
+    padding: 2px;
+}
+
+.number-grid {
+    margin: 0 12px 22px 0;
+    padding: 0;
+}

@@ -107,6 +107,7 @@ dependencies[] = mt_mindmaps
 dependencies[] = mt_media
 dependencies[] = mt_message
 dependencies[] = mt_payments
+;dependencies[] = mt_interspire_em
 
 files[] = meditrainer.profile
 

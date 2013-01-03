@@ -1,0 +1,62 @@
+//*******************WAMP SETTINGS**************//
+http://forum.wampserver.com/read.php?2,28660
+//*******************WAMP SETTINGS**************//
+
+http://www.lottosoup.com
+http://www.lotto49stats.com
+
+http://www.lottery.co.uk/statistics/
+http://www.theluckygene.com
+http://www.smartluck.com/free-lottery-tips/can649o.htm
+http://www.smartluck.com/lotteryterms/games-out.htm
+http://www.lottostrategies.com/script/showpage/1001040/h/algr_summary.html
+http://www.wired.com/magazine/2011/01/ff_lottery/3/
+
+http://www.random.org/analysis/
+
+
+
+Stat_reports
+
+last drawn date/number for each number
+
+last drawn date/number for popular numbers
+
+frequency drawn for each number
+
+number stops for each draw 0-1-5-6-9-8
+
+most common pairs
+
+most common triplets
+
+games skipped for each draw(which is same as last draw number for each number)
+
+
+
+
+
+/***********************SYNC RESUTL>s***********************************/
+read this for all services
+https://www.playnow.com/resources/js/lottery-results.js
+
+
+https://www.playnow.com/services/keno/latestdraw/
+http://lotto.bclc.com/services2/keno/draw/2012-12-27
+http://lotto.bclc.com/services2/keno/draw/latest/today
+http://lotto.bclc.com/services2/keno/draw/latest
+
+
+//Parameters
+var lmaxDrawURL = '/services2/lotto/draw/latest/lmax';
+var lmaxJackpotURL = '/services2/lotto/jackpot/lmax';
+var l649DrawURL = '/services2/lotto/draw/latest/six49';
+var l649JackpotURL = '/services2/lotto/jackpot/six49';
+var bc49DrawURL = '/services2/lotto/draw/latest/bc49';
+var phpDrawURL = '/services2/phep/draw/latest';
+var kenoDrawURL = '/services2/keno/draw/latest';
+var pokerlottoDrawURL = '/services2/poker-lotto/draw/latest';
+var SF5050DrawURL = '/services2/bc5050/draw/latest'; 
+/*******************lMax******************/
+https://www.playnow.com/services/lottery/draw/lmax
+https://www.playnow.com/services/lottery/jackpot/lmax

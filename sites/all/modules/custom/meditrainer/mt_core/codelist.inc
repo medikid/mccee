@@ -104,14 +104,17 @@ function get_var_name( &$var, $scope=false, $prefix='UNIQUE', $suffix='VARIABLE'
 	return $code;
     }
     
-    function get_codelist($cat, $sub_cat){
-	$result = db_select('mt_codelist', 'n')
-                ->fields('n')
-		->condition('n.cat', $cat)
-                ->condition('n.sub_cat', $sub_cat)
-                ->execute();
+    function get_codelist($cat=null, $sub_cat=null, $name=null, $sub_name=null, $code=null, $sub_code=null){
+	$query = db_select('mt_codelist', 'n')->fields('n');
+	if ($cat != null)	$query->condition('cat', $cat);
+        if ($sub_cat != null)	$query->condition('sub_cat', $sub_cat);
+	if ($name != null)	$query->condition('name', $name);
+        if ($sub_name != null)	$query->condition('sub_name', $sub_name);
+	if ($code != null)	$query->condition('code', $code);
+        if ($sub_code != null)	$query->condition('sub_code', $sub_code);
+        $result = $query->execute();
 	$code_values = array();
-	while ($value = $result->fetchassoc()) {
+	while ($value = $result->fetchAssoc()) {
 	    array_push($code_values, $value);
         }
 	return $code_values;

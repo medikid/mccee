@@ -1,0 +1,48 @@
+<?php
+
+
+/*
+ * implements hook_enable
+ */
+function lotto_max_enable(){
+    
+}
+
+/*
+ * implements hook_disable
+ */
+function lotto_max_disable(){
+  
+}
+
+/**
+ * Implements hook_install().
+ */
+function lotto_max_install() {
+  
+    //drupal_install_schema('mt_core');  
+   
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lotto_max_uninstall() {
+    //drupal_uninstall_schema('mt_core');
+    
+}
+/**
+ * Implements hook_schema().
+ */
+function lotto_max_schema() {
+    
+    $schema=array();
+    get_schema_lotto_max($schema);
+    get_schema_lotto_max_bets($schema);
+    get_schema_lotto_max_stats($schema);
+     get_schema_lotto_max_extra($schema);
+    
+    return $schema;
+
+}
+?>

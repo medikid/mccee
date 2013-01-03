@@ -1,0 +1,23 @@
+================================================================================
+E-Mail Marketer Upgrade.txt
+
+If you are upgrading from SendStudio NX or a previous version of Email Marketer: 
+
+	Please read *every* step of the relevant instructions before undertaking 
+	the first step.
+
+It is always a good idea to backup your data before performing any sort of 
+update. Before you begin the upgrade process, you must ensure that you have a
+full backup of your database.  After you have backed up your database, ensure
+that you download the complete contents of your current installation to a safe
+location on your local machine.
+	
+	YOU MUST BACKUP YOUR DATABASE AND INSTALLATION BEFORE YOU BEGIN
+	
+--------------------------------------------------------------------------------
+
+OVERVIEW
+
+In order to make the upgrade process as easy and error free as possible, please view our upgrade instructional video via the following URL:
+
+http://anonym.to/?http://idn.interspire.com/articles/14/1/Interspire-Email-Marketer-Upgrade-Guide/Page1.html

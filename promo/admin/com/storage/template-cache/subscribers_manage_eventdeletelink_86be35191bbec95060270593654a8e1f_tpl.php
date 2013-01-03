@@ -1,0 +1,1 @@
+<?php $IEM = $tpl->Get('IEM'); ?><a href="#" onclick="return subscriberEventDelete(<?php if(isset($GLOBALS['SubscriberID'])) print $GLOBALS['SubscriberID']; ?>,<?php if(isset($GLOBALS['eventid'])) print $GLOBALS['eventid']; ?>);"><?php print GetLang('Delete'); ?></a>

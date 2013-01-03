@@ -1,0 +1,6 @@
+name = LottoCharts
+description = Lotto Charts module
+package = Lotto
+core = 7.x
+files[] = lotto_charts.module
+files[] = lotto_charts.install

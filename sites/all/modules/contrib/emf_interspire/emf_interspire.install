@@ -1,0 +1,67 @@
+<?php
+// $Id: emf_interspire.install,v 1.1 2010/06/03 14:02:49 bonked Exp $
+
+/**
+ * @file
+ * Installation
+ *
+ * @author Kurt Maet <kurt@coworks.be>
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function emf_interspire_install() {
+  $link = array('!link' => l(t('Administer > Site configuration > Interspire'), 'admin/settings/emf_interspire'));
+  drupal_set_message(t("Interspire module settings are available under !link.", $link));
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function emf_interspire_uninstall() {
+  variable_del('emf_interspire_xml_path');
+  variable_del('emf_interspire_xml_token');
+  variable_del('emf_interspire_xml_user');
+  cache_clear_all('variables', 'cache');
+}
+
+/**
+ * Implementation of hook_requirements().
+ */
+function emf_interspire_requirements($phase) {
+  $requirements = array();
+  
+  $t = get_t();
+  
+  if ($phase == 'runtime') {
+    // Raise warning if Interspire XML Path has not been set yet.
+    if (trim(variable_get('emf_interspire_xml_path', '')) == '') {
+      $requirements['emf_interspire_xml_path'] = array(
+        'title' => $t('Interspire XML Path'),
+        'description' => $t('Your Interspire XML Path has not been set yet. Please specify it on the <a href="@url">Interspire settings page</a>.', array('@url' => url('admin/settings/emf_interspire'))),
+        'severity' => REQUIREMENT_ERROR,
+        'value' => $t('Not configured'),
+      );
+    }
+	// Raise warning if Interspire XML User has not been set yet.
+    if (trim(variable_get('emf_interspire_xml_user', '')) == '') {
+      $requirements['emf_interspire_xml_user'] = array(
+        'title' => $t('Interspire XML User'),
+        'description' => $t('Your Interspire XML User has not been set yet. Please specify it on the <a href="@url">Interspire settings page</a>.', array('@url' => url('admin/settings/emf_interspire'))),
+        'severity' => REQUIREMENT_ERROR,
+        'value' => $t('Not configured'),
+      );
+    }
+	// Raise warning if Interspire XML Token has not been set yet.
+    if (trim(variable_get('emf_interspire_xml_token', '')) == '') {
+      $requirements['emf_interspire_xml_token'] = array(
+        'title' => $t('Interspire XML Token'),
+        'description' => $t('Your Interspire XML Token has not been set yet. Please specify it on the <a href="@url">Interspire settings page</a>.', array('@url' => url('admin/settings/emf_interspire'))),
+        'severity' => REQUIREMENT_ERROR,
+        'value' => $t('Not configured'),
+      );
+    }
+  }  
+  return $requirements;
+}

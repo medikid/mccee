@@ -1,0 +1,21 @@
+<?php
+module_load_include('inc', 'mt_interspire_em', 'mt_interspire_em.setup');
+
+function mt_interspire_em_enable(){
+    db_upload_from_csv('mt_interspire_em','mt_codelist', 'mt_codelist', array('code_id', 'code'));
+    mt_interspire_em_setup();
+}
+
+function mt_interspire_em_disable(){
+    db_delete_from_csv('mt_interspire_em','mt_codelist', 'mt_codelist', array('sub_cat','name','code'));
+}
+
+function mt_interspire_em_install(){
+    
+}
+
+function mt_interspire_em_uninstall(){
+    
+}
+
+?>

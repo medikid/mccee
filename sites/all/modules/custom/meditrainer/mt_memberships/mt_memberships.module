@@ -4,13 +4,16 @@ module_load_include('inc','mt_memberships','mt_memberships_admin_menu');
 
 function mt_memberships_form_alter(&$form, &$form_state, &$form_id) {
 	if ($form_id == 'uc_cart_checkout_form'){
-            //print_r($_SESSION);
-            $fn = $form['panes']['billing']['address']['#default_value'];
-            $form['panes']['customer']['primary_email']['#default_value']=$_SESSION['member_registration']['new_member']['mail'];
-            $fn->billing_first_name =$_SESSION['member_registration']['new_member']['first_name'];
-            $fn->billing_last_name=$_SESSION['member_registration']['new_member']['last_name'];
-            //$form['panes']['billing']['billing_first_name']='first name';
-            //echo '<pre>', print_r($form['panes']['customer']['primary_email']),'</    pre>';
+	    if (isset($_SESSION['member_registration']['new_member']['uid'])){
+		$uid = $_SESSION['member_registration']['new_member']['uid'];
+		$new_user_account = user_load($uid);
+		//print_r($_SESSION);
+		$fn = $form['panes']['billing']['address']['#default_value'];
+		$form['panes']['customer']['primary_email']['#default_value']=$new_user_account->mail;
+		$fn->billing_first_name = $new_user_account->first_name;
+		$fn->billing_last_name=$new_user_account->last_name;
+            
+	    }
         }
 }
 /**

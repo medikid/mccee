@@ -1,0 +1,6 @@
+name = LottoKeno
+description = Lotto Keno module
+package = Lotto
+core = 7.x
+files[] = lotto_keno.module
+files[] = lotto_keno.install

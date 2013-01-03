@@ -1,0 +1,34 @@
+<?php
+
+
+/*
+ * implements hook_enable
+ */
+function lotto_stats_enable(){
+    
+}
+
+/*
+ * implements hook_disable
+ */
+function lotto_stats_disable(){
+  
+}
+
+/**
+ * Implements hook_install().
+ */
+function lotto_stats_install() {
+  
+    //drupal_install_schema('mt_core');  
+   
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lotto_stats_uninstall() {
+    //drupal_uninstall_schema('mt_core');
+    
+}
+?>

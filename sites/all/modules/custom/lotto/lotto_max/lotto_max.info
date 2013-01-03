@@ -1,0 +1,6 @@
+name = LottoMax
+description = Lotto Max module
+package = Lotto
+core = 7.x
+files[] = lotto_max.module
+files[] = lotto_max.install

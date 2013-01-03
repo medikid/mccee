@@ -1,0 +1,1 @@
+<?php $IEM = $tpl->Get('IEM'); ?><input class="SmallButton" type="button" style="width: 150px;" onclick="window.location.href='<?php echo $tpl->Get('AdminUrl'); ?>&Action=create';" value="<?php echo GetLang('Addon_splittest_CreateButton'); ?>" name="AddSplitTestButton" id="AddSplitTestButton" />

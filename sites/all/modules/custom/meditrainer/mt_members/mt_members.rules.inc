@@ -52,15 +52,21 @@ function mt_members_rules_action_info() {
   return $actions;
 }
 
- function email_activate_granted_paid_role($order){
+ function email_activate_granted_paid_role($order){     
       $params = array('order'=>$order);
-      
-      $email_sent = drupal_mail('mt_message',
-				'email_activate_granted_paid_role',
-				$order->primary_email,
-				language_default(),
-				$params);
-  
+      $email_sent = mt_message_drupal_mail_wrapper('mt_message',
+				      'email_activate_granted_paid_role',
+				      $order->primary_email,
+				      language_default(),
+				      $params);
+    /*  customized to use newsletter if mt_iem module is enabled
+	    $email_sent = drupal_mail('mt_message',
+				      'email_activate_granted_paid_role',
+				      $order->primary_email,
+				      language_default(),
+				      $params);
+	    
+  */
       if(!$email_sent){
 	  return false;
       } else return true;
@@ -69,12 +75,21 @@ function mt_members_rules_action_info() {
   
    function email_activate_granted_free_role($user){
       $params = array('user'=>$user);
-      
-      $email_sent = drupal_mail('mt_message',
+      $email_sent = mt_message_drupal_mail_wrapper('mt_message',
 				'email_activate_granted_free_role',
 				$user->mail,
 				language_default(),
 				$params);
+      
+    /*customized to use newsletter if mt_iem module is enabled
+	    $email_sent = drupal_mail('mt_message',
+				'email_activate_granted_free_role',
+				$user->mail,
+				language_default(),
+				$params);
+     * 
+     */
+        
   
       if(!$email_sent){
 	  return false;

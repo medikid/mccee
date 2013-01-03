@@ -1,0 +1,1 @@
+<?php $IEM = $tpl->Get('IEM'); ?><option value="<?php if(isset($GLOBALS['ListID'])) print $GLOBALS['ListID']; ?>"<?php if(isset($GLOBALS['OtherProperties'])) print $GLOBALS['OtherProperties']; ?>><?php if(isset($GLOBALS['ListName'])) print $GLOBALS['ListName']; ?><?php if(isset($GLOBALS['ListSubscriberCount'])) print $GLOBALS['ListSubscriberCount']; ?></option>

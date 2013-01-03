@@ -1,0 +1,6 @@
+name = Interspire Email plugin
+description = Drupal plugin for Interspire Email Marketing
+package = MediTrainer
+core = 7.x
+files[] = mt_interspire_em.module
+dependencies[] = mt_message

@@ -19,6 +19,7 @@ function mt_members_user_load($users){
     $member_data = db_select('mt_members', 'm')->fields('m')->condition('uid', $account->uid)->execute()->fetchAssoc();
     
        $account->muid = $member_data['muid'];
+       $account->iem_subscriber_id = $member_data['iem_subscriber_id'];
 	$account->first_name = $member_data['first_name'];
 	$account->last_name = $member_data['last_name'];
 	$account->membership_type = $member_data['membership_type'];
@@ -71,10 +72,13 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
 		//echo "<pre>", print_r($_SESSION) , "</pre>";
 		return $form;
 	}
+	
 
 	//dsm($form['storage']);
 	//return $form;
   }
+ 
+
   
   function mt_members_setup_forms(&$form, &$form_state, $current_step){
   	switch($current_step){
@@ -151,11 +155,12 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
   	$new_user = create_new_user($form, $form_state);
   	
   	if($new_user){
-  	     
-        $membership_nid = get_nid_by_membership_type($membership_id);
-  	uc_cart_add_item($membership_nid,1,NULL,NULL,FALSE);
-  
-  	drupal_goto('cart/');
+  	     $_SESSION['member_registration']['new_member']['uid'] = $new_user->uid;
+	     
+	    $membership_nid = get_nid_by_membership_type($membership_id);
+	    uc_cart_add_item($membership_nid,1,NULL,NULL,FALSE);
+
+	    drupal_goto('cart/');
   	} else dsm('sorry, user not created');
   
   }
@@ -303,8 +308,13 @@ function mt_members_form_alter(&$form, &$form_state, &$form_id) {
   function get_member_creation_args(&$form, &$form_state){
       $new_member = new member();
   	$new_member->load_new_member_from_session();
-        
-       $member_creation_args = array(
+	    if (module_exists('mt_iem')){
+			    $IEM_MT_USERS_LIST_NAME = iem_settings_get('IEM_MT_USERS_LIST_NAME');
+			    $iem_subscriber_id = mt_iem_subscriber_add( $new_member->mail, $IEM_MT_USERS_LIST_NAME);
+			} else $iem_subscriber_id = 0;
+		    
+	    $member_creation_args = array(
+			'iem_subscriber_id' => $iem_subscriber_id,
                       'first_name' => $new_member->first_name,
                       'last_name'=> $new_member->last_name,
                       'membership_type'=>(int)$new_member->membership_type,

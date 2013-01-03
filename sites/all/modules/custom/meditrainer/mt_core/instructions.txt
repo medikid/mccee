@@ -1,0 +1,31 @@
+
+#############Installation###############
+
+
+#############Settings#####################
+@@update .htaccess in public_html folder
+
+Options -Indexes
+RewriteEngine on
+Options +FollowSymLinks
+RewriteCond %{HTTP_HOST} !^www\.meditrainer\.com$ [NC]
+RewriteRule .* http://www.meditrainer.com/	[L,R=301]
+RewriteRule ^$ meditrainer/index.php [L]
+RewriteCond %{DOCUMENT_ROOT}/meditrainer%{REQUEST_URI} -f
+RewriteRule .* meditrainer/$0 [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule .* meditrainer/index.php?q=$0 [QSA]
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Then in drupal/.htaccess, I disabled the mod_rewrite instructions by changing "<IfModule mod_rewrite.c>" to
+<IfModule XXXmod_rewrite.c>
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Finally, in drupal/sites/default/settings.php, I uncommented the line
+$base_url = 'http://www.mysite.com';
+
+
+##########################################

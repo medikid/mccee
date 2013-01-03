@@ -5,7 +5,8 @@ module_load_include('inc', 'mt_payments', 'mt_payments.rules');
  */
 function mt_payments_enable(){   
    // import_rule_activate_granted_role();
-   
+   //disable company field and move country field up in the order on the checkout form 
+   setup_uc_checkout_form();
   
   
 }

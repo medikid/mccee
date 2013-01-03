@@ -1,20 +1,30 @@
 <?php 
 
-class member{
-    
-    
-	public $new_member,
-		$uid,
-		$name,
-		$mail,
-		$pass,
-		$first_name,
-		$last_name,
-		$opt_newsletter,
-		$aspiring_exam_can,
-		$membership_category,
-		$membership_type,
-		$membership_role;
+class member{        
+		var $new_member;
+		var $uid;
+		var $name;
+		var $mail;
+		var $pass;		
+		var $membership_category;
+		var $membership_role;
+		var $muid;
+		var $iem_subscriber_id;
+		var $first_name;
+		var $last_name;
+		var $membership_type;
+		var $parked_user_reason = 0;
+		var $aspiring_exam_can = 0;
+		var $aspiring_exam_us = 0;
+		var $aspiring_exam_uk = 0;
+		var $aspiring_exam_au = 0;
+		var $reg_date;
+		var $reg_expiry;
+		var $opt_newsletter = 1;
+		var $acc_status = 1;
+		var $acc_susp = 0;
+		var $payment_status = 0;
+		var $payment_id = 0;
 	
 	public function set_member_var($source_var, &$target_var){
 		if (isset($source_var)){
@@ -45,10 +55,58 @@ class member{
 	
 	}
 	
+	public function create_user(){
+	    $account = new stdClass();
+	    $account->is_new = TRUE;
+	    $account->status = TRUE;
+	    
+	    $user_creation_args = array(
+	    'name' => $this->name,
+	    'pass' => (empty($this->pass) || !isset($this->pass)) ? user_password() : $this->pass,
+	    'mail' => $this->mail,
+	    'init' => $this->mail,
+	    'roles' => array(2=>'authenticated user')
+		);
+	
+	   $new_user = user_save($account, $user_creation_args);
+	   $this->uid = $new_user->uid;
+	}
+	
+    public function upgrade_to_member(){
+	    if ($this->uid > 1 ){
+		$member_creation_args = array(
+		    'muid'=>null,
+		    'uid'=>$this->uid,
+		    'iem_subscriber_id' => $this->iem_subscriber_id,
+                    'first_name' => $this->first_name,
+                    'last_name'=> $this->last_name,
+                    'membership_type'=>(int)$this->membership_type,
+		    'parked_user_reason'=>$this->parked_user_reason,
+		    'aspiring_exam_can'=>(int)$this->aspiring_exam_can,
+		    'aspiring_exam_us'=> (int)$this->aspiring_exam_us,
+		    'aspiring_exam_uk'=> (int)$this->aspiring_exam_uk,
+		    'aspiring_exam_au'=> (int)$this->aspiring_exam_au,
+                    'reg_date'=> REQUEST_TIME,
+                    'reg_expiry'=>set_membership_duration((int)$this->membership_type),
+		    'opt_newsletter'=>(int)$this->opt_newsletter,
+                    'account_status'=>(int)$this->account_status,
+		    'account_susp'=>(int)$this->account_susp,
+		    'payment_status'=>(int)$this->payment_status,
+		    'payment_id'=>(int)$this->payment_id
+		);
+		
+		$member_id = db_insert('mt_members')
+			    ->fields($member_creation_args)
+			    ->execute();
+		$this->muid = $member_id;
+	    }
+	}
+	
+	
 	public function load_new_member_from_session(){
 		if (isset($_SESSION['member_registration']['new_member'])){
 		$new_member=true;
-		$uid = 1;
+		$uid = 0;
 		
 		$this->set_member_var($_SESSION['member_registration']['new_member']['name'], $this->name );
 		$this->set_member_var($_SESSION['member_registration']['new_member']['mail'], $this->mail);
@@ -65,9 +123,10 @@ class member{
 	}
 	
 	public function load(){
-	     $member_data = db_select('mt_members', 'm')->fields('m')->condition('uid', $this->uid)->execute()->fetchAssoc();
+	    $member_data = db_select('mt_members', 'm')->fields('m')->condition('uid', $this->uid)->execute()->fetchAssoc();
 
 	    $this->muid = $member_data['muid'];
+	    $this->iem_subscriber_id = $member_data['iem_subscriber_id'];
 	     $this->first_name = $member_data['first_name'];
 	     $this->last_name = $member_data['last_name'];
 	     $this->membership_type = $member_data['membership_type'];
@@ -91,6 +150,7 @@ class member{
 	    $this->load();
 	    
 	    $user->muid = $this->muid ;
+	    $user->iem_subscriber_id = $this->iem_subscriber_id;
 	     $user->first_name = $this->first_name ;
 	     $user->last_name = $this->last_name ;
 	     $user->membership_type = $this->membership_type ;

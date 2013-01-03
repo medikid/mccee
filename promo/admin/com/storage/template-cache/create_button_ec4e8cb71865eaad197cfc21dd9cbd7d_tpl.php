@@ -1,0 +1,1 @@
+<?php $IEM = $tpl->Get('IEM'); ?><input class="SmallButton" type="button" style="width: 180px;" onclick="window.location.href='<?php echo $tpl->Get('AdminUrl'); ?>&Action=edit';" value="<?php echo GetLang('Addon_dynamiccontenttags_CreateTagButton'); ?>" name="CreateTagButton" id="CreateTagButton" />

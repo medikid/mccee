@@ -1,0 +1,6 @@
+name = Lotto
+description = Lotto
+package = Lotto
+core = 7.x
+files[] = lotto.module
+files[] = lotto.install

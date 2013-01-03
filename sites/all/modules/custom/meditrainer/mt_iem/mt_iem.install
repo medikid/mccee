@@ -1,0 +1,36 @@
+<?php
+
+module_load_include('inc', 'mt_iem','db_schema/db_schema_mt_newsletter');
+module_load_include('inc', 'mt_iem','db_schema/db_schema_mt_newsletter_log');
+
+function mt_iem_enable(){
+    db_upload_from_csv('mt_iem','mt_codelist', 'mt_codelist', array('code_id', 'code'));
+    module_load_include('inc', 'mt_iem','iem_settings' );
+    iem_settings_setup();
+    module_load_include('inc', 'mt_iem','mt_iem.setup_customfields' );
+    iem_list_customfield_install();
+}
+
+function mt_iem_disable(){    
+    module_load_include('inc', 'mt_iem','mt_iem.setup_customfields' );
+    iem_list_customfield_uninstall();
+    db_delete_from_csv('mt_iem','mt_codelist', 'mt_codelist', array('sub_cat','name','code'));
+}
+
+function mt_iem_install(){
+    
+}
+
+function mt_iem_uninstall(){
+    
+}
+/*
+ * implements hook_schema
+ */
+function mt_iem_schema(){
+    $schema=array();
+    get_schema_mt_newsletter($schema);
+    get_schema_mt_newsletter_log($schema);
+    return $schema;
+}
+?>

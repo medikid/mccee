@@ -1,0 +1,46 @@
+<?php
+
+
+/*
+ * implements hook_enable
+ */
+function lotto_enable(){
+    
+}
+
+/*
+ * implements hook_disable
+ */
+function lotto_disable(){
+  
+}
+
+/**
+ * Implements hook_install().
+ */
+function lotto_install() {
+  
+    //drupal_install_schema('mt_core');  
+   
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lotto_uninstall() {
+    //drupal_uninstall_schema('mt_core');
+    
+}
+
+
+/**
+ * Implements hook_schema().
+ */
+function lotto_schema() {
+    
+    $schema=array();
+    get_schema_lotto_codelist($schema);
+    get_schema_lotto_prize_table($schema);
+    return $schema;
+
+}

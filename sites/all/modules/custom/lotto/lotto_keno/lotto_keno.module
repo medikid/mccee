@@ -1,0 +1,95 @@
+<?php
+module_load_include('inc', 'lotto_keno', 'lotto_keno_admin_menu');
+module_load_include('inc', 'lotto_keno', 'lotto_keno_charts_form');
+module_load_include('inc', 'lotto_keno', 'lotto_keno_results_form');
+module_load_include('inc', 'lotto_keno', 'lotto_keno_results_analysis_form');
+module_load_include('inc', 'lotto_keno', 'lotto_keno_results_sync_form');
+module_load_include('inc', 'lotto_keno', 'lotto_keno_results_pattern_form');
+module_load_include('inc', 'lotto_keno', 'lotto_keno_bets_review_form');
+
+function lotto_keno_result_exists($keno_draw_number){
+    $exists = false;
+      $row_count = db_select('lotto_keno', 'lk')
+		->fields('lk', array('draw_number'))
+		->condition('draw_number', $keno_draw_number)
+		->range(0, 1)
+		->execute()
+		->rowCount();
+      if($row_count){
+	  $exists = true;
+      }
+      return $exists;
+}
+
+function lotto_keno_results_insert($keno_result_data){
+    if (lotto_keno_result_exists($keno_result_data['draw_number'])){
+	$inserted = false;
+    } else {    
+    $inserted = db_insert('lotto_keno')->fields($keno_result_data)->execute();
+    }
+    return $inserted;
+}
+
+function lotto_keno_results_load($range_start=1, $range_end=1){
+    if ($range_end == 1){
+	$range = 1;
+	$operator = ">";
+    } else {
+	$range = array($range_start, $range_end);
+	$operator = 'BETWEEN';
+    }
+    $query = db_select('lotto_keno', 'lk')
+			->fields('lk')
+			->condition('lkid', $range , $operator)
+			 ->execute();
+    $lotto_results = array();
+    while ($results = $query->fetchAssoc()){
+	array_push($lotto_results, $results);
+    }			 
+    return $lotto_results; 
+}
+
+function lotto_keno_result_load($keno_id){
+    $query = db_select('lotto_keno', 'lk')
+			->fields('lk')
+			->condition('lkid', $keno_id)
+			 ->execute();
+    $lotto_result = array();
+    while ($result = $query->fetchAssoc()){
+	array_push($lotto_result, $result);
+    }			 
+    return $lotto_result; 
+}
+function lotto_keno_stats_exists($stat_type, $result_id){
+    $exists = false;
+    lotto_stats_exists($lottery_name, $stat_type, $last_id);
+      $row_count = db_select('lotto_keno_stats', 'lks')
+		->fields('lks', array('last_id'))
+		->condition('last_id', $result_id)
+		->range(0, 1)
+		->execute()
+		->rowCount();
+      if($row_count){
+	  $exists = true;
+      }
+      return $exists;
+}
+function lotto_keno_stats_insert($keno_stats){
+    if (lotto_stats_exists('lotto_keno', $keno_stats['stat_type'], $keno_stats['last_id'])){
+	$inserted = false;
+    } else {
+    $inserted = db_insert('lotto_keno_stats')
+		->fields($keno_stats)
+		->execute();
+    }
+    return $inserted;
+}
+
+function lotto_keno_stats_load($keno_stats_id){
+    $query = db_select('lotto_keno_stats', 'lks')->fields('lks')->condition('lksid', $keno_stats_id)->execute();
+    $lotto_keno_stats = $query->fetchAssoc();
+    return $lotto_keno_stats;
+}
+
+
+?>

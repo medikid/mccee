@@ -1,0 +1,44 @@
+<?php
+
+
+/*
+ * implements hook_enable
+ */
+function lotto_patterns_enable(){
+    
+}
+
+/*
+ * implements hook_disable
+ */
+function lotto_patterns_disable(){
+  
+}
+
+/**
+ * Implements hook_install().
+ */
+function lotto_patterns_install() {
+  
+    //drupal_install_schema('mt_core');  
+   
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lotto_patterns_uninstall() {
+    //drupal_uninstall_schema('mt_core');
+    
+}
+/**
+ * Implements hook_schema().
+ */
+function lotto_patterns_schema() {
+    
+    $schema=array();
+    get_schema_lotto_patterns($schema);    
+    return $schema;
+
+}
+?>

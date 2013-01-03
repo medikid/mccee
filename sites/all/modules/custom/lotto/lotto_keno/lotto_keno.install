@@ -1,0 +1,47 @@
+<?php
+
+
+/*
+ * implements hook_enable
+ */
+function lotto_keno_enable(){
+    
+}
+
+/*
+ * implements hook_disable
+ */
+function lotto_keno_disable(){
+  
+}
+
+/**
+ * Implements hook_install().
+ */
+function lotto_keno_install() {
+  
+    //drupal_install_schema('mt_core');  
+   
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lotto_keno_uninstall() {
+    //drupal_uninstall_schema('mt_core');
+    
+}
+/**
+ * Implements hook_schema().
+ */
+function lotto_keno_schema() {
+    
+    $schema=array();
+    get_schema_lotto_keno($schema);
+    get_schema_lotto_keno_bets($schema);
+    get_schema_lotto_keno_stats($schema);
+    
+    return $schema;
+
+}
+?>

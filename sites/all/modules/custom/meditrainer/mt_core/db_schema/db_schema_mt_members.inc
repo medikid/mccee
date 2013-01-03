@@ -15,6 +15,11 @@ function get_schema_mt_members(&$schema){
       'type' => 'int',
       'not null' => TRUE,
     ),
+      'iem_subscriber_id' => array(
+      'description' => 'userid of IEM mailing system',
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
     'first_name' => array(
       'description' => 'First Name of member',
       'type' => 'text',

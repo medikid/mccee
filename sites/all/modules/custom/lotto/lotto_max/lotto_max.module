@@ -1,0 +1,61 @@
+<?php
+
+module_load_include('inc', 'lotto_max', 'lotto_max_admin_menu');
+module_load_include('inc', 'lotto_max', 'lotto_max_charts_form');
+module_load_include('inc', 'lotto_max', 'lotto_max_results_form');
+module_load_include('inc', 'lotto_max', 'lotto_max_results_analysis_form');
+
+
+function lotto_max_results_load($range_start=1, $range_end=1){
+    if ($range_end == 1){
+	$range = 1;
+	$operator = ">";
+    } else {
+	$range = array($range_start, $range_end);
+	$operator = 'BETWEEN';
+    }
+    $query = db_select('lotto_max', 'lm')
+			->fields('lm')
+			->condition('lmxid', $range , $operator)
+			->condition('draw_sequence', 0)
+			 ->execute();
+    
+    $lotto_results = array();
+    while($results = $query->fetchAssoc()){
+	array_push($lotto_results, $results);
+    }
+    return $lotto_results;  
+}
+
+function lotto_max_stats_exists($stat_type, $result_id){
+     $exists = false;
+      $row_count = db_select('lotto_keno_stats', 'lks')
+		->fields('lks', array('last_id'))
+		->condition('stat_type', $stat_type)
+		->condition('last_id', $result_id)
+		
+		->range(0, 1)
+		->execute()
+		->rowCount();
+      if($row_count){
+	  $exists = true;
+      }
+      return $exists;
+}
+
+function lotto_max_stats_insert($lotto_max_stats){
+    if (lotto_max_stats_exists($lotto_max_stats['stat_type'], $lotto_max_stats['last_id'])){
+	$inserted = false;
+    } else { 
+    $inserted = db_insert('lotto_max_stats')
+		->fields($lotto_max_stats)
+		->execute();
+    }
+    return $inserted;
+}
+
+function lotto_max_stats_load($lotto_max_stats_id){
+    $query = db_select('lotto_max_stats', 'lms')->fields('lms')->condition('lmxsid', $lotto_max_stats_id)->execute();
+    $lotto_max_stats = $query->fetchAssoc();
+    return $lotto_max_stats;
+}

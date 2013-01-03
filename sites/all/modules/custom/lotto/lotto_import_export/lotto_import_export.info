@@ -1,0 +1,6 @@
+name = Lotto Import/Export
+description = Lotto Import/Export module
+package = Lotto
+core = 7.x
+files[] = lotto_import_export.module
+files[] = lotto_import_export.install

@@ -1,4 +1,22 @@
 <?php
+
+function mt_message_drupal_mail_wrapper($module_name, $key, $email, $language, $params){
+    $email_sent = '';
+    if (module_exists('mt_iem')){
+	$email_sent = mt_iem_mail($module_name,
+				      $key,
+				      $email,
+				      $language,
+				      $params);
+    } else {
+	$email_sent = drupal_mail($module_name,
+				      $key,
+				      $email,
+				      $language,
+				      $params);
+    }
+    $email_sent;
+}
  
 /*
  * implements hook_mail

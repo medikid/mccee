@@ -1,0 +1,1 @@
+<?php $IEM = $tpl->Get('IEM'); ?><span class="LoginSuccess"><?php if(isset($GLOBALS['Success'])) print $GLOBALS['Success']; ?></span>

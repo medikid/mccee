@@ -1,0 +1,6 @@
+name = LottoStats
+description = Lotto Stats module
+package = Lotto
+core = 7.x
+files[] = lotto_stats.module
+files[] = lotto_stats.install

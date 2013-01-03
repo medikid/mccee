@@ -1,0 +1,1 @@
+<?php $IEM = $tpl->Get('IEM'); ?><a href="#TB_inline?a&height=420&width=500&inlineId=eventAddFormDiv" onclick="resetForm(<?php if(isset($GLOBALS['SubscriberID'])) print $GLOBALS['SubscriberID']; ?>,<?php if(isset($GLOBALS['eventid'])) print $GLOBALS['eventid']; ?>);" title="<?php print GetLang('EventEditTitle'); ?>" class="thickbox"><?php print GetLang('Edit'); ?></a>

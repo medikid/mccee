@@ -1,0 +1,12 @@
+; $Id
+name = Interspire Plugin
+description = E-mail Marketing Framework plugin for Interspire integration.
+core = 6.x
+package = E-mail Marketing Framework
+dependencies[] = emf
+; Information added by drupal.org packaging script on 2010-06-03
+version = "6.x-1.0"
+core = "6.x"
+project = "emf_interspire"
+datestamp = "1275574227"
+

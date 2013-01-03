@@ -1,0 +1,370 @@
+<?php
+
+module_load_include('inc', 'mt_interspire_em', 'iem_init');
+
+function mt_iem_api_load($api_name) {
+    //$api_name = Lists, User, Subscribers, CustomField,   
+    
+    $object = null;
+    
+    switch($api_name){
+	case 'User':
+	    include_once SENDSTUDIO_FUNCTION_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new User_API();
+	    break;
+	case 'Lists':
+	    include_once SENDSTUDIO_FUNCTION_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new Lists_API();
+	    break;
+	case 'Subscribers':
+	    include_once SENDSTUDIO_FUNCTION_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new Subscribers_API();
+	    break;
+	case 'CustomFields':
+	    include_once SENDSTUDIO_FUNCTION_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new CustomFields_API();
+	    break;
+	case 'Jobs':
+	    include_once SENDSTUDIO_FUNCTION_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new Jobs_API();
+	    break;
+	case 'Newsletters':
+	    include_once SENDSTUDIO_FUNCTION_DIRECTORY.'/'.strtolower($api_name).'.php';
+	    $object = new Newsletters_API();
+	    break;
+	default:
+	    $object = new API();
+	    break;
+    }    
+    
+    return $object;
+}
+
+function mt_iem_api_unload($api_name){
+    unset($api_name);
+}
+
+/*
+ * Creates IEM User to operate contact list
+ */
+function mt_iem_user_create($username, $password, $email, $fullname, $isSystemAdmin = true) {
+    //mt_iem_api_load('iem_user');
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_USER = mt_iem_api_load('User');
+    
+    $IEM_API_USER->username = $username;
+    $IEM_API_USER->password = $password;
+
+
+    $IEM_API_USER->fullname = $fullname;
+    $IEM_API_USER->emailaddress = $email;
+
+    $IEM_API_USER->groupid = 1;
+    $IEM_API_USER->usertimezone = 'GMT-8:00';
+    $IEM_API_USER->status = true;
+
+    $IEM_API_USER->systemadmin = $isSystemAdmin;
+    $IEM_API_USER->admintype = "a";
+    $user_id = $IEM_API_USER->Create();
+    
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_USER);
+    
+    return $user_id;
+}
+
+/*
+ * Find IEM User by Username
+ */
+function mt_iem_user_find($username) {
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_USER = mt_iem_api_load('User');
+    
+    $user_id = $IEM_API_USER->Find($username);
+    
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_USER);
+    return $user_id;
+}
+
+/*
+ * Delete IEM User by Username
+ */
+function mt_iem_user_delete($username) {
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_USER = mt_iem_api_load('User');
+    
+    $user_id = $IEM_API_USER->Find($username);
+    $user_deleted = $IEM_API_USER->Delete($user_id);
+    
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_USER);
+    return $user_deleted;
+}
+
+/*
+ * Create IEM Contact List
+ */
+function mt_iem_list_create($list_name, $owner_name, $custom_fields = array(), $notify_owner = false, $reply_to_email = "") {
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_USER = mt_iem_api_load('User');
+    
+    $owner_id = $IEM_API_USER->Find($owner_name);
+    $IEM_API_USER->Load($owner_id);
+    
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_LIST = mt_iem_api_load('Lists');
+
+    $IEM_API_LIST->name = $list_name;
+    $IEM_API_LIST->ownername = $IEM_API_USER->fullname;
+    $IEM_API_LIST->owneremail = $IEM_API_USER->emailaddress;
+    $IEM_API_LIST->replytoemail = $IEM_API_USER->emailaddress;
+    $IEM_API_LIST->bounceemail = $IEM_API_USER->emailaddress;
+
+    $IEM_API_LIST->customfields = $custom_fields;
+
+    $IEM_API_LIST->notifyowner = $notify_owner;
+
+    $list_id = $IEM_API_LIST->Create();
+    
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_USER);
+    mt_iem_api_unload($IEM_API_LIST);
+    return $list_id;
+}
+
+/*
+ * Find IEM Contact List by List Name. Return List ID
+ */
+function mt_iem_list_find($list_name) {
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_LIST = mt_iem_api_load('Lists');
+    $list_id = $IEM_API_LIST->Find($list_name);
+    
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_LIST);
+    return $list_id;
+}
+
+function mt_iem_subscriber_add($email, $list_name, $is_confirmed = true, $email_format = 'h') {
+    $list_id = mt_iem_list_find($list_name);
+
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_LIST = mt_iem_api_load('Lists');
+    $list_id = $IEM_API_LIST ->Find($list_name);
+    
+    $IEM_API_SUBSCRIBER = mt_iem_api_load('Subscribers');
+    $IEM_API_SUBSCRIBER->confirmed = $is_confirmed;
+    $IEM_API_SUBSCRIBER->format = $email_format;
+    
+    $subscriber_id = $IEM_API_SUBSCRIBER->AddToList($email, $list_id );
+    
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_LIST);
+    mt_iem_api_unload($IEM_API_SUBSCRIBER);
+    return $subscriber_id;
+}
+
+function mt_iem_subscriber_find($email, $list_name) {
+    $list_id = mt_iem_list_find($list_name);
+
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_SUBSCRIBER = mt_iem_api_load('Subscribers');
+    $subscriber_id = $IEM_API_SUBSCRIBER->IsSubscriberOnList($emailaddress, array($list_id));
+    
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_SUBSCRIBER);
+    return $subscriber_id;
+}
+
+function mt_iem_subscriber_isOnList($email, $list_name) {
+    $list_id = mt_iem_list_find($list_name);
+
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_SUBSCRIBER = mt_iem_api_load('Subscribers');
+
+    if ($IEM_API_SUBSCRIBER->IsSubscriberOnList($emailaddress, array($list_id))) {
+	//mt_iem_api_unload($IEM_API);
+	mt_iem_api_unload($IEM_API_SUBSCRIBER);
+	return true;
+    } else
+	//mt_iem_api_unload($IEM_API);	
+	mt_iem_api_unload($IEM_API_SUBSCRIBER);
+	return false;
+}
+
+function mt_iem_customfield_add($field_name, $field_type, $list_name_associations = array(), $owner_name = 'Admin') {
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_CUSTOMFIELD = mt_iem_api_load('CustomFields');
+
+    $IEM_API_CUSTOMFIELD->Settings = array('FieldName' => $field_name);
+    $IEM_API_CUSTOMFIELD->fieldtype = $field_type;
+    $IEM_API_CUSTOMFIELD->Associations = array();
+    foreach ($list_name_associations as $list_name) {
+	array_push($IEM_API_CUSTOMFIELD->Associations, mt_iem_list_find($list_name));
+    }
+    $IEM_API_CUSTOMFIELD->ownerid = mt_iem_user_find($owner_name);
+    $IEM_API_CUSTOMFIELD->isglobal = 1;
+
+    $field_id = $IEM_API_CUSTOMFIELD->Create();
+    
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_CUSTOMFIELD);
+    return $field_id;
+}
+
+function mt_iem_customfield_load($field_name) {
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_CUSTOMFIELD = mt_iem_api_load('CustomFields');
+    $field_id = $IEM_API_CUSTOMFIELD->Find($field_name);
+    
+    //mt_iem_api_unload($IEM_API);
+    return $IEM_API_CUSTOMFIELD->Load($field_id);
+}
+
+function mt_iem_customfield_find($field_name) {    
+    $query = iem_db_query_construct_select('', array('customfields'), array(array('name', $field_name)));
+    if ($result == iem_db_query($query)) {
+	$result_array = iem_db_query_fetch($result);
+	$field_id = $result_array['fieldid'];
+    } else {
+	$field_id = 0;
+    }
+
+    return $field_id;
+}
+
+function mt_iem_customfield_delete($field_name) {
+    $field_id = mt_iem_customfield_find($field_name);
+    
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_CUSTOMFIELD = mt_iem_api_load('CustomFields');
+    $deleted = $IEM_API_CUSTOMFIELD->Delete($field_id);
+    
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_CUSTOMFIELD);
+    return $deleted;
+}
+
+function mt_iem_customfield_association_set($field_name, $list_name) {
+    $list_id = mt_iem_list_find($list_name);
+    
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_CUSTOMFIELD = mt_iem_api_load('CustomFields');
+    
+    $IEM_API_CUSTOMFIELD->Load($field_name);
+    
+   if( !in_array($list_id, $IEM_API_CUSTOMFIELD['Associations'])){
+       array_push($IEM_API_CUSTOMFIELD['Associations'], $list_id);
+   }
+   
+   $saved = $IEM_API_CUSTOMFIELD->Save();
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_CUSTOMFIELD);
+    return $saved;
+}
+
+function mt_iem_customfield_association_unset($field_name, $list_name) {
+    $list_id = mt_iem_list_find($list_name);
+    
+    //$IEM_API = new SendStudio_Functions();
+    $IEM_API_CUSTOMFIELD = mt_iem_api_load('CustomFields');
+    
+    $IEM_API_CUSTOMFIELD->Load($field_name);
+    
+   if(in_array($list_id, $IEM_API_CUSTOMFIELD['Associations'])){
+       $key = array_search($list_id, $IEM_API_CUSTOMFIELD['Associations']);
+       unset($IEM_API_CUSTOMFIELD['Associations'][$key]);
+       
+       //reorder keys
+       array_values($IEM_API_CUSTOMFIELD['Associations'][$key]);
+   }
+   
+  $saved = $IEM_API_CUSTOMFIELD->Save();   
+  
+    //mt_iem_api_unload($IEM_API);
+    mt_iem_api_unload($IEM_API_CUSTOMFIELD);
+  return $saved;
+}
+
+function mt_iem_job_create(){
+    
+}
+
+
+function mt_iem_job_process(){
+    
+}
+
+function mt_iem_job_finish(){
+    
+}
+function mt_iem_job_delete(){
+    
+}
+
+function mt_iem_job_send(){
+    
+}
+
+function mt_iem_job_resend(){
+    
+}
+
+function iem_db_query_construct_select($select='', $from, $where=''){
+    $query = "";
+    
+    if ( !is_array($select) || $select == ''){
+	$query .= " SELECT * ";
+    } else {
+	$query .= " SELECT ";
+	foreach ($select as $value){
+	    $query .= "`".$value."`, ";
+	}
+    }
+    
+    if (is_array($from)){
+	$query .= " FROM ";
+	foreach ($from as $value){
+	    $query .= "".SENDSTUDIO_TABLEPREFIX .$value." ";
+	}
+    }
+    
+    if ( !is_array($where) || $where == ''){
+	$query .= " ";
+    } else {
+	$query .= " WHERE ";
+	foreach ($where as $condition){
+	    $key = $condition[0];
+	    $value = $condition[1];
+	    if (isset($condition[2]) || isset($condition[3])){
+	    $operator = $condition[2];
+	    $and_or = ($condition[3] == null) ? "": $condition[3] ;
+	    } else {
+		$operator = "=";
+		$and_or = "";
+	    }
+	   
+	    $query .= "".$key."";
+	    $query .= "$operator";
+	    $query .= "".$value." ";
+	    $query .= "".$and_or." ";
+	}
+    }
+    
+    return $query;
+}
+
+function iem_db_query_query($query){
+    $IEM_API = mt_iem_api_load('API');
+    $result = $IEM_API->Db->Query($query);
+    mt_iem_api_unload($IEM_API);
+    return $result;
+}
+
+function iem_db_query_fetch($result){
+   $IEM_API = mt_iem_api_load('API');
+  $result_array =  $IEM_API->Db->Fetch($result);
+  mt_iem_api_unload($IEM_API);
+  return $result_array;
+}

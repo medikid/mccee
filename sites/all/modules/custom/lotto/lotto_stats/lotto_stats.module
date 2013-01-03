@@ -1,0 +1,815 @@
+<?php
+
+function db_update_stats($lottory_name, $stat_type, $data=array()){
+    switch ($lottery_name){
+	case 'lotto_max':
+	    switch($stat_type){
+	    case 'each_number_frequency':
+		break;
+	    }
+	    break;
+    }
+}
+function lotto_stats_exists($lottery_name, $stat_type, $last_id){
+     $exists = false;
+    switch ($lottery_name){
+	case 'lotto_max':
+	    $row_count = db_select('lotto_max_stats', 'lmxs')
+		      ->fields('lmxs', array('last_id'))
+		      ->condition('stat_type', $stat_type)		
+		      ->condition('last_id', $last_id)
+		      ->range(0, 1)
+		      ->execute()
+		      ->rowCount();
+	    if($row_count){
+		$exists = true;
+	    }     
+		  break;
+	case 'lotto_keno': 
+	    $row_count = db_select('lotto_keno_stats', 'lks')
+		      ->fields('lks', array('last_id'))
+		      ->condition('stat_type', $stat_type)		
+		      ->condition('last_id', $last_id)
+		      ->range(0, 1)
+		      ->execute()
+		      ->rowCount();
+	    if($row_count){
+		$exists = true;
+	    }     
+		  break;
+	    		
+	  }
+     return $exists;
+}
+function get_stats_config($lottery_name, $stat_type){    
+    $stats_config = array(
+	'last_updated' => time(),
+	'last_id'=> 0
+	);
+    $stat_type_codelist = lotto_codelist_code_load('stat_type');
+    $stats_config['stat_type' ] = $stat_type_codelist[$stat_type]['code'];
+    
+    switch ($lottery_name){
+	case 'lotto_max':	    
+	    $stats_config['lmxsid'] = null;
+	    ammend_stats_number_array('s', 49, $stats_config);	    
+	    break;
+	case 'lotto_keno':	    
+	    $stats_config['lksid'] = null;
+	    ammend_stats_number_array('s', 80, $stats_config);
+	    break;
+    }  
+    
+    
+    return $stats_config;
+}
+
+function ammend_stats_number_array($prefix, $total_numbers, &$stats_num_array=array()){
+    $i = 1;
+    while ($i <= $total_numbers ){
+	$stats_num_array[$prefix.$i] = null;
+	$i++;
+    }
+    return $stats_num_array;
+}
+
+function update_stats_number_frequency($lottery_name, $lottery_result_data, &$stats_num_array){
+    switch($lottery_name){
+	case 'lotto_max':
+	    foreach($lottery_result_data as $i=>$value){
+		if ($value > 0){
+		    $stats_num_array['s'.$value] = $stats_num_array['s'.$value] + 1;
+		}
+	    }
+	    break;
+	case 'lotto_keno':
+		foreach($lottery_result_data as $i=>$value){
+		if ($value > 0){
+		    $stats_num_array['s'.$value] = $stats_num_array['s'.$value] + 1;
+		}
+	    }
+	    break;
+    }
+}
+
+function lotto_max_each_number_frequency($range_start=1, $range_end=1){
+    $lotto_max_results = lotto_max_results_load($range_start, $range_end);
+    
+    $stats = get_stats_config('lotto_max', 'each_number_frequency');
+    
+    foreach($lotto_max_results as $lotto_results ){
+	$stats['last_id'] = $lotto_results['lmxid'];
+	    $result_data = array(
+		$lotto_results['n1'],
+		$lotto_results['n2'],
+		$lotto_results['n3'],
+		$lotto_results['n4'],
+		$lotto_results['n5'],
+		$lotto_results['n6'],
+		$lotto_results['n7'],
+		$lotto_results['bn'],
+	    );
+	    
+    update_stats_frequency('lotto_max', $result_data, $stats);    
+    
+    }
+    return $stats;
+}
+
+function lotto_stats_each_number_frequency($lottery_name, $range_start=1, $range_end=1){
+    switch($lottery_name){
+	case 'lotto_max':
+	    $lotto_max_results = lotto_max_results_load($range_start, $range_end);
+    
+	    $stats = get_stats_config($lottery_name, 'each_number_frequency');
+
+	    foreach($lotto_max_results as $lotto_result ){
+		$stats['last_id'] = $lotto_result['lmxid'];
+		    $result_data = array(
+			$lotto_result['n1'],
+			$lotto_result['n2'],		
+			$lotto_result['n3'],
+			$lotto_result['n4'],
+			$lotto_result['n5'],
+			$lotto_result['n6'],
+			$lotto_result['n7'],
+			$lotto_result['bn'],
+		    );
+
+	    update_stats_number_frequency($lottery_name, $result_data, $stats);   
+	    }
+	    lotto_max_stats_insert($stats);
+	    break;
+	case 'lotto_keno':
+	    $lotto_keno_results = lotto_keno_results_load($range_start, $range_end);
+    
+	    $stats = get_stats_config($lottery_name, 'each_number_frequency');
+
+	    foreach($lotto_keno_results as $lotto_result ){
+		$stats['last_id'] = $lotto_result['lmxid'];
+		    $result_data = array(
+			$lotto_result['n1'],
+			$lotto_result['n2'],
+			$lotto_result['n3'],
+			$lotto_result['n4'],
+			$lotto_result['n5'],
+			$lotto_result['n6'],
+			$lotto_result['n7'],
+			$lotto_result['n8'],
+			$lotto_result['n9'],
+			$lotto_result['n10'],
+			$lotto_result['n11'],
+			$lotto_result['n12'],
+			$lotto_result['n13'],
+			$lotto_result['n14'],
+			$lotto_result['n15'],
+			$lotto_result['n16'],
+			$lotto_result['n17'],
+			$lotto_result['n18'],
+			$lotto_result['n19'],
+			$lotto_result['n20']
+		    );
+
+	    update_stats_number_frequency($lottery_name, $result_data, $stats);   
+	    }
+	    lotto_keno_stats_insert($stats);
+	    break;
+    }
+}
+
+function lotto_stats_each_draw_skipped($lottery_name, $range_start=1, $range_end=1){
+    $stat_type_name = 'each_draw_skipped';
+    switch($lottery_name){
+	case 'lotto_max':
+	    $stats = get_stats_config($lottery_name, $stat_type_name);
+	    
+	    if($range_start == 1 || $range_end == 1){
+		    $stat_type_codes = lotto_codelist_code_load('stat_type');	    
+		    $last_stats = lotto_stats_last_stat_available($lottery_name, $stat_type_codes[$stat_type_name]);
+		    $last_results = lotto_last_result_available($lottery_name);
+
+		    $range_start = $last_stats['last_id'];
+		    $range_end = $last_results['lmxid'];
+	    }
+	    
+	    $lotto_max_results = lotto_max_results_load($range_start, $range_end);
+	    foreach($lotto_max_results as $lotto_result){
+		$stats['last_id'] = $lotto_result['lmxid'];
+		$stats['draw_sequence'] = $lotto_result['draw_sequence'];
+	    $current_draw = array(
+		$lotto_result['n1'],
+		$lotto_result['n2'],
+		$lotto_result['n3'],
+		$lotto_result['n4'],
+		$lotto_result['n5'],
+		$lotto_result['n6'],
+		$lotto_result['n7'],		
+		$lotto_result['bn']
+		);
+		stats_frequency_increment($lottery_name, $stats);
+		update_stats_skipped($current_draw, $stats);
+		
+		lotto_max_stats_insert($stats);
+	    }
+	    break;
+	case 'lotto_keno':
+	    $stat_type_name = 'each_draw_skipped';
+	    $stats = get_stats_config($lottery_name, $stat_type_name );
+	    
+	    if($range_start == 1 || $range_end == 1){
+	    $stat_type_codes = lotto_codelist_code_load('stat_type');	    
+	    $last_stats = lotto_stats_last_stat_available($lottery_name, $stat_type_codes[$stat_type_name]);
+	    $last_results = lotto_last_result_available($lottery_name);
+	    
+	    $range_start = $last_stats['last_id'];
+	    $range_end = $last_results['lkid'];
+	    }
+	    $lotto_keno_results = lotto_keno_results_load($range_start, $range_end);
+	    foreach($lotto_keno_results as $lotto_result){
+		$stats['last_id'] = $lotto_result['lkid'];
+		$current_draw = array(
+		    $lotto_result['n1'],
+		    $lotto_result['n2'],
+		    $lotto_result['n3'],
+		    $lotto_result['n4'],
+		    $lotto_result['n5'],
+		    $lotto_result['n6'],
+		    $lotto_result['n7'],
+		    $lotto_result['n8'],
+		    $lotto_result['n9'],
+		    $lotto_result['n10'],
+		    $lotto_result['n11'],
+		    $lotto_result['n12'],
+		    $lotto_result['n13'],
+		    $lotto_result['n14'],
+		    $lotto_result['n15'],
+		    $lotto_result['n16'],
+		    $lotto_result['n17'],
+		    $lotto_result['n18'],
+		    $lotto_result['n19'],
+		    $lotto_result['n20']
+		    );
+		stats_frequency_increment($lottery_name, $stats);
+		update_stats_skipped($current_draw, $stats);
+		
+		lotto_keno_stats_insert($stats);
+	    }
+	    break;
+    }
+}
+
+function update_stats_skipped($current_draw, &$stats_num_array){
+    foreach($current_draw as $num ){
+	if ($num > 0){
+	    $stats_num_array['s'.$num] = 0;
+	}
+    }
+}
+
+function stats_frequency_increment($lottery_name, &$stats_num_array, $increment_by=1){
+    switch($lottery_name){
+	case 'lotto_max':
+	    $i=1;
+	    $x=49;
+	    
+	    while ($i <= $x){
+		$stats_num_array['s'.$i] = $stats_num_array['s'.$i] + $increment_by;
+		$i++;
+	    }
+	    break;
+	case 'lotto_keno':
+		$i=1;
+		$x=80;
+		while ($i <= $x){
+		$stats_num_array['s'.$i] = $stats_num_array['s'.$i] + $increment_by;
+		$i++;
+	    }
+	break;
+    }
+}
+
+function stats_each_draw_frequency(){
+    $q = db_select('lotto_max', 'lm')->fields('lm')->condition('draw_number', '167', ">=")->execute();
+
+    while( $r = $q->fetchAssoc() ){
+	    $data = array(
+	    'lmxsid'=>null,
+	    'stat_type'=>1,
+	    'last_updated'=>time(),
+	    'last_id'=> $r['draw_number']
+    );
+	    $x=1; 
+	while ($x <50){
+	 $data['s'.$x] = 0; 
+	}
+	$data['s'.$r['n1']] = 1;
+	$data['s'.$r['n2']] = 1;
+	$data['s'.$r['n3']] = 1;
+	$data['s'.$r['n4']] = 1;
+	$data['s'.$r['n5']] = 1;
+	$data['s'.$r['n6']] = 1;
+	$data['s'.$r['n7'] ] = 1;
+	if ($r['bn'] > 0){
+	$data['s'.$r['bn']] = 1;
+	}
+	$insert = db_insert('lotto_max_stats')->fields($data)->execute();
+	}
+}
+
+
+ 
+function getCombinationOutput( $input_array, $select, $output )
+{
+    $_number = sizeof($input_array);
+
+    if ( !($_fp = fopen( $output, "a") ) ) 
+    {   
+        echo "can't open file!\n\r";
+
+        return 0;
+    }   
+
+    $_array = array();
+
+    for ( $_i=0; $_i<$select; $_i++ )
+    {
+        $_array[$_i] = $_i + 1;
+    }
+
+    while (1)
+    {
+        $_temp = array();
+
+        for ( $_i = 0; $_i < $select; $_i++ )
+        {
+            $_index = $_array[$_i];
+
+            fwrite ( $_fp, $input_array[$_index -1]."\n\r" );
+        }
+
+        fwrite ( $_fp, "\n\r" );
+
+        // generate next combination in lexicographical order
+        // start at last item
+        $_i = $select - 1;
+
+        // find next item to increment
+        while ( $_array[$_i] == ( $_number - $select + $_i + 1 ) )
+        {
+            $_i--;
+        }
+
+        // all done
+        if ( $_i < 0 )
+        {
+            break;
+        }
+
+        // increment
+        $_array[$_i] = $_array[$_i] + 1;
+        // do next
+        for ( $_j = $_i + 1; $_j < $select; $_j++ )
+        {
+            $_array[$_j] = $_array[$_i] + $_j - $_i;
+        }
+    }
+
+    fclose ( $_fp );
+
+    return $_fp;
+}
+
+function get_combs( $input_array, $select )
+{
+    $_number = sizeof($input_array);
+    $combs = array();
+
+    $_array = array();
+
+    for ( $_i=0; $_i<$select; $_i++ )
+    {
+        $_array[$_i] = $_i + 1;
+    }
+
+    while (1)
+    {
+        $_temp = array();
+
+        for ( $_i = 0; $_i < $select; $_i++ )
+        {	    
+            $_index = $_array[$_i];
+
+            $comb .= $input_array[$_index -1];
+        }
+
+        array_push($combs, $comb);
+	$comb="";
+
+        // generate next combination in lexicographical order
+        // start at last item
+        $_i = $select - 1;
+
+        // find next item to increment
+        while ( $_array[$_i] == ( $_number - $select + $_i + 1 ) )
+        {
+            $_i--;
+        }
+
+        // all done
+        if ( $_i < 0 )
+        {
+            break;
+        }
+
+        // increment
+        $_array[$_i] = $_array[$_i] + 1;
+        // do next
+        for ( $_j = $_i + 1; $_j < $select; $_j++ )
+        {
+            $_array[$_j] = $_array[$_i] + $_j - $_i;
+        }
+    }
+ 
+
+    return $combs;
+}
+
+function upload_combs($input_array, $select ){
+    $_number = sizeof($input_array);
+
+    $_array = array();
+
+    for ( $_i=0; $_i<$select; $_i++ )
+    {
+        $_array[$_i] = $_i + 1;
+    }
+
+    while (1)
+    {
+
+        for ( $_i = 0; $_i < $select; $_i++ )
+        {    
+            $_index = $_array[$_i];
+            array_push($comb, $input_array[$_index -1]);
+        }
+
+        //array_push($combs, $comb);
+	db_upload_keno_bet($comb, 1);
+	$comb=array(); //reset comb
+
+        // generate next combination in lexicographical order
+        // start at last item
+        $_i = $select - 1;
+
+        // find next item to increment
+        while ( $_array[$_i] == ( $_number - $select + $_i + 1 ) )
+        {
+            $_i--;
+        }
+
+        // all done
+        if ( $_i < 0 )
+        {
+            break;
+        }
+
+        // increment
+        $_array[$_i] = $_array[$_i] + 1;
+        // do next
+        for ( $_j = $_i + 1; $_j < $select; $_j++ )
+        {
+            $_array[$_j] = $_array[$_i] + $_j - $_i;
+        }
+    }
+ 
+}
+
+function create_combo_feed($num){
+   $feed = array();
+   $i=31;
+   while($i <= $num){
+       array_push($feed, $i);
+       $i++;
+   }
+   return $feed;
+}
+
+function db_upload_keno_bet($bets, $play_id){
+    $bet = array( 'lkbid'=>null, 'play_id'=>$play_id, 'included'=>1 );
+    foreach( $bets as $i=>$b){
+	$x=$i+1;
+	$bet['b'.$x] = $b;
+    }
+    $upload = db_insert('lotto_keno_bets')->fields($bet)->execute();
+    return $upload;
+}
+
+function get_latest_results($lottery_name, $number_of_results){
+    $last_results = array();
+    switch($lottery_name){
+	case 'lotto_max':
+		  $query = db_select('lotto_max', 'lm')
+		    ->fields('lm')
+		    ->orderBy('lmxid', 'DESC')
+		    ->range(0, $number_of_results)
+		    ->execute();
+	    while ($results = $query->fetchAssoc()){
+		array_push($last_results, $results);
+	    }
+	    break;
+	case 'lotto_keno':
+	    $query = db_select('lotto_keno', 'lk')
+		    ->fields('lk')
+		    ->orderBy('lkid', 'DESC')
+		    ->range(0, $number_of_results)
+		    ->execute();
+	    while ($results = $query->fetchAssoc()){
+		array_push($last_results, $results);
+	    }
+	    break;
+    }
+    return $last_results;
+}
+
+function lotto_number_skipped_analysis($lottery_name, $lottery_id){
+    switch($lottery_name){
+	case 'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $current_stats = lotto_stats_each_draw_skipped_load($lottery_name, $lottery_id);
+	    $previous_stats = lotto_stats_each_draw_skipped_load($lottery_name, $lottery_id - 1);
+	    $sum_last_100 = lotto_stats_skipped_sum($lottery_name, $lottery_id - 1, 20);
+	    $html = lotto_number_grid_skipped_analysis($lottery_name, $current_stats, $previous_stats, $sum_last_100, true, false);
+				
+	    break;
+    }
+    return $html;
+}
+
+function lotto_stats_each_draw_skipped_load($lottery_name, $lottery_stat_id){
+    $stat_type_codelists = lotto_codelist_code_load('stat_type');
+    $stats = array();
+    switch($lottery_name){
+	case 'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $stats = db_select('lotto_keno_stats', 'lks')
+				->fields('lks')
+				->condition('lksid', $lottery_stat_id)
+				->condition('stat_type', $stat_type_codelists['each_draw_skipped'] )
+				->execute()
+				->fetchAssoc();
+				
+	    break;
+    }
+    return $stats;
+}
+
+function lotto_stats_skipped_sum($lottery_name, $lottery_id, $number_of_draws){
+    $sum_results="";
+    switch($lottery_name){
+	case 'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $i=1; $x=80;
+	    $from_lottery_id = $lottery_id - $number_of_draws;
+	    $query = "SELECT ";
+	    while ($i <= 80){
+		$query .= " SUM(`s".$i."`) as `ss".$i."`, " ;
+		$i++;
+	    }
+	    $query = rtrim($query, ", ");  //remove last comma
+	    $query .= " FROM `lotto_keno_stats` WHERE `lksid` BETWEEN ".$from_lottery_id." AND ".$lottery_id." ";
+	    $dbquery = db_query($query);
+	    $sum_results = $dbquery->fetchAssoc();	    
+	break;
+    }
+    
+    return $sum_results;
+}
+
+function lotto_result_grid_analysis($lottery_name, $lottery_id){
+    switch($lottery_name){
+	case 'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $current_stats = lotto_stats_each_draw_skipped_load($lottery_name, $lottery_id);
+	    $previous_stats = lotto_stats_each_draw_skipped_load($lottery_name, $lottery_id - 1);
+	    $sum_last_100 = lotto_stats_skipped_sum($lottery_name, $lottery_id - 1, 20);
+	    $html = lotto_result_grid_create($lottery_name, $current_stats, $previous_stats);
+				
+	    break;
+    }
+    return $html;
+    
+}
+
+function lotto_skipped_grid_analysis($lottery_name, $lottery_id){
+    switch($lottery_name){
+	case 'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $current_stats = lotto_stats_each_draw_skipped_load($lottery_name, $lottery_id);
+	    $previous_stats = lotto_stats_each_draw_skipped_load($lottery_name, $lottery_id - 1);
+	    $sum_last_100 = lotto_stats_skipped_sum($lottery_name, $lottery_id - 1, 1000);
+	    $i = 1;    $z = 80;
+	    $current = array();	    $previous = array(); 	    $sum_last = array();
+	    while ($i <= $z) {
+		$current[$i] = $current_stats['s' . $i];
+		$previous[$i] = $previous_stats['s' . $i];
+		$sum_last[$i] = $sum_last_100['ss' . $i];
+		$i++;
+	    }
+	    asort($previous);
+	    $skipped_analysis = array();
+	    $x = "";
+	    foreach ($previous as $ind => $num) {
+		if ($x == $num) {
+		    $skipped_analysis[$x][$ind] = $sum_last[$ind];
+		} else {
+		    $x = $num;
+		    $skipped_analysis[$x] = array();
+		    $skipped_analysis[$x][$ind] = $sum_last[$ind];
+		}
+	    }
+	    $html = lotto_skipped_grid_create($skipped_analysis, $current);
+	    break;
+    }
+    return $html;
+}
+
+function lotto_skipped_grid_create($skipped_grid_data, $current_results){
+    $html = "<table class=\"skipped_grid\" ><tbody>";
+    $header = "<tr><th></th>";
+    $x=1; $z=20;
+    while ($x <= $z){
+	$header .= "<th>".$x."</th>";
+	$x++;
+    }
+    $header .= "</tr>";
+    $body = "";
+    $x=0; $z=20;
+    foreach($skipped_grid_data as $ind=>$data){
+	asort($data);
+	
+	if ($x==0){
+	   $body .= "<tr><th>"; 
+	   $body .= $ind;
+	   $body .= "</th>";
+	   $x++;
+	}
+	
+	foreach($data as $num=>$sum){
+	    $body .="<td";
+	    $body .= ($current_results[$num] == 0) ? " class=\"green\" >" : ">";
+	    $body .= $num." (".$sum.")";
+	    $body .= "</td>";
+	    $x++;
+	}
+	while ($x <= $z){
+	    $body .= "<td class=\"grey\"></td>";
+	    $x++;
+	}
+	$body .= "</tr>";
+	$x=0;
+    }
+    $html .=$header;
+    $html .=$body;
+    $html .="</tbody></table>";
+    return $html;
+}
+
+function lotto_frequency_grid_analysis(){
+    
+}
+
+function lotto_frequency_grid_analysis_create(){
+    
+}
+function lotto_stats_last_stat_available($lottery_name, $stat_type){
+    $last_stat='';
+    switch($lottery_name){
+	case 'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $last_stat = db_select('lotto_keno_stats', 'lks')
+			    ->fields('lks')
+			    ->condition('stat_type', $stat_type)
+			    ->orderBy('last_id', 'DESC')
+			    ->range(0, 1)
+			    ->execute()
+			    ->fetchAssoc();
+	    break;
+    }
+    return $last_stat;
+}
+
+function lotto_results_by_stat_id($lottery_name, $stat_id){
+    $results='';
+    switch($lottery_name){
+	case'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $query = db_select('lotto_keno', 'lk');
+	    $query->join('lotto_keno_stats', 'lks', 'lks.last_id = lk.lkid');
+	    $query->fields('lk')->condition('lksid', $stat_id);
+	      $results=$query->execute()->fetchAssoc();
+	    break;	    
+	}
+	return $results;
+}
+function lotto_stats_by_draw_number($lottery_name, $draw_number){
+    $stats='';
+    switch($lottery_name){
+	case'lotto_max':
+	    break;
+	case 'lotto_keno':
+	    $query = db_select('lotto_keno', 'lk');
+	    $query->join('lotto_keno_stats', 'lks', 'lks.last_id = lk.lkid');
+	    $query->fields('lks')->condition('draw_number', $draw_number);
+	    $stats=$query->execute()->fetchAssoc();
+	      break;
+    }
+    return $stats;
+}
+
+function lotto_stats_get_uptodate($lottery_name){
+    switch($lottery_name){
+	case'lotto_max':
+	    lotto_stats_each_draw_skipped($lottery_name);
+	    break;
+	case 'lotto_keno':
+	    lotto_stats_each_draw_skipped($lottery_name);
+	    break;
+    }
+}
+
+function lotto_bets_grid_create($lottery_name){
+    switch($lottery_name){
+	case'lotto_max':
+	    break;
+	case 'lotto_keno':
+		$html = "<table class=\"bets_grid\" ><tbody>";
+		$header = "<tr><th><input type='checkbox' name='select_all' value='1'></th>";
+		$x=1; $z=10;
+		while ($x <= $z){
+		    $header .= "<th>".$x."</th>";
+		    $x++;
+		}
+		$header .= "<th>Picks</th><th>Matches</th><th>Win</th>";
+		$header .= "</tr>";
+		
+		$query = db_select('lotto_keno_bets', 'lkb')
+				->fields('lkb')
+				->orderBy('lkbid', 'DESC')
+				//->orderBy('draw_number', 'DESC')
+				->range(0, 100)
+				->execute();
+		
+		$body = "";
+		while($bets = $query->fetchAssoc()){    
+		    
+		    $result_data = db_select('lotto_keno', 'lk')
+			    ->fields('lk')
+			    ->condition('draw_number', $bets['draw_number'])
+			    ->execute()
+			    ->fetchAssoc();
+		    
+		    $body .= "<tr><th><input type='checkbox' name='live_bets_flag' value='";
+		    $body .= $bets['draw_number']."' ";
+		    $body .= ($bets['live_bets_flag'] == 1) ? " Checked >" : " >";
+		    $body .= date("d M h:i", $result_data['draw_date'])."</th>";
+		    
+		    $x=1; $z=10;
+		    while ($x <= $z){
+			$body .= "<td";
+			if ($bets['b'.$x] == null){
+			    $body .= " class=\"black\" ></td>";
+			} else {
+			    $n=1; $m=20;
+			    while ($n <= $m){
+				if ( $result_data['n'.$n] == $bets['b'.$x] ){
+				    $body .= " class=\"green\" ";
+				}
+				$n++;
+			    }
+			    $body .= " >";
+			    $body .= $bets['b'.$x];
+			    $body .= "</td>";			    
+			    }
+			$x++;
+		    }
+		    $body .= "<td>".$bets['picks']."</td>";
+		    $body .= "<td>".$bets['matches']."</td>";
+		    $body .= "<td>".$bets['win']."</td>";
+		    $body .= "</tr>";
+		}
+		
+		$html .=$header;
+		$html .=$body;
+		$html .="</tbody></table>";
+	    break;
+    }
+    
+    return $html;
+}

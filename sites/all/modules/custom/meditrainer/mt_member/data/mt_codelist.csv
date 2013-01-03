@@ -1,0 +1,22 @@
+code_id,cat,sub_cat,name,sub_name,code,sub_code,code_dependency,sub_code_dependency,disabled,date_disabled
+NULL,MCQ,aspiring_exam,Select Exam,,0,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam,General,,1,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam,MCC (Canada),,2,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam,USMLE (USA),,3,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam,PLAB (UK),,4,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam,AMC (Australia),,5,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_can,Select MCC Step,,0,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_can,MCCEE (Canada Step 1),default,1,1,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_can,MCCQE1 (Canada Step 2),,2,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_can,MCCQE2 (Canada Step 3),,3,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_us,Select USMLE Step,,0,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_us,USMLE Step 1,,1,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_us,USMLE Step 2 CK,,2,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_us,USMLE Step 2 CS,,3,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_us,USMLE Step 3,,4,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_uk,Select PLAB part,,0,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_uk,PLAB 1,,1,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_uk,PLAB 2,,2,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_au,Select AMC Part,,0,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_au,AMC CAT MCQ exam,,1,,NULL,NULL,NULL,NULL
+NULL,MCQ,aspiring_exam_au,AMC Clinical exam,,2,,NULL,NULL,NULL,NULL

@@ -1,0 +1,34 @@
+<?php
+
+
+/*
+ * implements hook_enable
+ */
+function lotto_import_export_enable(){
+    
+}
+
+/*
+ * implements hook_disable
+ */
+function lotto_import_export_disable(){
+  
+}
+
+/**
+ * Implements hook_install().
+ */
+function lotto_import_export_install() {
+  
+    //drupal_install_schema('mt_core');  
+   
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function lotto_import_export_uninstall() {
+    //drupal_uninstall_schema('mt_core');
+    
+}
+?>

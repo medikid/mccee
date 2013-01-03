@@ -66,3 +66,17 @@
       
       return $user_role;
   }
+  
+function setup_uc_checkout_form(){
+     //move counyry field up
+    $checkout_billing_pane_weight = variable_get('uc_address_fields_weight');
+    $checkout_billing_pane_weight['country'] = $checkout_billing_pane_weight['company'];
+    variable_set('uc_address_fields_weight', $checkout_billing_pane_weight);
+    
+    //disable company field on the checkout form 
+    $checkout_billing_pane = variable_get('uc_address_fields');
+    if (array_key_exists('company', $checkout_billing_pane)){
+	unset($checkout_billing_pane['company']);
+	variable_set('uc_address_fields', $checkout_billing_pane);
+	}
+ }
